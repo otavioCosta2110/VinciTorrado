@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 	"math/rand"
-	"otaviocosta2110/ray/src/enemy"
-	"otaviocosta2110/ray/src/physics"
-	"otaviocosta2110/ray/src/player"
-	"otaviocosta2110/ray/src/points"
-	"otaviocosta2110/ray/src/screen"
+	"otaviocosta2110/getTheBlueBlocks/src/enemy"
+	"otaviocosta2110/getTheBlueBlocks/src/physics"
+	"otaviocosta2110/getTheBlueBlocks/src/player"
+	"otaviocosta2110/getTheBlueBlocks/src/points"
+	"otaviocosta2110/getTheBlueBlocks/src/screen"
 
 	"slices"
 

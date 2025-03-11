@@ -1,4 +1,4 @@
-module otaviocosta2110/ray
+module otaviocosta2110/getTheBlueBlocks
 
 go 1.24.1
 

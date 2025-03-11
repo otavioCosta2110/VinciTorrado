@@ -1,8 +1,8 @@
 package enemy
 
 import (
-	"otaviocosta2110/ray/src/physics"
-	"otaviocosta2110/ray/src/player"
+	"otaviocosta2110/getTheBlueBlocks/src/physics"
+	"otaviocosta2110/getTheBlueBlocks/src/player"
 )
 
 func MoveEnemyTowardPlayer(p player.Player, e Enemy) (Enemy){

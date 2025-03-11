@@ -1,7 +1,7 @@
 package player
 
 import (
-	"otaviocosta2110/ray/src/screen"
+	"otaviocosta2110/getTheBlueBlocks/src/screen"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
