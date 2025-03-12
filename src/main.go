@@ -8,30 +8,35 @@ import (
 	"otaviocosta2110/getTheBlueBlocks/src/player"
 	"otaviocosta2110/getTheBlueBlocks/src/points"
 	"otaviocosta2110/getTheBlueBlocks/src/screen"
-
+	"otaviocosta2110/getTheBlueBlocks/src/system"
 	"slices"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 const (
-	windowWidth  int32 = 1920
-	windowHeight int32 = 1080
-	squareSize   int32 = 20
+	windowWidth  int32 = 1280
+	windowHeight int32 = 720
 	obstacleSpeed int32 = 3 
+  playerScale int32 = 3
 )
-var GameOver bool = false
 
+var enemyArray []enemy.Enemy
 
 func main() {
-	screen := screen.NewScreen(windowWidth, windowHeight, "Raylib Go - Solid Object Collision")
-	rl.InitWindow(screen.Width, screen.Width, screen.Title)
+	screen := screen.NewScreen(windowWidth, windowHeight, "jogo poggers")
+	rl.InitWindow(screen.Width, screen.Height, screen.Title)
 	defer rl.CloseWindow()
 
 	rl.SetTargetFPS(60)
 
-	player := player.NewPlayer(900, 499, squareSize, squareSize, 0, 4)
-	enemy := enemy.NewEnemy(50, 80, obstacleSpeed, squareSize, squareSize)
+  playerSprite := rl.LoadTexture("assets/player.png")
+  print("\n\n\n",playerSprite.Width,"\n", playerSprite.Height, "\n")
+
+  enemySprite := rl.LoadTexture("assets/enemy.png")
+
+	player := player.NewPlayer(900, 499, 32, 32, 0, 4, playerScale, playerSprite)
+	enemy := enemy.NewEnemy(50, 80, obstacleSpeed, 32,32, playerScale, enemySprite)
 
   numberOfPoints := rand.Intn(14 - 3 + 1 ) + 3
   pointsObject := make([]points.Point, 0, numberOfPoints)
@@ -43,20 +48,21 @@ func main() {
 
 	for !rl.WindowShouldClose() {
 		update(player, enemy, pointsObject, screen)
-		draw(player, enemy, pointsObject)
+		draw(player, enemy, pointsObject, *screen)
 	}
 }
 
 func update(p *player.Player, e *enemy.Enemy, pointsObject []points.Point, screen *screen.Screen) {
-  if GameOver {
+  if system.GameOverFlag {
     return 
   }
 
 	prevX, prevY := p.X, p.Y
 
-	*p = p.CheckMovement(*screen)
+	p.CheckMovement(*screen)
+	p.CheckAtk()
 
-	*e = enemy.MoveEnemyTowardPlayer(*p, *e)
+	*e = enemy.MoveEnemyTowardPlayer(*p, *e, *screen)
 
   for i := range pointsObject {
     point := pointsObject[i]
@@ -67,32 +73,24 @@ func update(p *player.Player, e *enemy.Enemy, pointsObject []points.Point, scree
     }
   }
 
-	if physics.CheckCollision(p.X, prevY, e.X, e.Y, p.Width, p.Height) {
-    GameOver = true
+	if physics.CheckCollision(p.X, prevY, e.X, e.Y, p.Width*p.Scale/2, p.Height*p.Scale/2) {
+    system.GameOverFlag = true
 		p.X = prevX 
+    return
 	}
-	if physics.CheckCollision(prevX, p.Y, e.X, e.Y, p.Width, p.Height) {
-    GameOver = true
+	if physics.CheckCollision(prevX, p.Y, e.X, e.Y, p.Width * p.Scale/2, p.Height *p.Scale/2) {
+    system.GameOverFlag = true
 		p.Y = prevY
+    return
 	}
 }
 
-func gameOver() {
-	text := "Game Over"
-	textWidth := rl.MeasureText(text, 100)
-
-	xPos := (windowWidth - textWidth) / 2
-	yPos := windowHeight / 2 - 325
-
-	rl.DrawText(text, xPos, yPos, 100, rl.Black)
-}
-
-func draw(p *player.Player, e *enemy.Enemy, pointsObject []points.Point) {
+func draw(p *player.Player, e *enemy.Enemy, pointsObject []points.Point, s screen.Screen) {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.RayWhite)
 
-	if GameOver {
-		gameOver()
+	if system.GameOverFlag {
+		system.GameOver(&s)
 		rl.EndDrawing()
 		return
 	}
