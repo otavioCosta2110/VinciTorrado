@@ -42,8 +42,11 @@ func (player *Player) CheckMovement(screen screen.Screen) {
 }
 
 func (player *Player) CheckAtk(enemyX, enemyY, enemyWidth, enemyHeight int32) bool {
+  var isAttacking = false
 	if rl.IsKeyPressed(rl.KeyZ) {
-		player.UpdateAnimation(300, []int{0, 1}, []int{1, 1})
+    isAttacking = true
+
+		player.UpdateAnimation(50, []int{0, 1}, []int{1, 1})
 
 		punchX := player.X
 		punchY := player.Y
@@ -62,6 +65,9 @@ func (player *Player) CheckAtk(enemyX, enemyY, enemyWidth, enemyHeight int32) bo
 
 		return physics.CheckCollision(punchX, punchY, enemyX, enemyY, punchWidth, punchHeight)
 	}
+  if !isAttacking{
+    player.UpdateAnimation(300, []int{0}, []int{0})
+  }
 	return false
 }
 
@@ -82,9 +88,7 @@ func (p *Player) UpdateAnimation(animationDelay int, framesX, framesY []int) {
 			nextIndex := (currentIndex + 1) % len(framesX)
 			p.FrameX = int32(framesX[nextIndex])
 			p.FrameY = int32(framesY[nextIndex])
-			println(framesX[nextIndex], framesY[nextIndex])
 		}
-		println(framesX[0], framesY[0])
 
 		p.LastFrameTime = time.Now()
 	}

@@ -18,7 +18,7 @@ import (
 const (
 	windowWidth   int32 = 1280
 	windowHeight  int32 = 720
-	obstacleSpeed int32 = 3
+	obstacleSpeed int32 = 2
 	playerScale   int32 = 3
 )
 
@@ -62,9 +62,8 @@ func update(p *player.Player, e *enemy.Enemy, pointsObject []points.Point, scree
 
 	p.CheckMovement(*screen)
 	if p.CheckAtk(e.X, e.Y, e.Width, e.Height) {
-		// Lógica para derrotar o inimigo e gerar um novo
 		newEnemy := enemy.NewEnemy(rand.Int31n(screen.Width), rand.Int31n(screen.Height), e.Speed, e.Width, e.Height, e.Scale, e.Sprite)
-		*e = *newEnemy // Copia os valores do novo inimigo para o inimigo existente
+		*e = *newEnemy 
 	}
 
 	*e = enemy.MoveEnemyTowardPlayer(*p, *e, *screen)
