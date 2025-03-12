@@ -1,6 +1,7 @@
 package player
 
 import (
+	"otaviocosta2110/getTheBlueBlocks/src/physics"
 	"otaviocosta2110/getTheBlueBlocks/src/screen"
 	"time"
 
@@ -38,13 +39,30 @@ func (player *Player) CheckMovement(screen screen.Screen) {
 		player.Y += player.Speed
 		player.UpdateAnimation(300, framesWalkingX, framesWalkingY)
 	}
-
 }
 
-func (player *Player) CheckAtk() {
+func (player *Player) CheckAtk(enemyX, enemyY, enemyWidth, enemyHeight int32) bool {
 	if rl.IsKeyPressed(rl.KeyZ) {
 		player.UpdateAnimation(300, []int{0, 1}, []int{1, 1})
+
+		punchX := player.X
+		punchY := player.Y
+
+		punchWidth := player.Width
+		punchHeight := player.Height / 2
+
+		if player.Flipped {
+			punchX -= punchWidth * 2 //esquerda
+		} else {
+			punchX += player.Width //direita, n sei pq ta assim
+		}
+
+		// cor da colisão do soco (debug)
+		rl.DrawRectangle(punchX, punchY, punchWidth, punchHeight, rl.Red)
+
+		return physics.CheckCollision(punchX, punchY, enemyX, enemyY, punchWidth, punchHeight)
 	}
+	return false
 }
 
 func (p *Player) UpdateAnimation(animationDelay int, framesX, framesY []int) {
@@ -64,9 +82,9 @@ func (p *Player) UpdateAnimation(animationDelay int, framesX, framesY []int) {
 			nextIndex := (currentIndex + 1) % len(framesX)
 			p.FrameX = int32(framesX[nextIndex])
 			p.FrameY = int32(framesY[nextIndex])
-      println(framesX[nextIndex], framesY[nextIndex])
+			println(framesX[nextIndex], framesY[nextIndex])
 		}
-    println(framesX[0], framesY[0])
+		println(framesX[0], framesY[0])
 
 		p.LastFrameTime = time.Now()
 	}
