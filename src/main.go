@@ -9,7 +9,8 @@ import (
 	"otaviocosta2110/getTheBlueBlocks/src/points"
 	"otaviocosta2110/getTheBlueBlocks/src/screen"
 	"otaviocosta2110/getTheBlueBlocks/src/system"
-	"slices"
+  "golang.org/x/exp/slices"
+
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
