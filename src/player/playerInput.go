@@ -3,7 +3,6 @@ package player
 import (
 	"otaviocosta2110/getTheBlueBlocks/src/physics"
 	"otaviocosta2110/getTheBlueBlocks/src/screen"
-	"time"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -21,30 +20,26 @@ func (player *Player) CheckMovement(screen screen.Screen) {
 	if rl.IsKeyDown(rl.KeyLeft) && player.X > 0 {
 		player.X -= player.Speed
 		player.Flipped = true
-		player.UpdateAnimation(300, framesWalkingX, framesWalkingY)
-	}
-
-	if rl.IsKeyDown(rl.KeyRight) && player.X < screen.Width-(player.Width*player.Scale)/2 {
+		player.UpdateAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
+	} else if rl.IsKeyDown(rl.KeyRight) && player.X < screen.Width-(player.Width*player.Scale)/2 {
 		player.X += player.Speed
 		player.Flipped = false
-		player.UpdateAnimation(300, framesWalkingX, framesWalkingY)
+		player.UpdateAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
 	}
 
 	if rl.IsKeyDown(rl.KeyUp) && player.Y > player.Height*player.Scale-player.Y {
 		player.Y -= player.Speed
-		player.UpdateAnimation(300, framesWalkingX, framesWalkingY)
-	}
-
-	if rl.IsKeyDown(rl.KeyDown) && player.Y < screen.Height-(player.Height*player.Scale)/2 {
+		player.UpdateAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
+	} else if rl.IsKeyDown(rl.KeyDown) && player.Y < screen.Height-(player.Height*player.Scale)/2 {
 		player.Y += player.Speed
-		player.UpdateAnimation(300, framesWalkingX, framesWalkingY)
+		player.UpdateAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
 	}
 }
 
 func (player *Player) CheckAtk(enemyX, enemyY, enemyWidth, enemyHeight int32) bool {
-  var isAttacking = false
+	var isAttacking = false
 	if rl.IsKeyPressed(rl.KeyZ) {
-    isAttacking = true
+		isAttacking = true
 
 		player.UpdateAnimation(50, []int{0, 1}, []int{1, 1})
 
@@ -65,31 +60,8 @@ func (player *Player) CheckAtk(enemyX, enemyY, enemyWidth, enemyHeight int32) bo
 
 		return physics.CheckCollision(punchX, punchY, enemyX, enemyY, punchWidth, punchHeight)
 	}
-  if !isAttacking{
-    player.UpdateAnimation(300, []int{0}, []int{0})
-  }
-	return false
-}
-
-func (p *Player) UpdateAnimation(animationDelay int, framesX, framesY []int) {
-	if time.Since(p.LastFrameTime).Milliseconds() > int64(animationDelay) {
-		currentIndex := -1
-		for i := range framesX {
-			if p.FrameX == int32(framesX[i]) && p.FrameY == int32(framesY[i]) {
-				currentIndex = i
-				break
-			}
-		}
-
-		if currentIndex == -1 {
-			p.FrameX = int32(framesX[0])
-			p.FrameY = int32(framesY[0])
-		} else {
-			nextIndex := (currentIndex + 1) % len(framesX)
-			p.FrameX = int32(framesX[nextIndex])
-			p.FrameY = int32(framesY[nextIndex])
-		}
-
-		p.LastFrameTime = time.Now()
+	if !isAttacking {
+		player.UpdateAnimation(int(animationDelay), []int{0}, []int{0})
 	}
+	return false
 }
