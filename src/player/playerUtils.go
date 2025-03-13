@@ -56,10 +56,10 @@ func (p *Player) DrawPlayer() {
 	)
 
 	destinationRec := rl.NewRectangle(
-		float32(p.X),
-		float32(p.Y),
-		float32(p.Width)*float32(p.Scale),
-		float32(p.Height)*float32(p.Scale),
+		float32(p.Object.X),
+		float32(p.Object.Y),
+		float32(p.Object.Width),
+		float32(p.Object.Height),
 	)
 
 	origin := rl.NewVector2(
@@ -71,9 +71,9 @@ func (p *Player) DrawPlayer() {
 
 	// faz a caixa vermelha pra ver colisao
 	rl.DrawRectangleLines(
-		int32(destinationRec.X-origin.X/2),
+		int32(destinationRec.X-origin.X),
 		int32(destinationRec.Y-origin.Y),
-		int32(destinationRec.Width/2),
+		int32(destinationRec.Width),
 		int32(destinationRec.Height),
 		rl.Red,
 	)

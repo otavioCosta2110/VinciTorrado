@@ -1,16 +1,14 @@
 package player
 
 import (
+	"otaviocosta2110/getTheBlueBlocks/src/system"
 	"time"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 type Player struct {
-	X               int32
-	Y               int32
-	Width           int32
-	Height          int32
+	Object          system.Object
 	Points          int32
 	Speed           int32
 	Health          int32
@@ -26,10 +24,12 @@ type Player struct {
 
 func NewPlayer(x, y, width, height, points, speed, scale int32, sprite rl.Texture2D) *Player {
 	return &Player{
-		X:               x,
-		Y:               y,
-		Width:           width,
-		Height:          height,
+		Object: system.Object{
+			X:      x,
+			Y:      y,
+			Width:  width * scale,
+			Height: height * scale,
+		},
 		Points:          points,
 		Speed:           speed,
 		Sprite:          sprite,

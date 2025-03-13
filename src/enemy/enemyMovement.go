@@ -6,19 +6,19 @@ import (
 )
 
 func MoveEnemyTowardPlayer(p player.Player, e Enemy, s screen.Screen) Enemy {
-	if e.X < p.X {
+	if e.Object.X < p.Object.X {
 		e.Flipped = false
-		e.X += e.Speed
+		e.Object.X += e.Speed
 	}
-	if e.X > p.X {
+	if e.Object.X > p.Object.X {
 		e.Flipped = true
-		e.X -= e.Speed
+		e.Object.X -= e.Speed
 	}
-	if e.Y < p.Y {
-		e.Y += e.Speed
+	if e.Object.Y < p.Object.Y {
+		e.Object.Y += e.Speed
 	}
-	if e.Y > p.Y {
-		e.Y -= e.Speed
+	if e.Object.Y > p.Object.Y {
+		e.Object.Y -= e.Speed
 	}
 
 	return e

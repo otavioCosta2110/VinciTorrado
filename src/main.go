@@ -11,7 +11,7 @@ import (
 	"otaviocosta2110/getTheBlueBlocks/src/system"
 	"otaviocosta2110/getTheBlueBlocks/src/ui"
 
-	"golang.org/x/exp/slices"
+	// "golang.org/x/exp/slices"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -26,6 +26,8 @@ const (
 )
 
 var enemyArray []enemy.Enemy
+
+// Collider represents any object that can collide with others
 
 func main() {
 	screen := screen.NewScreen(windowWidth, windowHeight, "jogo poggers")
@@ -61,36 +63,21 @@ func update(p *player.Player, e *enemy.Enemy, pointsObject []points.Point, scree
 		return
 	}
 
-	prevX, prevY := p.X, p.Y
-	eprevX, eprevY := e.X, e.Y
+  prevPX, prevEX := p.Object.X, e.Object.X
+  prevPY, prevEY := p.Object.Y, e.Object.Y
 
 	p.CheckMovement(*screen)
-	if p.CheckAtk(e.X, e.Y, e.Width, e.Height) {
-		newEnemy := enemy.NewEnemy(rand.Int31n(screen.Width), rand.Int31n(screen.Height), e.Speed, e.Width, e.Height, e.Scale, e.Sprite)
+	if p.CheckAtk(e.Object.X, e.Object.Y, e.Object.Width, e.Object.Height) {
+		newEnemy := enemy.NewEnemy(rand.Int31n(screen.Width), rand.Int31n(screen.Height), e.Speed, e.Object.Width, e.Object.Height, e.Scale, e.Sprite)
 		*e = *newEnemy
 	}
 
 	*e = enemy.MoveEnemyTowardPlayer(*p, *e, *screen)
 
-	for i := range pointsObject {
-		point := pointsObject[i]
-		if physics.CheckCollision(p.X, p.Y, point.X, point.Y, p.Width * p.Scale/2, p.Height * p.Scale) {
-			p.Points++
-			pointsObject = slices.Delete(pointsObject, i, i+1)
-			break
-		}
-	}
-
-	if physics.CheckCollision(p.X, prevY, e.X, e.Y, p.Width*p.Scale/2, p.Height*p.Scale) {
-    p.TakeDamage(1)
-		p.X = prevX
-		e.X = eprevX
-		return
-	}
-	if physics.CheckCollision(prevX, p.Y, e.X, e.Y, p.Width*p.Scale/2, p.Height*p.Scale) {
-    p.TakeDamage(1)
-		p.Y = prevY
-		e.Y = eprevY
+	if physics.CheckCollision(p.Object, e.Object) {
+		p.TakeDamage(1)
+    p.Object.X, e.Object.X = prevPX, prevEX
+    p.Object.Y, e.Object.Y = prevPY, prevEY
 		return
 	}
 }
@@ -107,15 +94,16 @@ func draw(p *player.Player, e *enemy.Enemy, pointsObject []points.Point, s scree
 
 	p.DrawPlayer()
 	e.DrawEnemy()
-  ui.DrawLife(s,  p)
+	ui.DrawLife(s, p)
 
 	for _, point := range pointsObject {
 		point.DrawPoint()
 	}
 
-	rl.DrawText(fmt.Sprintf("Player: %d, %d", p.X, p.Y), 10, 10, 10, rl.Black)
+	rl.DrawText(fmt.Sprintf("Player: %d, %d", p.Object.X, p.Object.Y), 10, 10, 10, rl.Black)
 	rl.DrawText(fmt.Sprintf("Points: %d", p.Points), 10, 40, 10, rl.Black)
-	rl.DrawText(fmt.Sprintf("Enemy: %d, %d", e.X, e.Y), 10, 25, 10, rl.Black)
+	rl.DrawText(fmt.Sprintf("Enemy: %d, %d", e.Object.X, e.Object.Y), 10, 25, 10, rl.Black)
 
 	rl.EndDrawing()
 }
+
