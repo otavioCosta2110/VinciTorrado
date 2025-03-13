@@ -9,8 +9,9 @@ import (
 	"otaviocosta2110/getTheBlueBlocks/src/points"
 	"otaviocosta2110/getTheBlueBlocks/src/screen"
 	"otaviocosta2110/getTheBlueBlocks/src/system"
-  "golang.org/x/exp/slices"
+	"otaviocosta2110/getTheBlueBlocks/src/ui"
 
+	"golang.org/x/exp/slices"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -20,6 +21,8 @@ const (
 	windowHeight  int32 = 720
 	obstacleSpeed int32 = 2
 	playerScale   int32 = 3
+	playerSizeX   int32 = 32
+	playerSizeY   int32 = 32
 )
 
 var enemyArray []enemy.Enemy
@@ -36,8 +39,8 @@ func main() {
 
 	enemySprite := rl.LoadTexture("assets/enemy.png")
 
-	player := player.NewPlayer(900, 499, 32, 32, 0, 4, playerScale, playerSprite)
-	enemy := enemy.NewEnemy(50, 80, obstacleSpeed, 32, 32, playerScale, enemySprite)
+	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 0, 4, playerScale, playerSprite)
+	enemy := enemy.NewEnemy(50, 80, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite)
 
 	numberOfPoints := rand.Intn(14-3+1) + 3
 	pointsObject := make([]points.Point, 0, numberOfPoints)
@@ -59,32 +62,35 @@ func update(p *player.Player, e *enemy.Enemy, pointsObject []points.Point, scree
 	}
 
 	prevX, prevY := p.X, p.Y
+	eprevX, eprevY := e.X, e.Y
 
 	p.CheckMovement(*screen)
 	if p.CheckAtk(e.X, e.Y, e.Width, e.Height) {
 		newEnemy := enemy.NewEnemy(rand.Int31n(screen.Width), rand.Int31n(screen.Height), e.Speed, e.Width, e.Height, e.Scale, e.Sprite)
-		*e = *newEnemy 
+		*e = *newEnemy
 	}
 
 	*e = enemy.MoveEnemyTowardPlayer(*p, *e, *screen)
 
 	for i := range pointsObject {
 		point := pointsObject[i]
-		if physics.CheckCollision(p.X, p.Y, point.X, point.Y, p.Width, p.Height) {
+		if physics.CheckCollision(p.X, p.Y, point.X, point.Y, p.Width * p.Scale/2, p.Height * p.Scale) {
 			p.Points++
 			pointsObject = slices.Delete(pointsObject, i, i+1)
 			break
 		}
 	}
 
-	if physics.CheckCollision(p.X, prevY, e.X, e.Y, p.Width*p.Scale/2, p.Height*p.Scale/2) {
-		system.GameOverFlag = true
+	if physics.CheckCollision(p.X, prevY, e.X, e.Y, p.Width*p.Scale/2, p.Height*p.Scale) {
+    p.TakeDamage(1)
 		p.X = prevX
+		e.X = eprevX
 		return
 	}
-	if physics.CheckCollision(prevX, p.Y, e.X, e.Y, p.Width*p.Scale/2, p.Height*p.Scale/2) {
-		system.GameOverFlag = true
+	if physics.CheckCollision(prevX, p.Y, e.X, e.Y, p.Width*p.Scale/2, p.Height*p.Scale) {
+    p.TakeDamage(1)
 		p.Y = prevY
+		e.Y = eprevY
 		return
 	}
 }
@@ -101,6 +107,7 @@ func draw(p *player.Player, e *enemy.Enemy, pointsObject []points.Point, s scree
 
 	p.DrawPlayer()
 	e.DrawEnemy()
+  ui.DrawLife(s,  p)
 
 	for _, point := range pointsObject {
 		point.DrawPoint()
