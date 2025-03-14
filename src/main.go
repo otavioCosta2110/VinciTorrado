@@ -36,8 +36,11 @@ func main() {
 
 	rl.SetTargetFPS(60)
 
-	playerSprite := rl.LoadTexture("assets/player.png")
-	print("\n\n\n", playerSprite.Width, "\n", playerSprite.Height, "\n")
+	playerSprite := system.Sprite{
+		SpriteWidth:  playerSizeX,
+		SpriteHeight: playerSizeY,
+		Texture:      rl.LoadTexture("assets/player.png"),
+	}
 
 	enemySprite := rl.LoadTexture("assets/enemy.png")
 
@@ -63,12 +66,12 @@ func update(p *player.Player, e *enemy.Enemy, pointsObject []points.Point, scree
 		return
 	}
 
-  prevPX, prevEX := p.Object.X, e.Object.X
-  prevPY, prevEY := p.Object.Y, e.Object.Y
+	prevPX, prevEX := p.Object.X, e.Object.X
+	prevPY, prevEY := p.Object.Y, e.Object.Y
 
 	p.CheckMovement(*screen)
 	if p.CheckAtk(e.Object) {
-		newEnemy := enemy.NewEnemy(rand.Int31n(screen.Width), rand.Int31n(screen.Height), e.Speed, e.Object.Width, e.Object.Height, e.Scale, e.Sprite)
+		newEnemy := enemy.NewEnemy(rand.Int31n(screen.Width), rand.Int31n(screen.Height), e.Speed, e.Object.Width, e.Object.Height, 1, e.Sprite)
 		*e = *newEnemy
 	}
 
@@ -76,8 +79,8 @@ func update(p *player.Player, e *enemy.Enemy, pointsObject []points.Point, scree
 
 	if physics.CheckCollision(p.Object, e.Object) {
 		p.TakeDamage(1)
-    p.Object.X, e.Object.X = prevPX, prevEX
-    p.Object.Y, e.Object.Y = prevPY, prevEY
+		p.Object.X, e.Object.X = prevPX, prevEX
+		p.Object.Y, e.Object.Y = prevPY, prevEY
 		return
 	}
 }
@@ -106,4 +109,3 @@ func draw(p *player.Player, e *enemy.Enemy, pointsObject []points.Point, s scree
 
 	rl.EndDrawing()
 }
-

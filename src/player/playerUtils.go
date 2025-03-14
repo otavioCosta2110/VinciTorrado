@@ -43,23 +43,23 @@ func (p *Player) DrawPlayer() {
 		}
 	}
 
-	var width float32 = 32
+	var width float32 = float32(p.Sprite.SpriteWidth)
 	if p.Flipped {
 		width = -float32(width)
 	}
 
 	sourceRec := rl.NewRectangle(
-		float32(p.FrameX)*32,
-		float32(p.FrameY)*32,
+		float32(p.FrameX)*float32(p.Sprite.SpriteWidth),
+		float32(p.FrameY)*float32(p.Sprite.SpriteWidth),
 		width,
-		float32(32),
+		float32(p.Sprite.SpriteHeight),
 	)
 
 	destinationRec := rl.NewRectangle(
 		float32(p.Object.X),
 		float32(p.Object.Y),
-		float32(p.Object.Width),
-		float32(p.Object.Height),
+		float32(p.Sprite.SpriteWidth) * float32(p.Scale),
+		float32(p.Sprite.SpriteHeight) * float32(p.Scale),
 	)
 
 	origin := rl.NewVector2(
@@ -67,14 +67,14 @@ func (p *Player) DrawPlayer() {
 		destinationRec.Height/2,
 	)
 
-	rl.DrawTexturePro(p.Sprite, sourceRec, destinationRec, origin, 0.0, color)
+	rl.DrawTexturePro(p.Sprite.Texture, sourceRec, destinationRec, origin, 0.0, color)
 
 	// faz a caixa vermelha pra ver colisao
 	rl.DrawRectangleLines(
-		int32(destinationRec.X-origin.X),
+		int32(destinationRec.X-origin.X + float32(p.Object.Width)/2),
 		int32(destinationRec.Y-origin.Y),
-		int32(destinationRec.Width),
-		int32(destinationRec.Height),
+		int32(p.Object.Width),
+		int32(p.Object.Height),
 		rl.Red,
 	)
 }

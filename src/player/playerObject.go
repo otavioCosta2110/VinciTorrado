@@ -3,8 +3,6 @@ package player
 import (
 	"otaviocosta2110/getTheBlueBlocks/src/system"
 	"time"
-
-	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 type Player struct {
@@ -13,7 +11,7 @@ type Player struct {
 	Speed           int32
 	Health          int32
 	MaxHealth       int32
-	Sprite          rl.Texture2D
+	Sprite          system.Sprite
 	Flipped         bool
 	Scale           int32
 	FrameX          int32
@@ -22,17 +20,21 @@ type Player struct {
 	LastDamageTaken time.Time
 }
 
-func NewPlayer(x, y, width, height, points, speed, scale int32, sprite rl.Texture2D) *Player {
+func NewPlayer(x, y, width, height, points, speed, scale int32, sprite system.Sprite) *Player {
 	return &Player{
 		Object: system.Object{
 			X:      x,
 			Y:      y,
-			Width:  width * scale,
+			Width:  width * scale / 2,
 			Height: height * scale,
 		},
 		Points:          points,
 		Speed:           speed,
-		Sprite:          sprite,
+		Sprite:          system.Sprite{
+      SpriteWidth: width,
+      SpriteHeight: height,
+      Texture: sprite.Texture,
+    },
 		Flipped:         false,
 		Scale:           scale,
 		FrameY:          0,

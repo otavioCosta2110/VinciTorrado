@@ -41,32 +41,35 @@ func (player *Player) CheckMovement(screen screen.Screen) {
 
 func (player *Player) CheckAtk(enemyObj system.Object) bool {
 	var isAttacking = false
+
+	// botei essas vars pra ca pra fazer a caixa de colisao aparecer sempre
+	punchX := player.Object.X
+	punchY := player.Object.Y - player.Object.Height/3
+
+	punchWidth := player.Object.Width
+	punchHeight := player.Object.Height / 2
+	println(punchWidth)
+
+	if player.Flipped {
+		punchX -= punchWidth + punchWidth/2 //esquerda
+	} else {
+		punchX += punchWidth / 2 //direita, n sei pq ta assim
+	}
+
+	// cor da colisão do soco (debug)
+	rl.DrawRectangle(punchX, punchY, punchWidth, punchHeight, rl.Red)
+
 	if rl.IsKeyPressed(rl.KeyZ) {
 		isAttacking = true
 
 		player.UpdateAnimation(50, []int{0, 1}, []int{1, 1})
 
-		punchX := player.Object.X
-		punchY := player.Object.Y
-
-		punchWidth := player.Object.Width
-		punchHeight := player.Object.Height / 2
-
-		if player.Flipped {
-			punchX -= punchWidth * 2 //esquerda
-		} else {
-			punchX += player.Object.Width //direita, n sei pq ta assim
+		punchObj := system.Object{
+			X:      punchX,
+			Y:      punchY,
+			Width:  punchWidth,
+			Height: punchHeight,
 		}
-
-    punchObj := system.Object{
-      punchX,
-      punchY,
-      punchWidth,
-      punchHeight,
-    }
-
-		// cor da colisão do soco (debug)
-		rl.DrawRectangle(punchX, punchY, punchWidth, punchHeight, rl.Red)
 
 		return physics.CheckCollision(punchObj, enemyObj)
 	}
