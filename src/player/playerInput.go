@@ -1,8 +1,9 @@
 package player
 
 import (
-	// "otaviocosta2110/getTheBlueBlocks/src/physics"
+	"otaviocosta2110/getTheBlueBlocks/src/physics"
 	"otaviocosta2110/getTheBlueBlocks/src/screen"
+	"otaviocosta2110/getTheBlueBlocks/src/system"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -38,7 +39,7 @@ func (player *Player) CheckMovement(screen screen.Screen) {
 	}
 }
 
-func (player *Player) CheckAtk(enemyX, enemyY, enemyWidth, enemyHeight int32) bool {
+func (player *Player) CheckAtk(enemyObj system.Object) bool {
 	var isAttacking = false
 	if rl.IsKeyPressed(rl.KeyZ) {
 		isAttacking = true
@@ -57,11 +58,17 @@ func (player *Player) CheckAtk(enemyX, enemyY, enemyWidth, enemyHeight int32) bo
 			punchX += player.Object.Width //direita, n sei pq ta assim
 		}
 
+    punchObj := system.Object{
+      punchX,
+      punchY,
+      punchWidth,
+      punchHeight,
+    }
+
 		// cor da colisão do soco (debug)
 		rl.DrawRectangle(punchX, punchY, punchWidth, punchHeight, rl.Red)
 
-		// return physics.CheckCollision(punchX, punchY, enemyX, enemyY, punchWidth, punchHeight)
-    return true
+		return physics.CheckCollision(punchObj, enemyObj)
 	}
 	if !isAttacking {
 		player.UpdateAnimation(int(animationDelay), []int{0}, []int{0})

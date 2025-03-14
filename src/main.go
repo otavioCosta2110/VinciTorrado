@@ -67,7 +67,7 @@ func update(p *player.Player, e *enemy.Enemy, pointsObject []points.Point, scree
   prevPY, prevEY := p.Object.Y, e.Object.Y
 
 	p.CheckMovement(*screen)
-	if p.CheckAtk(e.Object.X, e.Object.Y, e.Object.Width, e.Object.Height) {
+	if p.CheckAtk(e.Object) {
 		newEnemy := enemy.NewEnemy(rand.Int31n(screen.Width), rand.Int31n(screen.Height), e.Speed, e.Object.Width, e.Object.Height, e.Scale, e.Sprite)
 		*e = *newEnemy
 	}
