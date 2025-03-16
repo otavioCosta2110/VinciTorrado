@@ -3,30 +3,27 @@ package physics
 import "otaviocosta2110/getTheBlueBlocks/src/system"
 
 func CheckCollision(obj1, obj2 system.Object) bool {
-	return obj1.X < obj2.X+obj1.Width && obj1.X+obj1.Width > obj2.X &&
-		obj1.Y < obj2.Y+obj1.Height && obj1.Y+obj1.Height > obj2.Y
+	return obj1.X < obj2.X+obj2.Width && obj1.X+obj1.Width > obj2.X &&
+		obj1.Y < obj2.Y+obj2.Height && obj1.Y+obj1.Height > obj2.Y
 }
 
-// essa func faz o obj a mexer o b, da pra usar pra empurrar alguma coisa
+// ResolveCollision move o objeto b com base na colisão com o objeto a
 func ResolveCollision(a, b *system.Object) {
-	
-	overlapX := (a.Width + b.Width)/2 - abs(a.X-b.X)
-	overlapY := (a.Height + b.Height)/2 - abs(a.Y-b.Y)
+	overlapX := (a.Width+b.Width)/2 - abs(a.X-b.X)
+	overlapY := (a.Height+b.Height)/2 - abs(a.Y-b.Y)
 
-	
 	if overlapX < overlapY {
-		
+		// Colisão horizontal
 		if a.X < b.X {
-			a.X -= overlapX 
+			b.X += overlapX
 		} else {
-			a.X += overlapX 
+			b.X -= overlapX
 		}
 	} else {
-		
 		if a.Y < b.Y {
-			a.Y -= overlapY 
+			b.Y += overlapY
 		} else {
-			a.Y += overlapY 
+			b.Y -= overlapY
 		}
 	}
 }

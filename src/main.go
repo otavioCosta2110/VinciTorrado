@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"otaviocosta2110/getTheBlueBlocks/src/enemy"
+	"otaviocosta2110/getTheBlueBlocks/src/objects"
 	"otaviocosta2110/getTheBlueBlocks/src/physics"
 	"otaviocosta2110/getTheBlueBlocks/src/player"
 	"otaviocosta2110/getTheBlueBlocks/src/screen"
@@ -47,13 +48,15 @@ func main() {
 	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 4, playerScale, playerSprite)
 	enemy := enemy.NewEnemy(50, 80, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite)
 
+	box := objects.NewBox(400, 400, 50, 50, rl.Brown)
+
 	for !rl.WindowShouldClose() {
-		update(player, enemy, screen)
-		draw(player, enemy, *screen)
+		update(player, enemy, box, screen)
+		draw(player, enemy, box, *screen)
 	}
 }
 
-func update(p *player.Player, e *enemy.Enemy, screen *screen.Screen) {
+func update(p *player.Player, e *enemy.Enemy, box *objects.Box, screen *screen.Screen) {
 	if system.GameOverFlag {
 		return
 	}
@@ -69,7 +72,8 @@ func update(p *player.Player, e *enemy.Enemy, screen *screen.Screen) {
 		*e = *newEnemy
 	}
 
-	if p.CheckKick(e.Object) {
+	// Verifica se chutou a caixa
+	if p.CheckKick(e.Object, box) {
 		newEnemy := enemy.NewEnemy(rand.Int31n(screen.Width), rand.Int31n(screen.Height), e.Speed, playerSizeX, playerSizeY, playerScale, e.Object.Sprite)
 		*e = *newEnemy
 	}
@@ -82,7 +86,7 @@ func update(p *player.Player, e *enemy.Enemy, screen *screen.Screen) {
 	}
 }
 
-func draw(p *player.Player, e *enemy.Enemy, s screen.Screen) {
+func draw(p *player.Player, e *enemy.Enemy, box *objects.Box, s screen.Screen) {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.RayWhite)
 
@@ -94,6 +98,7 @@ func draw(p *player.Player, e *enemy.Enemy, s screen.Screen) {
 
 	p.DrawPlayer()
 	e.DrawEnemy()
+	box.Draw()
 	ui.DrawLife(s, p)
 
 	rl.DrawText(fmt.Sprintf("Player: %d, %d", p.Object.X, p.Object.Y), 10, 10, 10, rl.Black)

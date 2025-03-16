@@ -25,10 +25,9 @@ func (p *Player) DrawPlayer() {
 		width = -float32(width)
 	}
 
-	// Define o frame do chute (quinta imagem do sprite)
 	frameX := p.Object.FrameX
 	if rl.IsKeyPressed(rl.KeyX) {
-		frameX = 4 // Usando a quinta imagem (índice 4)
+		frameX = 4
 	}
 
 	sourceRec := rl.NewRectangle(

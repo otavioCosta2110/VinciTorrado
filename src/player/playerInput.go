@@ -1,6 +1,7 @@
 package player
 
 import (
+	"otaviocosta2110/getTheBlueBlocks/src/objects"
 	"otaviocosta2110/getTheBlueBlocks/src/physics"
 	"otaviocosta2110/getTheBlueBlocks/src/screen"
 	"otaviocosta2110/getTheBlueBlocks/src/system"
@@ -78,9 +79,7 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 	return false
 }
 
-func (player *Player) CheckKick(enemyObj system.Object) bool {
-	var isKicking = false
-
+func (player *Player) CheckKick(enemyObj system.Object, box *objects.Box) bool {
 	// Define a área do chute
 	kickX := player.Object.X
 	kickY := player.Object.Y - player.Object.Height/3
@@ -98,7 +97,7 @@ func (player *Player) CheckKick(enemyObj system.Object) bool {
 	rl.DrawRectangle(kickX, kickY, kickWidth, kickHeight, rl.Blue)
 
 	if rl.IsKeyPressed(rl.KeyX) {
-		isKicking = true
+		player.IsKicking = true
 
 		player.Object.UpdateAnimation(50, []int{0, 1}, []int{0, 2})
 
@@ -109,11 +108,30 @@ func (player *Player) CheckKick(enemyObj system.Object) bool {
 			Height: kickHeight,
 		}
 
-		return physics.CheckCollision(kickObj, enemyObj)
+		// Verifica colisão com o inimigo
+		if physics.CheckCollision(kickObj, enemyObj) {
+			player.IsKicking = false
+			return true
+		}
+
+		// Verifica colisão com a caixa
+		boxObj := system.Object{
+			X:      box.X,
+			Y:      box.Y,
+			Width:  box.Width,
+			Height: box.Height,
+		}
+
+		if physics.CheckCollision(kickObj, boxObj) {
+			physics.ResolveCollision(&kickObj, &boxObj)
+			box.X = boxObj.X
+			box.Y = boxObj.Y
+			player.IsKicking = false
+			return false
+		}
+	} else {
+		player.IsKicking = false
 	}
 
-	if !isKicking {
-		player.Object.UpdateAnimation(int(animationDelay), []int{0}, []int{0}) // Volta para a animação padrão
-	}
 	return false
 }
