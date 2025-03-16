@@ -1,11 +1,17 @@
 package enemy
 
 import (
+	"math/rand"
+	"otaviocosta2110/getTheBlueBlocks/src/physics"
 	"otaviocosta2110/getTheBlueBlocks/src/sprites"
 	"otaviocosta2110/getTheBlueBlocks/src/system"
 	"time"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
+)
+
+const (
+	animationDelay int32 = 300
 )
 
 type Enemy struct {
@@ -65,4 +71,45 @@ func (e *Enemy) DrawEnemy() {
 	)
 
 	rl.DrawTexturePro(e.Object.Sprite.Texture, sourceRec, destinationRec, origin, 0.0, rl.White)
+}
+
+func (e *Enemy) CheckAtk(player system.Object) bool {
+	// var isAttacking = false
+
+	// botei essas vars pra ca pra fazer a caixa de colisao aparecer sempre
+	punchX := e.Object.X
+	punchY := e.Object.Y - e.Object.Height/3
+
+	punchWidth := e.Object.Width
+	punchHeight := e.Object.Height / 2
+
+	if e.Flipped {
+		punchX -= punchWidth + punchWidth/2 //esquerda
+	} else {
+		punchX += punchWidth / 2 //direita, n sei pq ta assim
+	}
+
+	// cor da colisão do soco (debug)
+	rl.DrawRectangle(punchX, punchY, punchWidth, punchHeight, rl.Red)
+
+	punchObject := system.Object{
+		X:      punchX,
+		Y:      punchY,
+		Width:  punchWidth,
+		Height: punchHeight,
+	}
+
+	if physics.CheckCollision(punchObject, player) {
+		// isAttacking = true
+
+    framex := rand.Intn(2)
+    println(framex)
+
+    e.Object.UpdateAnimation(50, []int{framex}, []int{1})
+
+		return true
+	}
+  e.Object.UpdateAnimation(300, []int{0, 1}, []int{0, 0})
+
+	return false
 }
