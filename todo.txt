@@ -1,2 +1,4 @@
 fazer o player ir pra tras quando for acertado
 animacao do player sendo jogado pra tras
+
+animacao do inimigo preparando atk
