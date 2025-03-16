@@ -23,18 +23,20 @@ type Player struct {
 func NewPlayer(x, y, width, height, points, speed, scale int32, sprite system.Sprite) *Player {
 	return &Player{
 		Object: system.Object{
-			X:      x,
-			Y:      y,
-			Width:  width * scale / 2,
-			Height: height * scale,
+			X:          x,
+			Y:          y,
+			Width:      width * scale / 2,
+			Height:     height * scale,
+			KnockbackX: 0,
+			KnockbackY: 0,
 		},
-		Points:          points,
-		Speed:           speed,
-		Sprite:          system.Sprite{
-      SpriteWidth: width,
-      SpriteHeight: height,
-      Texture: sprite.Texture,
-    },
+		Points: points,
+		Speed:  speed,
+		Sprite: system.Sprite{
+			SpriteWidth:  width,
+			SpriteHeight: height,
+			Texture:      sprite.Texture,
+		},
 		Flipped:         false,
 		Scale:           scale,
 		FrameY:          0,

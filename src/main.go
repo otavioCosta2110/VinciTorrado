@@ -51,27 +51,32 @@ func main() {
 }
 
 func update(p *player.Player, e *enemy.Enemy, screen *screen.Screen) {
-	if system.GameOverFlag {
-		return
-	}
+    if system.GameOverFlag {
+        return
+    }
 
-	prevPX, prevEX := p.Object.X, e.Object.X
-	prevPY, prevEY := p.Object.Y, e.Object.Y
+    prevPX, prevEX := p.Object.X, e.Object.X
+    prevPY, prevEY := p.Object.Y, e.Object.Y
 
-	p.CheckMovement(*screen)
-	if p.CheckAtk(e.Object) {
-		newEnemy := enemy.NewEnemy(rand.Int31n(screen.Width), rand.Int31n(screen.Height), e.Speed, e.Object.Width, e.Object.Height, 1, e.Sprite)
-		*e = *newEnemy
-	}
+    physics.TakeKnockback(&p.Object)
 
-	*e = enemy.MoveEnemyTowardPlayer(*p, *e, *screen)
+    if p.Object.KnockbackX == 0 || p.Object.KnockbackY == 0 {
+        p.CheckMovement(*screen)
+    }
 
-	if physics.CheckCollision(p.Object, e.Object) {
-		p.TakeDamage(1)
-		p.Object.X, e.Object.X = prevPX, prevEX
-		p.Object.Y, e.Object.Y = prevPY, prevEY
-		return
-	}
+    if p.CheckAtk(e.Object) {
+        newEnemy := enemy.NewEnemy(rand.Int31n(screen.Width), rand.Int31n(screen.Height), e.Speed, e.Object.Width, e.Object.Height, 1, e.Sprite)
+        *e = *newEnemy
+    }
+
+    *e = enemy.MoveEnemyTowardPlayer(*p, *e, *screen)
+
+    if physics.CheckCollision(p.Object, e.Object) {
+        p.TakeDamage(1, e.Object.X, e.Object.Y) // Pass enemy X for knockback direction
+        p.Object.X, e.Object.X = prevPX, prevEX
+        p.Object.Y, e.Object.Y = prevPY, prevEY
+        return
+    }
 }
 
 func draw(p *player.Player, e *enemy.Enemy, s screen.Screen) {

@@ -48,7 +48,6 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 
 	punchWidth := player.Object.Width
 	punchHeight := player.Object.Height / 2
-	println(punchWidth)
 
 	if player.Flipped {
 		punchX -= punchWidth + punchWidth/2 //esquerda
