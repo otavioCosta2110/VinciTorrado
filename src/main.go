@@ -6,12 +6,9 @@ import (
 	"otaviocosta2110/getTheBlueBlocks/src/enemy"
 	"otaviocosta2110/getTheBlueBlocks/src/physics"
 	"otaviocosta2110/getTheBlueBlocks/src/player"
-	"otaviocosta2110/getTheBlueBlocks/src/points"
 	"otaviocosta2110/getTheBlueBlocks/src/screen"
 	"otaviocosta2110/getTheBlueBlocks/src/system"
 	"otaviocosta2110/getTheBlueBlocks/src/ui"
-
-	// "golang.org/x/exp/slices"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -47,21 +44,13 @@ func main() {
 	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 0, 4, playerScale, playerSprite)
 	enemy := enemy.NewEnemy(50, 80, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite)
 
-	numberOfPoints := rand.Intn(14-3+1) + 3
-	pointsObject := make([]points.Point, 0, numberOfPoints)
-
-	for range numberOfPoints {
-		p := points.NewPoint(*screen)
-		pointsObject = append(pointsObject, p)
-	}
-
 	for !rl.WindowShouldClose() {
-		update(player, enemy, pointsObject, screen)
-		draw(player, enemy, pointsObject, *screen)
+		update(player, enemy, screen)
+		draw(player, enemy, *screen)
 	}
 }
 
-func update(p *player.Player, e *enemy.Enemy, pointsObject []points.Point, screen *screen.Screen) {
+func update(p *player.Player, e *enemy.Enemy, screen *screen.Screen) {
 	if system.GameOverFlag {
 		return
 	}
@@ -85,7 +74,7 @@ func update(p *player.Player, e *enemy.Enemy, pointsObject []points.Point, scree
 	}
 }
 
-func draw(p *player.Player, e *enemy.Enemy, pointsObject []points.Point, s screen.Screen) {
+func draw(p *player.Player, e *enemy.Enemy, s screen.Screen) {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.RayWhite)
 
@@ -98,10 +87,6 @@ func draw(p *player.Player, e *enemy.Enemy, pointsObject []points.Point, s scree
 	p.DrawPlayer()
 	e.DrawEnemy()
 	ui.DrawLife(s, p)
-
-	for _, point := range pointsObject {
-		point.DrawPoint()
-	}
 
 	rl.DrawText(fmt.Sprintf("Player: %d, %d", p.Object.X, p.Object.Y), 10, 10, 10, rl.Black)
 	rl.DrawText(fmt.Sprintf("Points: %d", p.Points), 10, 40, 10, rl.Black)
