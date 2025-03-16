@@ -26,9 +26,10 @@ func (p *Player) DrawPlayer() {
 	}
 
 	frameX := p.Object.FrameX
-	if rl.IsKeyPressed(rl.KeyX) {
-		frameX = 4
-	}
+	// if rl.IsKeyPressed(rl.KeyX) {
+    // p.Object.UpdateAnimation(50, []int{0,0}, []int{2,0})
+ //    p.Object.FrameY = 2
+	// }
 
 	sourceRec := rl.NewRectangle(
 		float32(frameX)*float32(p.Object.Sprite.SpriteWidth),

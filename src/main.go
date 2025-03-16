@@ -80,10 +80,13 @@ func update(p *player.Player, e *enemy.Enemy, box *objects.Box, screen *screen.S
 
 	*e = enemy.MoveEnemyTowardPlayer(*p, *e, *screen)
 
-	if physics.CheckCollision(p.Object, e.Object) {
+	// if physics.CheckCollision(p.Object, e.Object) {
+	if e.CheckAtk(p.Object) {
 		p.TakeDamage(1, e.Object.X, e.Object.Y)
 		return
 	}
+
+	*e = enemy.MoveEnemyTowardPlayer(*p, *e, *screen)
 }
 
 func draw(p *player.Player, e *enemy.Enemy, box *objects.Box, s screen.Screen) {

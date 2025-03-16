@@ -19,6 +19,9 @@ var (
 )
 
 func (player *Player) CheckMovement(screen screen.Screen) {
+	if player.Object.FrameY == 1 {
+    return
+  }
 	if rl.IsKeyDown(rl.KeyLeft) && player.Object.X > player.Object.Width/2 {
 		player.Object.X -= player.Speed
 		player.Flipped = true
@@ -47,13 +50,13 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 	punchX := player.Object.X
 	punchY := player.Object.Y - player.Object.Height/3
 
-	punchWidth := player.Object.Width
+	punchWidth := player.Object.Width / 2
 	punchHeight := player.Object.Height / 2
 
 	if player.Flipped {
-		punchX -= punchWidth + punchWidth/2 //esquerda
+		punchX -= punchWidth + punchWidth //esquerda
 	} else {
-		punchX += punchWidth / 2 //direita, n sei pq ta assim
+		punchX += punchWidth  //direita, n sei pq ta assim
 	}
 
 	// cor da colisão do soco (debug)
@@ -82,7 +85,7 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 func (player *Player) CheckKick(enemyObj system.Object, box *objects.Box) bool {
 	// Define a área do chute
 	kickX := player.Object.X
-	kickY := player.Object.Y - player.Object.Height/3
+	kickY := player.Object.Y
 
 	kickWidth := player.Object.Width
 	kickHeight := player.Object.Height / 2
@@ -99,7 +102,7 @@ func (player *Player) CheckKick(enemyObj system.Object, box *objects.Box) bool {
 	if rl.IsKeyPressed(rl.KeyX) {
 		player.IsKicking = true
 
-		player.Object.UpdateAnimation(50, []int{0, 1}, []int{0, 2})
+		player.Object.UpdateAnimation(50, []int{0, 0}, []int{2, 0})
 
 		kickObj := system.Object{
 			X:      kickX,

@@ -38,8 +38,8 @@ func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite) *
 		Speed:           speed,
 		Flipped:         false,
 		Scale:           scale,
-		MaxHealth:       3,
-		Health:          3,
+		MaxHealth:       5,
+		Health:          5,
 		LastDamageTaken: time.Now(),
 	}
 }

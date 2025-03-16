@@ -3,3 +3,5 @@ animacao do player sendo jogado pra tras
 
 ajeitar colisão da caixa, não condiz com o tamanho
 melhorar a movimentação da caixa
+
+animacao do inimigo preparando atk
