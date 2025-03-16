@@ -6,15 +6,16 @@ import (
 )
 
 type Object struct {
-	X, Y          int32
-	Width         int32
-	Height        int32
-	KnockbackX    int32
-	KnockbackY    int32
-	FrameX        int32
-	FrameY        int32
-	LastFrameTime time.Time
-	Sprite        sprites.Sprite
+	X, Y           int32
+	Width          int32
+	Height         int32
+	KnockbackX     int32
+	KnockbackY     int32
+	FrameX         int32
+	FrameY         int32
+	LastFrameTime  time.Time
+	LastAttackTime time.Time
+	Sprite         sprites.Sprite
 }
 
 func (obj *Object) UpdateAnimation(animationDelay int, framesX, framesY []int) {

@@ -24,15 +24,16 @@ type Enemy struct {
 func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite) *Enemy {
 	return &Enemy{
 		Object: system.Object{
-			X:             x,
-			Y:             y,
-			Width:         width * scale / 2,
-			Height:        height * scale,
-			KnockbackX:    0,
-			KnockbackY:    0,
-			FrameY:        0,
-			FrameX:        0,
-			LastFrameTime: time.Now(),
+			X:              x,
+			Y:              y,
+			Width:          width * scale / 2,
+			Height:         height * scale,
+			KnockbackX:     0,
+			KnockbackY:     0,
+			FrameY:         0,
+			FrameX:         0,
+			LastFrameTime:  time.Now(),
+			LastAttackTime: time.Now(),
 			Sprite: sprites.Sprite{
 				SpriteWidth:  width,
 				SpriteHeight: height,
@@ -74,22 +75,18 @@ func (e *Enemy) DrawEnemy() {
 }
 
 func (e *Enemy) CheckAtk(player system.Object) bool {
-	// var isAttacking = false
-
-	// botei essas vars pra ca pra fazer a caixa de colisao aparecer sempre
 	punchX := e.Object.X
 	punchY := e.Object.Y - e.Object.Height/3
 
-	punchWidth := e.Object.Width
+	punchWidth := e.Object.Width /2
 	punchHeight := e.Object.Height / 2
 
 	if e.Flipped {
-		punchX -= punchWidth + punchWidth/2 //esquerda
+		punchX -= punchWidth + punchWidth
 	} else {
-		punchX += punchWidth / 2 //direita, n sei pq ta assim
+		punchX += punchWidth
 	}
 
-	// cor da colisão do soco (debug)
 	rl.DrawRectangle(punchX, punchY, punchWidth, punchHeight, rl.Red)
 
 	punchObject := system.Object{
@@ -99,17 +96,28 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 		Height: punchHeight,
 	}
 
-	if physics.CheckCollision(punchObject, player) {
-		// isAttacking = true
+	attackCooldown := int64(2000)
+  // wind up time eh tipo o tempo que o boneco precisa esperar pra atacar
+  // tipo, ele vai parar na frente do player e esperar 0.5 seg pra atacar de fato
+	windUpTime := int64(500)
 
-    framex := rand.Intn(2)
-    println(framex)
+	timeSinceLastAttack := time.Since(e.Object.LastAttackTime).Milliseconds()
 
-    e.Object.UpdateAnimation(50, []int{framex}, []int{1})
-
-		return true
+	if timeSinceLastAttack < windUpTime {
+		return false
 	}
-  e.Object.UpdateAnimation(300, []int{0, 1}, []int{0, 0})
 
+	if physics.CheckCollision(punchObject, player) {
+		if timeSinceLastAttack >= attackCooldown {
+			e.Object.LastAttackTime = time.Now()
+
+			framex := rand.Intn(2)
+			e.Object.UpdateAnimation(50, []int{framex}, []int{1})
+
+			return true
+		}
+	}
+
+	e.Object.UpdateAnimation(300, []int{0, 1}, []int{0, 0})
 	return false
 }
