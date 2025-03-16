@@ -16,8 +16,8 @@ func NewBox(x, y, width, height int32, color rl.Color) *Box {
 	return &Box{
 		X:      x,
 		Y:      y,
-		Width:  50,
-		Height: 50,
+		Width:  width,
+		Height: height,
 		Color:  color,
 	}
 }

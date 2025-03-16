@@ -65,6 +65,9 @@ func update(p *player.Player, e *enemy.Enemy, box *objects.Box, screen *screen.S
 
 	if p.Object.KnockbackX == 0 || p.Object.KnockbackY == 0 {
 		p.CheckMovement(*screen)
+
+		// Verifica colisão entre o jogador e a caixa
+		objects.CheckPlayerBoxCollision(&p.Object, box)
 	}
 
 	if p.CheckAtk(e.Object) {
@@ -78,12 +81,12 @@ func update(p *player.Player, e *enemy.Enemy, box *objects.Box, screen *screen.S
 		*e = *newEnemy
 	}
 
-	*e = enemy.MoveEnemyTowardPlayer(*p, *e, *screen)
-
-	if physics.CheckCollision(p.Object, e.Object) {
+	if e.CheckAtk(p.Object) {
 		p.TakeDamage(1, e.Object.X, e.Object.Y)
 		return
 	}
+
+	*e = enemy.MoveEnemyTowardPlayer(*p, *e, *screen)
 }
 
 func draw(p *player.Player, e *enemy.Enemy, box *objects.Box, s screen.Screen) {
