@@ -45,7 +45,7 @@ func main() {
 	}
 
 	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 4, playerScale, playerSprite)
-	enemy :=    enemy.NewEnemy(50,         80,                  obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite)
+	enemy := enemy.NewEnemy(50, 80, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite)
 
 	for !rl.WindowShouldClose() {
 		update(player, enemy, screen)
@@ -65,6 +65,11 @@ func update(p *player.Player, e *enemy.Enemy, screen *screen.Screen) {
 	}
 
 	if p.CheckAtk(e.Object) {
+		newEnemy := enemy.NewEnemy(rand.Int31n(screen.Width), rand.Int31n(screen.Height), e.Speed, playerSizeX, playerSizeY, playerScale, e.Object.Sprite)
+		*e = *newEnemy
+	}
+
+	if p.CheckKick(e.Object) {
 		newEnemy := enemy.NewEnemy(rand.Int31n(screen.Width), rand.Int31n(screen.Height), e.Speed, playerSizeX, playerSizeY, playerScale, e.Object.Sprite)
 		*e = *newEnemy
 	}

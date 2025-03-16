@@ -11,7 +11,6 @@ const (
 	invencibilityDuration = 1000
 )
 
-
 func (p *Player) DrawPlayer() {
 	color := rl.White
 
@@ -26,8 +25,14 @@ func (p *Player) DrawPlayer() {
 		width = -float32(width)
 	}
 
+	// Define o frame do chute (quinta imagem do sprite)
+	frameX := p.Object.FrameX
+	if rl.IsKeyPressed(rl.KeyX) {
+		frameX = 4 // Usando a quinta imagem (índice 4)
+	}
+
 	sourceRec := rl.NewRectangle(
-		float32(p.Object.FrameX)*float32(p.Object.Sprite.SpriteWidth),
+		float32(frameX)*float32(p.Object.Sprite.SpriteWidth),
 		float32(p.Object.FrameY)*float32(p.Object.Sprite.SpriteWidth),
 		width,
 		float32(p.Object.Sprite.SpriteHeight),
@@ -47,7 +52,7 @@ func (p *Player) DrawPlayer() {
 
 	rl.DrawTexturePro(p.Object.Sprite.Texture, sourceRec, destinationRec, origin, 0.0, color)
 
-	// faz a caixa vermelha pra ver colisao
+	// Desenha a caixa vermelha pra ver colisao
 	rl.DrawRectangleLines(
 		int32(destinationRec.X-origin.X+float32(p.Object.Width)/2),
 		int32(destinationRec.Y-origin.Y),
@@ -81,9 +86,9 @@ func (p *Player) setKnockback(eX int32, eY int32) {
 
 	if p.Object.Y < eY/2 {
 		p.Object.KnockbackY = -knockbackStrengthY
-	}else{
+	} else {
 		p.Object.KnockbackY = knockbackStrengthY
-  }
+	}
 
 }
 

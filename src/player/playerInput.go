@@ -77,3 +77,43 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 	}
 	return false
 }
+
+func (player *Player) CheckKick(enemyObj system.Object) bool {
+	var isKicking = false
+
+	// Define a área do chute
+	kickX := player.Object.X
+	kickY := player.Object.Y - player.Object.Height/3
+
+	kickWidth := player.Object.Width
+	kickHeight := player.Object.Height / 2
+
+	if player.Flipped {
+		kickX -= kickWidth + kickWidth/2 // Chute para a esquerda
+	} else {
+		kickX += kickWidth / 2 // Chute para a direita
+	}
+
+	// Desenha a caixa de colisão do chute (para debug)
+	rl.DrawRectangle(kickX, kickY, kickWidth, kickHeight, rl.Blue)
+
+	if rl.IsKeyPressed(rl.KeyX) {
+		isKicking = true
+
+		player.Object.UpdateAnimation(50, []int{0, 1}, []int{0, 2})
+
+		kickObj := system.Object{
+			X:      kickX,
+			Y:      kickY,
+			Width:  kickWidth,
+			Height: kickHeight,
+		}
+
+		return physics.CheckCollision(kickObj, enemyObj)
+	}
+
+	if !isKicking {
+		player.Object.UpdateAnimation(int(animationDelay), []int{0}, []int{0}) // Volta para a animação padrão
+	}
+	return false
+}
