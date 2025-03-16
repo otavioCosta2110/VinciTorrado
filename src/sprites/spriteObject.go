@@ -1,4 +1,4 @@
-package system
+package sprites
 
 import rl "github.com/gen2brain/raylib-go/raylib"
 

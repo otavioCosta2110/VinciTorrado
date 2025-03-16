@@ -7,6 +7,7 @@ import (
 	"otaviocosta2110/getTheBlueBlocks/src/physics"
 	"otaviocosta2110/getTheBlueBlocks/src/player"
 	"otaviocosta2110/getTheBlueBlocks/src/screen"
+	"otaviocosta2110/getTheBlueBlocks/src/sprites"
 	"otaviocosta2110/getTheBlueBlocks/src/system"
 	"otaviocosta2110/getTheBlueBlocks/src/ui"
 
@@ -24,8 +25,6 @@ const (
 
 var enemyArray []enemy.Enemy
 
-// Collider represents any object that can collide with others
-
 func main() {
 	screen := screen.NewScreen(windowWidth, windowHeight, "jogo poggers")
 	rl.InitWindow(screen.Width, screen.Height, screen.Title)
@@ -33,16 +32,20 @@ func main() {
 
 	rl.SetTargetFPS(60)
 
-	playerSprite := system.Sprite{
+	playerSprite := sprites.Sprite{
 		SpriteWidth:  playerSizeX,
 		SpriteHeight: playerSizeY,
 		Texture:      rl.LoadTexture("assets/player.png"),
 	}
 
-	enemySprite := rl.LoadTexture("assets/enemy.png")
+	enemySprite := sprites.Sprite{
+		SpriteWidth:  playerSizeX,
+		SpriteHeight: playerSizeY,
+		Texture:      rl.LoadTexture("assets/enemy.png"),
+	}
 
-	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 0, 4, playerScale, playerSprite)
-	enemy := enemy.NewEnemy(50, 80, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite)
+	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 4, playerScale, playerSprite)
+	enemy :=    enemy.NewEnemy(50,         80,                  obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite)
 
 	for !rl.WindowShouldClose() {
 		update(player, enemy, screen)
@@ -51,32 +54,27 @@ func main() {
 }
 
 func update(p *player.Player, e *enemy.Enemy, screen *screen.Screen) {
-    if system.GameOverFlag {
-        return
-    }
+	if system.GameOverFlag {
+		return
+	}
 
-    prevPX, prevEX := p.Object.X, e.Object.X
-    prevPY, prevEY := p.Object.Y, e.Object.Y
+	physics.TakeKnockback(&p.Object)
 
-    physics.TakeKnockback(&p.Object)
+	if p.Object.KnockbackX == 0 || p.Object.KnockbackY == 0 {
+		p.CheckMovement(*screen)
+	}
 
-    if p.Object.KnockbackX == 0 || p.Object.KnockbackY == 0 {
-        p.CheckMovement(*screen)
-    }
+	if p.CheckAtk(e.Object) {
+		newEnemy := enemy.NewEnemy(rand.Int31n(screen.Width), rand.Int31n(screen.Height), e.Speed, playerSizeX, playerSizeY, playerScale, e.Object.Sprite)
+		*e = *newEnemy
+	}
 
-    if p.CheckAtk(e.Object) {
-        newEnemy := enemy.NewEnemy(rand.Int31n(screen.Width), rand.Int31n(screen.Height), e.Speed, e.Object.Width, e.Object.Height, 1, e.Sprite)
-        *e = *newEnemy
-    }
+	*e = enemy.MoveEnemyTowardPlayer(*p, *e, *screen)
 
-    *e = enemy.MoveEnemyTowardPlayer(*p, *e, *screen)
-
-    if physics.CheckCollision(p.Object, e.Object) {
-        p.TakeDamage(1, e.Object.X, e.Object.Y) // Pass enemy X for knockback direction
-        p.Object.X, e.Object.X = prevPX, prevEX
-        p.Object.Y, e.Object.Y = prevPY, prevEY
-        return
-    }
+	if physics.CheckCollision(p.Object, e.Object) {
+		p.TakeDamage(1, e.Object.X, e.Object.Y)
+		return
+	}
 }
 
 func draw(p *player.Player, e *enemy.Enemy, s screen.Screen) {
@@ -94,7 +92,6 @@ func draw(p *player.Player, e *enemy.Enemy, s screen.Screen) {
 	ui.DrawLife(s, p)
 
 	rl.DrawText(fmt.Sprintf("Player: %d, %d", p.Object.X, p.Object.Y), 10, 10, 10, rl.Black)
-	rl.DrawText(fmt.Sprintf("Points: %d", p.Points), 10, 40, 10, rl.Black)
 	rl.DrawText(fmt.Sprintf("Enemy: %d, %d", e.Object.X, e.Object.Y), 10, 25, 10, rl.Black)
 
 	rl.EndDrawing()

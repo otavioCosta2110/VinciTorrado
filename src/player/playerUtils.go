@@ -11,28 +11,6 @@ const (
 	invencibilityDuration = 1000
 )
 
-func (p *Player) UpdateAnimation(animationDelay int, framesX, framesY []int) {
-	if time.Since(p.LastFrameTime).Milliseconds() > int64(animationDelay) {
-		currentIndex := -1
-		for i := range framesX {
-			if p.FrameX == int32(framesX[i]) && p.FrameY == int32(framesY[i]) {
-				currentIndex = i
-				break
-			}
-		}
-
-		if currentIndex == -1 {
-			p.FrameX = int32(framesX[0])
-			p.FrameY = int32(framesY[0])
-		} else {
-			nextIndex := (currentIndex + 1) % len(framesX)
-			p.FrameX = int32(framesX[nextIndex])
-			p.FrameY = int32(framesY[nextIndex])
-		}
-
-		p.LastFrameTime = time.Now()
-	}
-}
 
 func (p *Player) DrawPlayer() {
 	color := rl.White
@@ -43,23 +21,23 @@ func (p *Player) DrawPlayer() {
 		}
 	}
 
-	var width float32 = float32(p.Sprite.SpriteWidth)
+	var width float32 = float32(p.Object.Sprite.SpriteWidth)
 	if p.Flipped {
 		width = -float32(width)
 	}
 
 	sourceRec := rl.NewRectangle(
-		float32(p.FrameX)*float32(p.Sprite.SpriteWidth),
-		float32(p.FrameY)*float32(p.Sprite.SpriteWidth),
+		float32(p.Object.FrameX)*float32(p.Object.Sprite.SpriteWidth),
+		float32(p.Object.FrameY)*float32(p.Object.Sprite.SpriteWidth),
 		width,
-		float32(p.Sprite.SpriteHeight),
+		float32(p.Object.Sprite.SpriteHeight),
 	)
 
 	destinationRec := rl.NewRectangle(
 		float32(p.Object.X),
 		float32(p.Object.Y),
-		float32(p.Sprite.SpriteWidth)*float32(p.Scale),
-		float32(p.Sprite.SpriteHeight)*float32(p.Scale),
+		float32(p.Object.Sprite.SpriteWidth)*float32(p.Scale),
+		float32(p.Object.Sprite.SpriteHeight)*float32(p.Scale),
 	)
 
 	origin := rl.NewVector2(
@@ -67,7 +45,7 @@ func (p *Player) DrawPlayer() {
 		destinationRec.Height/2,
 	)
 
-	rl.DrawTexturePro(p.Sprite.Texture, sourceRec, destinationRec, origin, 0.0, color)
+	rl.DrawTexturePro(p.Object.Sprite.Texture, sourceRec, destinationRec, origin, 0.0, color)
 
 	// faz a caixa vermelha pra ver colisao
 	rl.DrawRectangleLines(
