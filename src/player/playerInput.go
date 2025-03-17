@@ -1,7 +1,6 @@
 package player
 
 import (
-	"otaviocosta2110/getTheBlueBlocks/src/objects"
 	"otaviocosta2110/getTheBlueBlocks/src/physics"
 	"otaviocosta2110/getTheBlueBlocks/src/screen"
 	"otaviocosta2110/getTheBlueBlocks/src/system"
@@ -19,7 +18,7 @@ var (
 )
 
 func (player *Player) CheckMovement(screen screen.Screen) {
-	if player.Object.FrameY == 1 {
+	if player.Object.FrameY == 1 || player.Object.FrameY == 2 {
 		return
 	}
 	if rl.IsKeyDown(rl.KeyLeft) && player.Object.X > player.Object.Width/2 {
@@ -82,27 +81,24 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 	return false
 }
 
-func (player *Player) CheckKick(enemyObj system.Object, box *objects.Box) bool {
-	// Define a área do chute
+func (player *Player) CheckKick(enemyObj *system.Object) bool {
 	kickX := player.Object.X
-	kickY := player.Object.Y - player.Object.Height/3
+	kickY := player.Object.Y
 
 	kickWidth := player.Object.Width
 	kickHeight := player.Object.Height / 2
 
 	if player.Flipped {
-		kickX -= kickWidth + kickWidth/2 // Chute para a esquerda
+		kickX -= kickWidth + kickWidth/2
 	} else {
-		kickX += kickWidth / 2 // Chute para a direita
+		kickX += kickWidth / 2
 	}
 
-	// Desenha a caixa de colisão do chute (para debug)
-	rl.DrawRectangle(kickX, kickY, kickWidth, kickHeight, rl.Blue)
+	// Debug: Draw the kick hitbox
 
 	if rl.IsKeyPressed(rl.KeyX) {
 		player.IsKicking = true
-
-		player.Object.UpdateAnimation(50, []int{0, 1}, []int{0, 2})
+		player.Object.UpdateAnimation(50, []int{0, 0}, []int{2, 0})
 
 		kickObj := system.Object{
 			X:      kickX,
@@ -111,30 +107,24 @@ func (player *Player) CheckKick(enemyObj system.Object, box *objects.Box) bool {
 			Height: kickHeight,
 		}
 
-		// Verifica colisão com o inimigo
-		if physics.CheckCollision(kickObj, enemyObj) {
+		// nao me pergunta porque precisa disso
+		newEnObj := system.Object{
+			X:      enemyObj.X - enemyObj.Width/2,
+			Y:      enemyObj.Y - enemyObj.Height/2,
+			Width:  enemyObj.Width,
+			Height: enemyObj.Height,
+		}
+
+		if physics.CheckCollision(kickObj, *&newEnObj) {
+
+			enemyObj.SetKnockback(kickObj)
 			player.IsKicking = false
 			return true
-		}
-
-		// Verifica colisão com a caixa
-		boxObj := system.Object{
-			X:      box.X,
-			Y:      box.Y,
-			Width:  box.Width,
-			Height: box.Height,
-		}
-
-		if physics.CheckCollision(kickObj, boxObj) {
-			physics.ResolveCollision(&kickObj, &boxObj)
-			box.X = boxObj.X
-			box.Y = boxObj.Y
-			player.IsKicking = false
-			return false
 		}
 	} else {
 		player.IsKicking = false
 	}
 
+	rl.DrawRectangle(kickX, kickY, kickWidth, kickHeight, rl.Blue)
 	return false
 }

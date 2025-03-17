@@ -46,7 +46,7 @@ func main() {
 	}
 
 	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 4, playerScale, playerSprite)
-	enemy := enemy.NewEnemy(50, 80, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite)
+	enemy := enemy.NewEnemy(200, 200, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite)
 
 	box := objects.NewBox(400, 400, 50, 50, rl.Brown)
 
@@ -62,27 +62,24 @@ func update(p *player.Player, e *enemy.Enemy, box *objects.Box, screen *screen.S
 	}
 
 	physics.TakeKnockback(&p.Object)
+	physics.TakeKnockback(&box.Object)
 
 	if p.Object.KnockbackX == 0 || p.Object.KnockbackY == 0 {
 		p.CheckMovement(*screen)
-
-		// Verifica colisão entre o jogador e a caixa
-		objects.CheckPlayerBoxCollision(&p.Object, box)
 	}
 
 	if p.CheckAtk(e.Object) {
 		newEnemy := enemy.NewEnemy(rand.Int31n(screen.Width), rand.Int31n(screen.Height), e.Speed, playerSizeX, playerSizeY, playerScale, e.Object.Sprite)
 		*e = *newEnemy
 	}
-
-	// Verifica se chutou a caixa
-	if p.CheckKick(e.Object, box) {
-		newEnemy := enemy.NewEnemy(rand.Int31n(screen.Width), rand.Int31n(screen.Height), e.Speed, playerSizeX, playerSizeY, playerScale, e.Object.Sprite)
-		*e = *newEnemy
+	if physics.CheckCollision(p.Object, box.Object) {
+		physics.ResolveCollision(&box.Object, &p.Object)
 	}
 
+	p.CheckKick(&box.Object)
+
 	if e.CheckAtk(p.Object) {
-		p.TakeDamage(1, e.Object.X, e.Object.Y)
+		p.TakeDamage(1, e.Object)
 		return
 	}
 

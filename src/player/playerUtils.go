@@ -26,9 +26,10 @@ func (p *Player) DrawPlayer() {
 	}
 
 	frameX := p.Object.FrameX
-	if rl.IsKeyPressed(rl.KeyX) {
-		frameX = 4
-	}
+	// if rl.IsKeyPressed(rl.KeyX) {
+    // p.Object.UpdateAnimation(50, []int{0,0}, []int{2,0})
+ //    p.Object.FrameY = 2
+	// }
 
 	sourceRec := rl.NewRectangle(
 		float32(frameX)*float32(p.Object.Sprite.SpriteWidth),
@@ -61,34 +62,16 @@ func (p *Player) DrawPlayer() {
 	)
 }
 
-func (p *Player) TakeDamage(damage int32, eX int32, eY int32) {
+func (p *Player) TakeDamage(damage int32, eObj system.Object) {
 	if !p.isInvincible(invencibilityDuration) {
 		if p.Health > 1 {
 			p.Health -= damage
 			p.LastDamageTaken = time.Now()
-			p.setKnockback(eX, eY)
+			p.Object.SetKnockback(eObj)
 		} else {
 			system.GameOverFlag = true
 		}
 	}
-}
-
-func (p *Player) setKnockback(eX int32, eY int32) {
-	knockbackStrengthX := int32(15)
-	knockbackStrengthY := int32(10)
-
-	if p.Object.X < eX {
-		p.Object.KnockbackX = -knockbackStrengthX
-	} else {
-		p.Object.KnockbackX = knockbackStrengthX
-	}
-
-	if p.Object.Y < eY/2 {
-		p.Object.KnockbackY = -knockbackStrengthY
-	} else {
-		p.Object.KnockbackY = knockbackStrengthY
-	}
-
 }
 
 func (p *Player) isInvincible(duration int) bool {

@@ -40,3 +40,21 @@ func (obj *Object) UpdateAnimation(animationDelay int, framesX, framesY []int) {
 		obj.LastFrameTime = time.Now()
 	}
 }
+
+func (obj *Object) SetKnockback(attackingObj Object) {
+	knockbackStrengthX := int32(10)
+	knockbackStrengthY := int32(10)
+
+	if obj.X < attackingObj.X {
+		obj.KnockbackX = -knockbackStrengthX
+	} else {
+		obj.KnockbackX = knockbackStrengthX
+	}
+
+	if obj.Y < attackingObj.Y {
+		obj.KnockbackY = -knockbackStrengthY
+	} else {
+		obj.KnockbackY = knockbackStrengthY
+	}
+
+}
