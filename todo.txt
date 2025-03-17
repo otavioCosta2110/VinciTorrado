@@ -1,3 +1,5 @@
+aumentar colisao do soco e chute pra ficar dentro do player
+
 fazer o player ir pra tras quando for acertado
 animacao do player sendo jogado pra tras
 
@@ -5,3 +7,4 @@ ajeitar colisão da caixa, não condiz com o tamanho
 melhorar a movimentação da caixa
 
 animacao do inimigo preparando atk
+
