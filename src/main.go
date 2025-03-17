@@ -62,6 +62,7 @@ func update(p *player.Player, e *enemy.Enemy, box *objects.Box, screen *screen.S
 	}
 
 	physics.TakeKnockback(&p.Object)
+  physics.TakeKnockback(&box.Object)
 
 	if p.Object.KnockbackX == 0 || p.Object.KnockbackY == 0 {
 		p.CheckMovement(*screen)
@@ -74,14 +75,12 @@ func update(p *player.Player, e *enemy.Enemy, box *objects.Box, screen *screen.S
   if physics.CheckCollision(p.Object, box.Object){
     physics.ResolveCollision(&box.Object, &p.Object)
   }
-	// if p.CheckKick(e.Object, box) {
-		//
-		// box.Object.X += 5
-		// box.Object.Y -= 3
-	// }
+
+	p.CheckKick(&box.Object)
+	
 
 	if e.CheckAtk(p.Object) {
-		p.TakeDamage(1, e.Object.X, e.Object.Y)
+		p.TakeDamage(1, e.Object)
 		return
 	}
 

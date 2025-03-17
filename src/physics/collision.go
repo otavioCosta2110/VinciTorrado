@@ -8,8 +8,8 @@ func CheckCollision(obj1, obj2 system.Object) bool {
 }
 
 func ResolveCollision(a, b *system.Object) {
-	overlapX := (a.Width/2 + b.Width/2) - abs(a.X-b.X)
-	overlapY := (a.Height/2 + b.Height/2) - abs(a.Y-b.Y)
+	overlapX := (a.Width/2 + b.Width/2) - abs(b.X-a.X)
+	overlapY := (a.Height/2 + b.Height/2) - abs(b.Y-a.Y)
 
 	if overlapX > 0 && overlapY > 0 {
 		if overlapY > overlapX {
