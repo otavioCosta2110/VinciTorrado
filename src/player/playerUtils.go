@@ -1,6 +1,8 @@
 package player
 
 import (
+	"otaviocosta2110/getTheBlueBlocks/src/physics"
+	"otaviocosta2110/getTheBlueBlocks/src/screen"
 	"otaviocosta2110/getTheBlueBlocks/src/system"
 	"time"
 
@@ -11,8 +13,37 @@ const (
 	invencibilityDuration = 1000
 )
 
+func (p *Player) Update(e system.Live, screen screen.Screen) {
+	physics.TakeKnockback(&p.Object)
 
-func (p *Player) DrawPlayer() {
+	if p.Object.KnockbackX == 0 || p.Object.KnockbackY == 0 {
+		p.CheckMovement(screen)
+	}
+
+	enemyObject := e.GetObject()
+
+	if p.CheckAtk(enemyObject) {
+		println("atk")
+		// reseta a pos do inimigo
+		e.SetObject(system.Object{
+			X:              0,
+			Y:              0,
+			Width:          enemyObject.Width,          // Keep existing
+			Height:         enemyObject.Height,         // Keep existing
+			KnockbackX:     enemyObject.KnockbackX,     // Keep existing
+			KnockbackY:     enemyObject.KnockbackY,     // Keep existing
+			FrameX:         enemyObject.FrameX,         // Keep existing
+			FrameY:         enemyObject.FrameY,         // Keep existing
+			LastFrameTime:  enemyObject.LastFrameTime,  // Keep existing
+			LastAttackTime: enemyObject.LastAttackTime, // Keep existing
+			Sprite:         enemyObject.Sprite,         // Keep existing
+			Scale:          enemyObject.Scale,          // Keep existing
+		})
+		e.TakeDamage(1, p.Object.X, p.Object.Y)
+	}
+}
+
+func (p *Player) Draw() {
 	color := rl.White
 
 	if p.isInvincible(invencibilityDuration) {
@@ -36,8 +67,8 @@ func (p *Player) DrawPlayer() {
 	destinationRec := rl.NewRectangle(
 		float32(p.Object.X),
 		float32(p.Object.Y),
-		float32(p.Object.Sprite.SpriteWidth)*float32(p.Scale),
-		float32(p.Object.Sprite.SpriteHeight)*float32(p.Scale),
+		float32(p.Object.Sprite.SpriteWidth)*float32(p.Object.Scale),
+		float32(p.Object.Sprite.SpriteHeight)*float32(p.Object.Scale),
 	)
 
 	origin := rl.NewVector2(
@@ -81,9 +112,9 @@ func (p *Player) setKnockback(eX int32, eY int32) {
 
 	if p.Object.Y < eY/2 {
 		p.Object.KnockbackY = -knockbackStrengthY
-	}else{
+	} else {
 		p.Object.KnockbackY = knockbackStrengthY
-  }
+	}
 
 }
 

@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"otaviocosta2110/getTheBlueBlocks/src/enemy"
-	"otaviocosta2110/getTheBlueBlocks/src/physics"
 	"otaviocosta2110/getTheBlueBlocks/src/player"
 	"otaviocosta2110/getTheBlueBlocks/src/screen"
 	"otaviocosta2110/getTheBlueBlocks/src/sprites"
@@ -57,24 +55,8 @@ func update(p *player.Player, e *enemy.Enemy, screen *screen.Screen) {
 	if system.GameOverFlag {
 		return
 	}
-
-	physics.TakeKnockback(&p.Object)
-
-	if p.Object.KnockbackX == 0 || p.Object.KnockbackY == 0 {
-		p.CheckMovement(*screen)
-	}
-
-	if p.CheckAtk(e.Object) {
-		newEnemy := enemy.NewEnemy(rand.Int31n(screen.Width), rand.Int31n(screen.Height), e.Speed, playerSizeX, playerSizeY, playerScale, e.Object.Sprite)
-		*e = *newEnemy
-	}
-
-	if e.CheckAtk(p.Object) {
-		p.TakeDamage(1, e.Object.X, e.Object.Y)
-		return
-	}
-
-	*e = enemy.MoveEnemyTowardPlayer(*p, *e, *screen)
+	e.Update(p, *screen)
+	p.Update(e, *screen)
 }
 
 func draw(p *player.Player, e *enemy.Enemy, s screen.Screen) {
@@ -87,8 +69,8 @@ func draw(p *player.Player, e *enemy.Enemy, s screen.Screen) {
 		return
 	}
 
-	p.DrawPlayer()
-	e.DrawEnemy()
+	p.Draw()
+	e.Draw()
 	ui.DrawLife(s, p)
 
 	rl.DrawText(fmt.Sprintf("Player: %d, %d", p.Object.X, p.Object.Y), 10, 10, 10, rl.Black)

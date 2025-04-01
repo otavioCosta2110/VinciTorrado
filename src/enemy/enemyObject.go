@@ -3,6 +3,8 @@ package enemy
 import (
 	"math/rand"
 	"otaviocosta2110/getTheBlueBlocks/src/physics"
+	"otaviocosta2110/getTheBlueBlocks/src/player"
+	"otaviocosta2110/getTheBlueBlocks/src/screen"
 	"otaviocosta2110/getTheBlueBlocks/src/sprites"
 	"otaviocosta2110/getTheBlueBlocks/src/system"
 	"time"
@@ -15,38 +17,51 @@ const (
 )
 
 type Enemy struct {
-	Object  system.Object
-	Speed   int32
-	Scale   int32
-	Flipped bool
+	system.LiveObject
+}
+
+func (e *Enemy) GetObject() system.Object {
+	return e.Object
+}
+
+func (e *Enemy) SetObject(obj system.Object) {
+	e.Object = obj
 }
 
 func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite) *Enemy {
 	return &Enemy{
-		Object: system.Object{
-			X:              x,
-			Y:              y,
-			Width:          width * scale / 2,
-			Height:         height * scale,
-			KnockbackX:     0,
-			KnockbackY:     0,
-			FrameY:         0,
-			FrameX:         0,
-			LastFrameTime:  time.Now(),
-			LastAttackTime: time.Now(),
-			Sprite: sprites.Sprite{
-				SpriteWidth:  width,
-				SpriteHeight: height,
-				Texture:      sprite.Texture,
+		LiveObject: system.LiveObject{
+			Object: system.Object{
+				X:              x,
+				Y:              y,
+				Width:          width * scale / 2,
+				Height:         height * scale,
+				KnockbackX:     0,
+				KnockbackY:     0,
+				FrameY:         0,
+				FrameX:         0,
+				LastFrameTime:  time.Now(),
+				LastAttackTime: time.Now(),
+				Sprite: sprites.Sprite{
+					SpriteWidth:  width,
+					SpriteHeight: height,
+					Texture:      sprite.Texture,
+				},
+				Scale: scale,
 			},
+			MaxHealth: 5,
+			Health:    5,
+			Speed:     speed,
+			Flipped:   false,
 		},
-		Speed:   speed,
-		Scale:   scale,
-		Flipped: false,
 	}
 }
 
-func (e *Enemy) DrawEnemy() {
+func (e *Enemy) TakeDamage(damage int32, eX int32, eY int32) {
+	e.Health -= damage
+}
+
+func (e *Enemy) Draw() {
 	var width float32 = float32(e.Object.Sprite.SpriteWidth)
 	if e.Flipped {
 		width = -float32(width)
@@ -62,8 +77,8 @@ func (e *Enemy) DrawEnemy() {
 	destinationRec := rl.NewRectangle(
 		float32(e.Object.X),
 		float32(e.Object.Y),
-		float32(e.Object.Sprite.SpriteWidth)*float32(e.Scale),
-		float32(e.Object.Sprite.SpriteHeight)*float32(e.Scale),
+		float32(e.Object.Sprite.SpriteWidth)*float32(e.Object.Scale),
+		float32(e.Object.Sprite.SpriteHeight)*float32(e.Object.Scale),
 	)
 
 	origin := rl.NewVector2(
@@ -78,7 +93,7 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 	punchX := e.Object.X
 	punchY := e.Object.Y - e.Object.Height/3
 
-	punchWidth := e.Object.Width /2
+	punchWidth := e.Object.Width / 2
 	punchHeight := e.Object.Height / 2
 
 	if e.Flipped {
@@ -97,8 +112,8 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 	}
 
 	attackCooldown := int64(2000)
-  // wind up time eh tipo o tempo que o boneco precisa esperar pra atacar
-  // tipo, ele vai parar na frente do player e esperar 0.5 seg pra atacar de fato
+	// wind up time eh tipo o tempo que o boneco precisa esperar pra atacar
+	// tipo, ele vai parar na frente do player e esperar 0.5 seg pra atacar de fato
 	windUpTime := int64(500)
 
 	timeSinceLastAttack := time.Since(e.Object.LastAttackTime).Milliseconds()
@@ -120,4 +135,13 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 
 	e.Object.UpdateAnimation(300, []int{0, 1}, []int{0, 0})
 	return false
+}
+
+func (e *Enemy) Update(p *player.Player, screen screen.Screen) {
+	if e.CheckAtk(p.Object) {
+		p.TakeDamage(1, e.Object.X, e.Object.Y)
+		return
+	}
+
+	*e = MoveEnemyTowardPlayer(*p, *e, screen)
 }

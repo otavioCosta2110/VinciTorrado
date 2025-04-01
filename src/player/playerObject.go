@@ -7,18 +7,13 @@ import (
 )
 
 type Player struct {
-	Object          system.Object
-	Speed           int32
-	Health          int32
-	MaxHealth       int32
-	Flipped         bool
-	Scale           int32
-	LastDamageTaken time.Time
+	system.LiveObject
 }
 
 func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite) *Player {
 	return &Player{
-		Object: system.Object{
+		LiveObject: system.LiveObject{
+			Object: system.Object{
 			X:             x,
 			Y:             y,
 			Width:         width * scale / 2,
@@ -28,17 +23,18 @@ func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite) *
 			FrameY:        0,
 			FrameX:        0,
 			LastFrameTime: time.Now(),
-      Sprite: sprites.Sprite{
-        SpriteWidth:  width,
-        SpriteHeight: height,
-        Texture:      sprite.Texture,
-      },
+			Sprite: sprites.Sprite{
+				SpriteWidth:  width,
+				SpriteHeight: height,
+				Texture:      sprite.Texture,
+			},
+			Scale:           scale,
 		},
-		Speed:  speed,
+		Speed:           speed,
 		Flipped:         false,
-		Scale:           scale,
 		MaxHealth:       5,
 		Health:          5,
 		LastDamageTaken: time.Now(),
+	},
 	}
 }
