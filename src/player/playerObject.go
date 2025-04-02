@@ -14,6 +14,7 @@ type Player struct {
 	Flipped         bool
 	Scale           int32
 	LastDamageTaken time.Time
+	IsKicking       bool
 }
 
 func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite) *Player {
@@ -28,13 +29,13 @@ func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite) *
 			FrameY:        0,
 			FrameX:        0,
 			LastFrameTime: time.Now(),
-      Sprite: sprites.Sprite{
-        SpriteWidth:  width,
-        SpriteHeight: height,
-        Texture:      sprite.Texture,
-      },
+			Sprite: sprites.Sprite{
+				SpriteWidth:  width,
+				SpriteHeight: height,
+				Texture:      sprite.Texture,
+			},
 		},
-		Speed:  speed,
+		Speed:           speed,
 		Flipped:         false,
 		Scale:           scale,
 		MaxHealth:       5,
