@@ -7,39 +7,40 @@ import (
 )
 
 type Player struct {
-	Object          system.Object
-	Speed           int32
-	Health          int32
-	MaxHealth       int32
-	Flipped         bool
-	Scale           int32
-	LastDamageTaken time.Time
-	IsKicking       bool
+	system.LiveObject
+	IsKicking bool
 }
 
 func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite) *Player {
 	return &Player{
-		Object: system.Object{
-			X:             x,
-			Y:             y,
-			Width:         width * scale / 2,
-			Height:        height * scale,
-			KnockbackX:    0,
-			KnockbackY:    0,
-			FrameY:        0,
-			FrameX:        0,
-			LastFrameTime: time.Now(),
-			Sprite: sprites.Sprite{
-				SpriteWidth:  width,
-				SpriteHeight: height,
-				Texture:      sprite.Texture,
+		LiveObject: system.LiveObject{
+			Object: system.Object{
+				X:             x,
+				Y:             y,
+				Width:         width * scale / 2,
+				Height:        height * scale,
+				KnockbackX:    0,
+				KnockbackY:    0,
+				FrameY:        0,
+				FrameX:        0,
+				LastFrameTime: time.Now(),
+				Sprite: sprites.Sprite{
+					SpriteWidth:  width,
+					SpriteHeight: height,
+					Texture:      sprite.Texture,
+				},
+				Scale: scale,
 			},
+			Speed:           speed,
+			Flipped:         false,
+			MaxHealth:       5,
+			Health:          5,
+			LastDamageTaken: time.Now(),
 		},
-		Speed:           speed,
-		Flipped:         false,
-		Scale:           scale,
-		MaxHealth:       5,
-		Health:          5,
-		LastDamageTaken: time.Now(),
+		IsKicking:       false,
 	}
+}
+
+func (p *Player) GetObject() system.Object {
+	return p.Object
 }

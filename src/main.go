@@ -2,10 +2,8 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"otaviocosta2110/getTheBlueBlocks/src/enemy"
-	"otaviocosta2110/getTheBlueBlocks/src/objects"
-	"otaviocosta2110/getTheBlueBlocks/src/physics"
+	// "otaviocosta2110/getTheBlueBlocks/src/objects"
 	"otaviocosta2110/getTheBlueBlocks/src/player"
 	"otaviocosta2110/getTheBlueBlocks/src/screen"
 	"otaviocosta2110/getTheBlueBlocks/src/sprites"
@@ -19,12 +17,10 @@ const (
 	windowWidth   int32 = 1280
 	windowHeight  int32 = 720
 	obstacleSpeed int32 = 2
-	playerScale   int32 = 3
+	playerScale   int32 = 4
 	playerSizeX   int32 = 32
 	playerSizeY   int32 = 32
 )
-
-var enemyArray []enemy.Enemy
 
 func main() {
 	screen := screen.NewScreen(windowWidth, windowHeight, "jogo poggers")
@@ -46,49 +42,51 @@ func main() {
 	}
 
 	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 4, playerScale, playerSprite)
-	enemy := enemy.NewEnemy(200, 200, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite)
+	enemyManager := enemy.EnemyManager{}
+	
+	enemyManager.AddEnemy(enemy.NewEnemy(50, 80, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
+	enemyManager.AddEnemy(enemy.NewEnemy(200, 150, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
+	enemyManager.AddEnemy(enemy.NewEnemy(300, 300, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
 
-	box := objects.NewBox(400, 400, 50, 50, rl.Brown)
+	// box := objects.NewBox(400, 400, 50, 50, rl.Brown)
 
 	for !rl.WindowShouldClose() {
-		update(player, enemy, box, screen)
-		draw(player, enemy, box, *screen)
+		update(player, &enemyManager, screen)
+		draw(player, &enemyManager, *screen)
 	}
 }
 
-func update(p *player.Player, e *enemy.Enemy, box *objects.Box, screen *screen.Screen) {
+func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen) {
 	if system.GameOverFlag {
 		return
 	}
-
-	physics.TakeKnockback(&p.Object)
-	physics.TakeKnockback(&box.Object)
-
-	if p.Object.KnockbackX == 0 || p.Object.KnockbackY == 0 {
-		p.CheckMovement(*screen)
-	}
-
-	if p.CheckAtk(e.Object) {
-		newEnemy := enemy.NewEnemy(rand.Int31n(screen.Width), rand.Int31n(screen.Height), e.Speed, playerSizeX, playerSizeY, playerScale, e.Object.Sprite)
-		*e = *newEnemy
-	}
-	if physics.CheckCollision(p.Object, box.Object) {
-		physics.ResolveCollision(&box.Object, &p.Object)
-	}
-
-	p.CheckKick(&box.Object)
-
-	if e.CheckAtk(p.Object) {
-		p.TakeDamage(1, e.Object)
-		return
-	}
-
-	*e = enemy.MoveEnemyTowardPlayer(*p, *e, *screen)
+	
+	em.Update(p, *screen)
+	p.Update(em, *screen)
 }
 
-func draw(p *player.Player, e *enemy.Enemy, box *objects.Box, s screen.Screen) {
+func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen) {
 	rl.BeginDrawing()
+	
 	rl.ClearBackground(rl.RayWhite)
+	
+	chao := rl.LoadTexture("assets/chao.png")
+	chao.Width *= playerScale
+	chao.Height *= playerScale
+
+	tilesX := s.Width/(chao.Width) + 1 
+	tilesY := s.Height/(chao.Height) + 1
+
+	for y := 0; int32(y) < tilesY; y++ {
+		for x := 0; int32(x) < tilesX; x++ {
+			rl.DrawTexture(
+				chao,
+				(int32(x)*chao.Width),
+				(int32(y)*chao.Height),
+				rl.White,
+			)
+		}
+	}
 
 	if system.GameOverFlag {
 		system.GameOver(&s)
@@ -96,13 +94,13 @@ func draw(p *player.Player, e *enemy.Enemy, box *objects.Box, s screen.Screen) {
 		return
 	}
 
-	p.DrawPlayer()
-	e.DrawEnemy()
-	box.Draw()
+	p.Draw()
+	em.Draw()
+	// box.Draw()
 	ui.DrawLife(s, p)
 
 	rl.DrawText(fmt.Sprintf("Player: %d, %d", p.Object.X, p.Object.Y), 10, 10, 10, rl.Black)
-	rl.DrawText(fmt.Sprintf("Enemy: %d, %d", e.Object.X, e.Object.Y), 10, 25, 10, rl.Black)
+	rl.DrawText(fmt.Sprintf("Enemies: %d", len(em.Enemies)), 10, 25, 10, rl.Black)
 
 	rl.EndDrawing()
 }
