@@ -1,6 +1,7 @@
 package player
 
 import (
+	"otaviocosta2110/getTheBlueBlocks/src/enemy"
 	"otaviocosta2110/getTheBlueBlocks/src/physics"
 	"otaviocosta2110/getTheBlueBlocks/src/screen"
 	"otaviocosta2110/getTheBlueBlocks/src/system"
@@ -13,36 +14,22 @@ const (
 	invencibilityDuration = 1000
 )
 
-func (p *Player) Update(e system.Live, screen screen.Screen) {
+func (p *Player) Update(em *enemy.EnemyManager, screen screen.Screen) {
 	physics.TakeKnockback(&p.Object)
 
 	if p.Object.KnockbackX == 0 || p.Object.KnockbackY == 0 {
 		p.CheckMovement(screen)
 	}
 
-	enemyObject := e.GetObject()
+	for _, enemy := range em.Enemies {
+		enemyObject := enemy.GetObject()
 
-	if p.CheckAtk(enemyObject) {
-		println("atk")
-		// reseta a pos do inimigo
-		e.SetObject(system.Object{
-			X:              0,
-			Y:              0,
-			Width:          enemyObject.Width,          // Keep existing
-			Height:         enemyObject.Height,         // Keep existing
-			KnockbackX:     enemyObject.KnockbackX,     // Keep existing
-			KnockbackY:     enemyObject.KnockbackY,     // Keep existing
-			FrameX:         enemyObject.FrameX,         // Keep existing
-			FrameY:         enemyObject.FrameY,         // Keep existing
-			LastFrameTime:  enemyObject.LastFrameTime,  // Keep existing
-			LastAttackTime: enemyObject.LastAttackTime, // Keep existing
-			Sprite:         enemyObject.Sprite,         // Keep existing
-			Scale:          enemyObject.Scale,          // Keep existing
-		})
-		e.TakeDamage(1, p.Object.X, p.Object.Y)
+		if p.CheckAtk(enemyObject) {
+			println("atk")
+			enemy.TakeDamage(1, p.Object.X, p.Object.Y)
+		}
 	}
 }
-
 func (p *Player) Draw() {
 	color := rl.White
 

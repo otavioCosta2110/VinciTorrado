@@ -38,3 +38,7 @@ func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite) *
 	},
 	}
 }
+
+func (p *Player) GetObject() system.Object {
+	return p.Object
+}

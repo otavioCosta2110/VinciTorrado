@@ -3,7 +3,6 @@ package enemy
 import (
 	"math/rand"
 	"otaviocosta2110/getTheBlueBlocks/src/physics"
-	"otaviocosta2110/getTheBlueBlocks/src/player"
 	"otaviocosta2110/getTheBlueBlocks/src/screen"
 	"otaviocosta2110/getTheBlueBlocks/src/sprites"
 	"otaviocosta2110/getTheBlueBlocks/src/system"
@@ -18,6 +17,7 @@ const (
 
 type Enemy struct {
 	system.LiveObject
+	LastAttackTime time.Time
 }
 
 func (e *Enemy) GetObject() system.Object {
@@ -48,6 +48,7 @@ func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite) *E
 					Texture:      sprite.Texture,
 				},
 				Scale: scale,
+				Destroyed: false,
 			},
 			MaxHealth: 5,
 			Health:    5,
@@ -55,10 +56,6 @@ func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite) *E
 			Flipped:   false,
 		},
 	}
-}
-
-func (e *Enemy) TakeDamage(damage int32, eX int32, eY int32) {
-	e.Health -= damage
 }
 
 func (e *Enemy) Draw() {
@@ -137,11 +134,46 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 	return false
 }
 
-func (e *Enemy) Update(p *player.Player, screen screen.Screen) {
-	if e.CheckAtk(p.Object) {
+func (e *Enemy) Update(p system.Player, screen screen.Screen) {
+	if e.Object.Destroyed {
+		return
+	}
+	physics.TakeKnockback(&e.Object)
+	if e.CheckAtk(p.GetObject()) {
 		p.TakeDamage(1, e.Object.X, e.Object.Y)
 		return
 	}
 
-	*e = MoveEnemyTowardPlayer(*p, *e, screen)
+	if e.Object.KnockbackX == 0 || e.Object.KnockbackY == 0 {
+		*e = MoveEnemyTowardPlayer(p, *e, screen)
+	}
+}
+
+// ele devia na vdd soh mandar pra tras qnd levasse tipo 3 hit
+func (e *Enemy) setKnockback(pX int32, pY int32) {
+	knockbackStrengthX := int32(20)
+	knockbackStrengthY := int32(0)
+
+	if e.Object.X < pX {
+		e.Object.KnockbackX = -knockbackStrengthX
+	} else {
+		e.Object.KnockbackX = knockbackStrengthX
+	}
+
+	if e.Object.Y < pY/2 {
+		e.Object.KnockbackY = -knockbackStrengthY
+	} else {
+		e.Object.KnockbackY = knockbackStrengthY
+	}
+}
+
+func (e *Enemy) TakeDamage(damage int32, pX int32, pY int32) {
+	if e.Health > 1 {
+		e.Health -= damage
+		e.LastDamageTaken = time.Now()
+		e.setKnockback(pX, pY)
+	} else{
+		e.Object.Destroyed = true
+	}
+
 }

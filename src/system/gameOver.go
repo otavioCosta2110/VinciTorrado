@@ -15,5 +15,5 @@ func GameOver(s *screen.Screen) {
 	xPos := (s.Width - textWidth) / 2
 	yPos := s.Height / 2
 
-	rl.DrawText(text, xPos, yPos, 100, rl.Black)
+	rl.DrawText(text, xPos, yPos, 100, rl.White)
 }

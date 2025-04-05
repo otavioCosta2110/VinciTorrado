@@ -16,7 +16,8 @@ type Object struct {
 	LastFrameTime  time.Time
 	LastAttackTime time.Time
 	Sprite         sprites.Sprite
-	Scale           int32
+	Scale          int32
+	Destroyed      bool
 }
 
 func (obj *Object) UpdateAnimation(animationDelay int, framesX, framesY []int) {
