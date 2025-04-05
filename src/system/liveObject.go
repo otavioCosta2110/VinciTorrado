@@ -22,7 +22,7 @@ type Live interface  {
 
 type Player interface {
     GetObject() Object
-    TakeDamage(damage int32, eX int32, eY int32)
+    TakeDamage(damage int32, eobj Object)
 }
 
 type Enemy interface {

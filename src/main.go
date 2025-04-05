@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"otaviocosta2110/getTheBlueBlocks/src/enemy"
+	// "otaviocosta2110/getTheBlueBlocks/src/objects"
 	"otaviocosta2110/getTheBlueBlocks/src/player"
 	"otaviocosta2110/getTheBlueBlocks/src/screen"
 	"otaviocosta2110/getTheBlueBlocks/src/sprites"
@@ -41,12 +42,13 @@ func main() {
 	}
 
 	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 4, playerScale, playerSprite)
-	
 	enemyManager := enemy.EnemyManager{}
 	
 	enemyManager.AddEnemy(enemy.NewEnemy(50, 80, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
 	enemyManager.AddEnemy(enemy.NewEnemy(200, 150, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
 	enemyManager.AddEnemy(enemy.NewEnemy(300, 300, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
+
+	// box := objects.NewBox(400, 400, 50, 50, rl.Brown)
 
 	for !rl.WindowShouldClose() {
 		update(player, &enemyManager, screen)
@@ -94,6 +96,7 @@ func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen) {
 
 	p.Draw()
 	em.Draw()
+	// box.Draw()
 	ui.DrawLife(s, p)
 
 	rl.DrawText(fmt.Sprintf("Player: %d, %d", p.Object.X, p.Object.Y), 10, 10, 10, rl.Black)

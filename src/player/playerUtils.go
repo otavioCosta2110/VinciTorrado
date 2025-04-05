@@ -30,6 +30,7 @@ func (p *Player) Update(em *enemy.EnemyManager, screen screen.Screen) {
 		}
 	}
 }
+
 func (p *Player) Draw() {
 	color := rl.White
 
@@ -44,8 +45,14 @@ func (p *Player) Draw() {
 		width = -float32(width)
 	}
 
+	frameX := p.Object.FrameX
+	// if rl.IsKeyPressed(rl.KeyX) {
+    // p.Object.UpdateAnimation(50, []int{0,0}, []int{2,0})
+ //    p.Object.FrameY = 2
+	// }
+
 	sourceRec := rl.NewRectangle(
-		float32(p.Object.FrameX)*float32(p.Object.Sprite.SpriteWidth),
+		float32(frameX)*float32(p.Object.Sprite.SpriteWidth),
 		float32(p.Object.FrameY)*float32(p.Object.Sprite.SpriteWidth),
 		width,
 		float32(p.Object.Sprite.SpriteHeight),
@@ -65,7 +72,7 @@ func (p *Player) Draw() {
 
 	rl.DrawTexturePro(p.Object.Sprite.Texture, sourceRec, destinationRec, origin, 0.0, color)
 
-	// faz a caixa vermelha pra ver colisao
+	// Desenha a caixa vermelha pra ver colisao
 	rl.DrawRectangleLines(
 		int32(destinationRec.X-origin.X+float32(p.Object.Width)/2),
 		int32(destinationRec.Y-origin.Y),
@@ -75,12 +82,12 @@ func (p *Player) Draw() {
 	)
 }
 
-func (p *Player) TakeDamage(damage int32, eX int32, eY int32) {
+func (p *Player) TakeDamage(damage int32, eObj system.Object) {
 	if !p.isInvincible(invencibilityDuration) {
 		if p.Health > 1 {
 			p.Health -= damage
 			p.LastDamageTaken = time.Now()
-			p.setKnockback(eX, eY)
+			p.Object.SetKnockback(eObj)
 		} else {
 			system.GameOverFlag = true
 		}

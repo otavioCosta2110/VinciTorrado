@@ -140,7 +140,7 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen) {
 	}
 	physics.TakeKnockback(&e.Object)
 	if e.CheckAtk(p.GetObject()) {
-		p.TakeDamage(1, e.Object.X, e.Object.Y)
+		p.TakeDamage(1, e.Object)
 		return
 	}
 
