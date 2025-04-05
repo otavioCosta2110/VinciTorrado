@@ -24,5 +24,6 @@ func NewScreen(width, height int32, title string) *Screen {
 }
 
 func (s *Screen) UpdateCamera(targetX, targetY int32) {
-	s.Camera.Target = rl.NewVector2(float32(targetX), float32(targetY))
+	fixedY := float32(s.Height / 2)
+	s.Camera.Target = rl.NewVector2(float32(targetX), fixedY)
 }
