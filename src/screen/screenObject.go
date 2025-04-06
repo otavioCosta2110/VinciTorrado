@@ -24,6 +24,25 @@ func NewScreen(width, height int32, title string) *Screen {
 }
 
 func (s *Screen) UpdateCamera(targetX, targetY int32) {
-	fixedY := float32(s.Height / 2)
-	s.Camera.Target = rl.NewVector2(float32(targetX), fixedY)
+	// Define building boundaries (adjust these to your actual building size)
+	buildingMinX := int32(0)
+	buildingMaxX := int32(640) * 4 // Building width
+
+	// Calculate desired camera position (centered on player)
+	camX := float32(targetX)
+
+	// Clamp camera to building boundaries
+	halfWidth := float32(s.Width) / 2
+
+	// Clamp X position (left/right edges)
+	if camX < float32(buildingMinX)+halfWidth {
+		camX = float32(buildingMinX) + halfWidth 
+	} else if camX > float32(buildingMaxX)-halfWidth {
+		camX = float32(buildingMaxX) - halfWidth
+	}
+
+
+	println("targetX", targetX, camX)
+	// Update camera target (WITHOUT overriding Y position)
+	s.Camera.Target = rl.NewVector2(camX, float32(s.Height)/2)
 }

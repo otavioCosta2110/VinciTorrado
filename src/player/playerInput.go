@@ -26,7 +26,7 @@ func (player *Player) CheckMovement(screen screen.Screen) {
 		player.Flipped = true
 		player.Object.UpdateAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
 
-	} else if rl.IsKeyDown(rl.KeyRight) && player.Object.X < screen.Width-(player.Object.Width)/2 {
+	} else if rl.IsKeyDown(rl.KeyRight) && player.Object.X < 640 * 4-(player.Object.Width)/2 {
 		player.Object.X += player.Speed
 		player.Flipped = false
 		player.Object.UpdateAnimation(int(animationDelay), framesWalkingX, framesWalkingY)

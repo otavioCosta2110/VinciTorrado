@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"otaviocosta2110/getTheBlueBlocks/src/enemy"
 
-	// "otaviocosta2110/getTheBlueBlocks/src/objects"
 	"otaviocosta2110/getTheBlueBlocks/src/player"
 	"otaviocosta2110/getTheBlueBlocks/src/screen"
 	"otaviocosta2110/getTheBlueBlocks/src/sprites"
@@ -45,9 +44,9 @@ func main() {
 	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 4, playerScale, playerSprite)
 	enemyManager := enemy.EnemyManager{}
 
-	enemyManager.AddEnemy(enemy.NewEnemy(50, 80, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
-	enemyManager.AddEnemy(enemy.NewEnemy(200, 150, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
-	enemyManager.AddEnemy(enemy.NewEnemy(300, 300, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
+	// enemyManager.AddEnemy(enemy.NewEnemy(50, 80, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
+	// enemyManager.AddEnemy(enemy.NewEnemy(200, 150, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
+	enemyManager.AddEnemy(enemy.NewEnemy(1000000, 10000, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
 
 	for !rl.WindowShouldClose() {
 		update(player, &enemyManager, screen)
@@ -75,26 +74,11 @@ func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen) {
 	chao := rl.LoadTexture("assets/chao.png")
 	chao.Width *= playerScale
 	chao.Height *= playerScale
+	buildings := rl.LoadTexture("assets/predio.png")
+	buildings.Width *= playerScale
+	buildings.Height *= playerScale
 	drawTiledBackground(chao, s.Camera, s.Width, s.Height)
-
-	cameraPos := rl.Vector2Subtract(s.Camera.Target, rl.NewVector2(float32(s.Width)/2, float32(s.Height)/2))
-
-	tilesX := (s.Width / chao.Width) + 2
-	tilesY := (s.Height / chao.Height) + 2
-
-	startX := int32(cameraPos.X/float32(chao.Width)) - 1
-	startY := int32(cameraPos.Y/float32(chao.Height)) - 1
-
-	for y := startY; y < startY+tilesY; y++ {
-		for x := startX; x < startX+tilesX; x++ {
-			rl.DrawTexture(
-				chao,
-				x*chao.Width,
-				y*chao.Height,
-				rl.White,
-			)
-		}
-	}
+	drawBuildings(buildings)
 
 	p.Draw()
 	em.Draw()
@@ -136,4 +120,13 @@ func drawTiledBackground(texture rl.Texture2D, camera rl.Camera2D, screenWidth, 
 			)
 		}
 	}
+}
+
+func drawBuildings(texture rl.Texture2D) {
+	rl.DrawTexture(
+		texture,
+		0, 
+		0, 
+		rl.White,
+	)
 }
