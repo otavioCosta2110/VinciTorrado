@@ -14,17 +14,29 @@ import (
 )
 
 const (
-	windowWidth   int32 = 1280
-	windowHeight  int32 = 720
-	obstacleSpeed int32 = 2
-	playerScale   int32 = 4
-	playerSizeX   int32 = 32
-	playerSizeY   int32 = 32
+	windowWidth   int32  = 1280
+	windowHeight  int32  = 720
+	windowTitle   string = "jogo poggers"
+	obstacleSpeed int32  = 2
+	playerScale   int32  = 4
+	playerSizeX   int32  = 32
+	playerSizeY   int32  = 32
 )
 
 func main() {
-	screen := screen.NewScreen(windowWidth, windowHeight, "jogo poggers")
-	rl.InitWindow(screen.Width, screen.Height, screen.Title)
+	rl.InitWindow(windowWidth, windowHeight, windowTitle)
+
+	buildings := rl.LoadTexture("assets/predio.png")
+	buildings.Width *= playerScale
+	buildings.Height *= playerScale
+
+	screen := screen.NewScreen(windowWidth, windowHeight, buildings.Width, buildings.Height, windowTitle)
+
+
+	chao := rl.LoadTexture("assets/chao.png")
+	chao.Width *= playerScale
+	chao.Height *= playerScale
+
 	defer rl.CloseWindow()
 
 	rl.SetTargetFPS(60)
@@ -44,13 +56,13 @@ func main() {
 	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 4, playerScale, playerSprite)
 	enemyManager := enemy.EnemyManager{}
 
-	// enemyManager.AddEnemy(enemy.NewEnemy(50, 80, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
-	// enemyManager.AddEnemy(enemy.NewEnemy(200, 150, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
+	enemyManager.AddEnemy(enemy.NewEnemy(50, 700, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
+	enemyManager.AddEnemy(enemy.NewEnemy(200, 500, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
 	enemyManager.AddEnemy(enemy.NewEnemy(1000000, 10000, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
 
 	for !rl.WindowShouldClose() {
 		update(player, &enemyManager, screen)
-		draw(player, &enemyManager, *screen)
+		draw(player, &enemyManager, *screen, chao, buildings)
 	}
 }
 
@@ -65,23 +77,16 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen) {
 	screen.UpdateCamera(p.Object.X, p.Object.Y)
 }
 
-func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen) {
+func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Texture2D, buildings rl.Texture2D) {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.RayWhite)
 
 	rl.BeginMode2D(s.Camera)
 
-	chao := rl.LoadTexture("assets/chao.png")
-	chao.Width *= playerScale
-	chao.Height *= playerScale
-	buildings := rl.LoadTexture("assets/predio.png")
-	buildings.Width *= playerScale
-	buildings.Height *= playerScale
 	drawTiledBackground(chao, s.Camera, s.Width, s.Height)
 	drawBuildings(buildings)
-
-	p.Draw()
 	em.Draw()
+	p.Draw()
 
 	rl.EndMode2D()
 
@@ -125,8 +130,8 @@ func drawTiledBackground(texture rl.Texture2D, camera rl.Camera2D, screenWidth, 
 func drawBuildings(texture rl.Texture2D) {
 	rl.DrawTexture(
 		texture,
-		0, 
-		0, 
+		0,
+		0,
 		rl.White,
 	)
 }
