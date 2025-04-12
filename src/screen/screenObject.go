@@ -1,11 +1,45 @@
 package screen
 
-type Screen struct{
-  Width int32
-  Height int32
-  Title string
+import rl "github.com/gen2brain/raylib-go/raylib"
+
+type Screen struct {
+	Width         int32
+	Height        int32
+	Title         string
+	ScenaryWidth  int32
+	ScenaryHeight int32
+	Camera        rl.Camera2D
 }
 
-func NewScreen(width, heigth int32, title string) *Screen {
-	return &Screen{Width: width, Height: heigth, Title: title}
+func NewScreen(width, height, scenaryWidth, scenaryHeight int32, title string) *Screen {
+	return &Screen{
+		Width:         width,
+		Height:        height,
+		Title:         title,
+		ScenaryWidth:  scenaryWidth,
+		ScenaryHeight: scenaryHeight,
+		Camera: rl.Camera2D{
+			Offset:   rl.NewVector2(float32(width)/2, float32(height)/2),
+			Target:   rl.NewVector2(0, 0),
+			Rotation: 0,
+			Zoom:     1,
+		},
+	}
+}
+
+func (s *Screen) UpdateCamera(targetX, targetY int32) {
+	buildingMinX := int32(0)
+	buildingMaxX := int32(s.ScenaryWidth)
+
+	camX := float32(targetX)
+
+	halfWidth := float32(s.Width) / 2
+
+	if camX < float32(buildingMinX)+halfWidth {
+		camX = float32(buildingMinX) + halfWidth
+	} else if camX > float32(buildingMaxX)-halfWidth {
+		camX = float32(buildingMaxX) - halfWidth
+	}
+
+	s.Camera.Target = rl.NewVector2(camX, float32(s.Height)/2)
 }
