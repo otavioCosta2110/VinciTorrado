@@ -58,7 +58,9 @@ func main() {
 
 	enemyManager.AddEnemy(enemy.NewEnemy(50, 700, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
 	enemyManager.AddEnemy(enemy.NewEnemy(200, 500, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
-	enemyManager.AddEnemy(enemy.NewEnemy(1000000, 10000, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
+	// enemyManager.AddEnemy(enemy.NewEnemy(1000000, 10000, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
+
+	screen.InitCamera(player.Object.X, player.Object.Y)
 
 	for !rl.WindowShouldClose() {
 		update(player, &enemyManager, screen)
@@ -73,8 +75,10 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen) {
 
 	em.Update(p, *screen)
 	p.Update(em, *screen)
+	canAdvance := len(em.ActiveEnemies) <= 0
+	println("canAdvance", len(em.ActiveEnemies))
 
-	screen.UpdateCamera(p.Object.X, p.Object.Y)
+	screen.UpdateCamera(p.Object.X, p.Object.Y, canAdvance)
 }
 
 func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Texture2D, buildings rl.Texture2D) {

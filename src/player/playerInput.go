@@ -21,12 +21,13 @@ func (player *Player) CheckMovement(screen screen.Screen) {
 	if player.Object.FrameY == 1 || player.Object.FrameY == 2 {
 		return
 	}
+
 	if rl.IsKeyDown(rl.KeyLeft) && player.Object.X > player.Object.Width/2 {
 		player.Object.X -= player.Speed
 		player.Flipped = true
 		player.Object.UpdateAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
 
-	} else if rl.IsKeyDown(rl.KeyRight) && player.Object.X < screen.ScenaryWidth-(player.Object.Width)/2 {
+	} else if rl.IsKeyDown(rl.KeyRight) && float32(player.Object.X) < screen.Camera.Target.X+float32(screen.Width)/2.0-float32(player.Object.Width/2.0) {
 		player.Object.X += player.Speed
 		player.Flipped = false
 		player.Object.UpdateAnimation(int(animationDelay), framesWalkingX, framesWalkingY)

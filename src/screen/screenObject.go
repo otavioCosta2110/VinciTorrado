@@ -27,19 +27,26 @@ func NewScreen(width, height, scenaryWidth, scenaryHeight int32, title string) *
 	}
 }
 
-func (s *Screen) UpdateCamera(targetX, targetY int32) {
-	buildingMinX := int32(0)
-	buildingMaxX := int32(s.ScenaryWidth)
+func (s *Screen) InitCamera(targetX, targetY int32){
+		s.Camera.Target = rl.NewVector2(float32(targetX), float32(s.Height)/2)
+}
+func (s *Screen) UpdateCamera(targetX, targetY int32, canAdvance bool) {
+	if canAdvance {
+		buildingMinX := int32(0)
+		buildingMaxX := int32(s.ScenaryWidth)
 
-	camX := float32(targetX)
+		camX := float32(targetX)
 
-	halfWidth := float32(s.Width) / 2
+		halfWidth := float32(s.Width) / 2
 
-	if camX < float32(buildingMinX)+halfWidth {
-		camX = float32(buildingMinX) + halfWidth
-	} else if camX > float32(buildingMaxX)-halfWidth {
-		camX = float32(buildingMaxX) - halfWidth
+		lerpFactor := float32(0.1)
+		if camX < float32(buildingMinX)+halfWidth {
+			camX = float32(buildingMinX) + halfWidth
+		} else if camX > float32(buildingMaxX)-halfWidth {
+			camX = float32(buildingMaxX) - halfWidth
+		}
+
+		currentX := s.Camera.Target.X
+		s.Camera.Target.X = currentX + (camX - currentX) * lerpFactor
 	}
-
-	s.Camera.Target = rl.NewVector2(camX, float32(s.Height)/2)
 }
