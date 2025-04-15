@@ -173,7 +173,6 @@ func (e *Enemy) TakeDamage(damage int32, pX int32, pY int32) {
 		e.LastDamageTaken = time.Now()
 		e.setKnockback(pX, pY)
 	} else{
-		println("enemy dead", e.Health)
 		e.Object.Destroyed = true
 	}
 
