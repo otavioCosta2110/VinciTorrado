@@ -51,7 +51,7 @@ func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite) *E
 				Destroyed: false,
 			},
 			MaxHealth: 5,
-			Health:    5,
+			Health:    1,
 			Speed:     speed,
 			Flipped:   false,
 		},
@@ -168,11 +168,12 @@ func (e *Enemy) setKnockback(pX int32, pY int32) {
 }
 
 func (e *Enemy) TakeDamage(damage int32, pX int32, pY int32) {
-	if e.Health > 1 {
+	if e.Health >= 1 {
 		e.Health -= damage
 		e.LastDamageTaken = time.Now()
 		e.setKnockback(pX, pY)
 	} else{
+		println("enemy dead", e.Health)
 		e.Object.Destroyed = true
 	}
 
