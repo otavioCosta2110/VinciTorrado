@@ -82,7 +82,7 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 	}
 
 	for _, box := range boxes {
-		box.Update([]system.Object{p.GetObject()}, screen.Height)
+		box.Update([]system.Object{p.GetObject()}, screen)
 	}
 
 	em.Update(p, *screen)

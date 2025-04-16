@@ -2,6 +2,7 @@ package objects
 
 import (
 	"otaviocosta2110/getTheBlueBlocks/src/physics"
+	"otaviocosta2110/getTheBlueBlocks/src/screen"
 	"otaviocosta2110/getTheBlueBlocks/src/system"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -30,17 +31,16 @@ func (b *Box) Draw() {
 	rl.DrawRectangle(b.Object.X-b.Object.Width/2, b.Object.Y-b.Object.Height/2, b.Object.Width, b.Object.Height, b.Color)
 }
 
-func (b *Box) Update(colliders []system.Object, screenHeight int32) {
+func (b *Box) Update(colliders []system.Object, s *screen.Screen) {
 	b.Object.X += b.Object.KnockbackX
 	b.Object.Y += b.Object.KnockbackY
 
-	b.Object.KnockbackX = int32(float64(b.Object.KnockbackX) * 0.90) // amortecimento, baita palavra
-
+	b.Object.KnockbackX = int32(float64(b.Object.KnockbackX) * 0.90)
 	b.Object.KnockbackY += 2
 
-	groundLevel := screenHeight - 100
+	groundLevel := s.ScenaryHeight + 100
 	if b.Object.Y+b.Object.Height/2 > groundLevel {
-		b.Object.Y = groundLevel - b.Object.Height/2 // se tirar o /2 ele fica picando, pode usar pra fazer uma bola
+		b.Object.Y = groundLevel - b.Object.Height/2
 		b.Object.KnockbackY = -b.Object.KnockbackY / 2
 
 		if abs(b.Object.KnockbackY) < 5 {
@@ -56,8 +56,8 @@ func (b *Box) Update(colliders []system.Object, screenHeight int32) {
 		b.Object.X = b.Object.Width / 2
 		b.Object.KnockbackX = 0
 	}
-	if b.Object.X+b.Object.Width/2 > 1280 {
-		b.Object.X = 1280 - b.Object.Width/2
+	if b.Object.X+b.Object.Width/2 > s.ScenaryWidth {
+		b.Object.X = s.ScenaryWidth - b.Object.Width/2
 		b.Object.KnockbackX = 0
 	}
 
