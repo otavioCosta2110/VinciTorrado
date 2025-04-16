@@ -34,13 +34,13 @@ func (b *Box) Update(colliders []system.Object, screenHeight int32) {
 	b.Object.X += b.Object.KnockbackX
 	b.Object.Y += b.Object.KnockbackY
 
-	b.Object.KnockbackX = int32(float64(b.Object.KnockbackX) * 0.85) // amortecimento, baita palavra
+	b.Object.KnockbackX = int32(float64(b.Object.KnockbackX) * 0.90) // amortecimento, baita palavra
 
 	b.Object.KnockbackY += 2
 
 	groundLevel := screenHeight - 100
 	if b.Object.Y+b.Object.Height/2 > groundLevel {
-		b.Object.Y = groundLevel - b.Object.Height/2
+		b.Object.Y = groundLevel - b.Object.Height/2 // se tirar o /2 ele fica picando, pode usar pra fazer uma bola
 		b.Object.KnockbackY = -b.Object.KnockbackY / 2
 
 		if abs(b.Object.KnockbackY) < 5 {

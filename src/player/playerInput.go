@@ -120,7 +120,7 @@ func (player *Player) CheckKick(box *objects.Box) bool {
 				box.Object.KnockbackX = player.KickPower * knockbackMultiplier
 			}
 
-			box.Object.KnockbackY = -player.KickPower * 2
+			box.Object.KnockbackY = -player.KickPower * 1
 
 			return true
 		}
