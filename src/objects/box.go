@@ -52,13 +52,14 @@ func (b *Box) Update(colliders []system.Object, s *screen.Screen) {
 		}
 	}
 
+	// Changed these two conditions to make it bounce back
 	if b.Object.X-b.Object.Width/2 < 0 {
 		b.Object.X = b.Object.Width / 2
-		b.Object.KnockbackX = 0
+		b.Object.KnockbackX = -b.Object.KnockbackX * 7 / 10 // Bounce with 70% force
 	}
 	if b.Object.X+b.Object.Width/2 > s.ScenaryWidth {
 		b.Object.X = s.ScenaryWidth - b.Object.Width/2
-		b.Object.KnockbackX = 0
+		b.Object.KnockbackX = -b.Object.KnockbackX * 7 / 10 // Bounce with 70% force
 	}
 
 	for _, obj := range colliders {
