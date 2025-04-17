@@ -51,7 +51,6 @@ func main() {
 		Texture:      rl.LoadTexture("assets/enemy.png"),
 	}
 
-	// Create game objects
 	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 4, playerScale, playerSprite)
 	enemyManager := enemy.EnemyManager{}
 

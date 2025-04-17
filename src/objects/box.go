@@ -36,35 +36,29 @@ func (b *Box) Update(colliders []system.Object, s *screen.Screen) {
 	b.Object.Y += b.Object.KnockbackY
 
 	b.Object.KnockbackX = int32(float64(b.Object.KnockbackX) * 0.90)
-	b.Object.KnockbackY += 2
-
-	groundLevel := s.ScenaryHeight + 100
-	if b.Object.Y+b.Object.Height/2 > groundLevel {
-		b.Object.Y = groundLevel - b.Object.Height/2
-		b.Object.KnockbackY = -b.Object.KnockbackY / 2
-
-		if abs(b.Object.KnockbackY) < 5 {
-			b.Object.KnockbackY = 0
-		}
-
-		if abs(b.Object.KnockbackX) < 3 {
-			b.Object.KnockbackX = 0
-		}
+	if b.Object.Y < s.ScenaryHeight {
+		b.Object.KnockbackY += 2
 	}
 
-	// Changed these two conditions to make it bounce back
+	groundLevel := s.ScenaryHeight + 100
+	if b.Object.Y > groundLevel {
+		b.Object.Y = groundLevel
+		b.Object.KnockbackY = 0
+	}
+
 	if b.Object.X-b.Object.Width/2 < 0 {
 		b.Object.X = b.Object.Width / 2
-		b.Object.KnockbackX = -b.Object.KnockbackX * 7 / 10 // Bounce with 70% force
+		b.Object.KnockbackX = -b.Object.KnockbackX * 7 / 10
 	}
 	if b.Object.X+b.Object.Width/2 > s.ScenaryWidth {
 		b.Object.X = s.ScenaryWidth - b.Object.Width/2
-		b.Object.KnockbackX = -b.Object.KnockbackX * 7 / 10 // Bounce with 70% force
+		b.Object.KnockbackX = -b.Object.KnockbackX * 7 / 10
 	}
 
 	for _, obj := range colliders {
 		if physics.CheckCollision(b.Object, obj) {
-			physics.ResolveCollision(&b.Object, &obj)
+			tempObj := obj
+			physics.ResolveCollision(&b.Object, &tempObj)
 		}
 	}
 }
