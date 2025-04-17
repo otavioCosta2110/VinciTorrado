@@ -4,10 +4,16 @@ import (
 	"math"
 	"otaviocosta2110/getTheBlueBlocks/src/screen"
 	"otaviocosta2110/getTheBlueBlocks/src/system"
+	"time"
 )
 
 func MoveEnemyTowardPlayer(p system.Player, e Enemy, s screen.Screen) Enemy {
-	if e.Object.FrameY == 1 {
+	hitStunDuration := time.Millisecond * 300 
+	if time.Since(e.LastDamageTaken) < hitStunDuration {
+		return e 
+	}
+
+	if e.Object.FrameY == 1 { 
 		return e
 	}
 

@@ -76,7 +76,6 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen) {
 	em.Update(p, *screen)
 	p.Update(em, *screen)
 	canAdvance := len(em.ActiveEnemies) <= 0
-	println("canAdvance", len(em.ActiveEnemies))
 
 	screen.UpdateCamera(p.Object.X, p.Object.Y, canAdvance)
 }

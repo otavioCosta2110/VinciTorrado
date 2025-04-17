@@ -18,6 +18,8 @@ const (
 type Enemy struct {
 	system.LiveObject
 	LastAttackTime time.Time
+	HitCount       int32       
+	LastHitTime    time.Time  
 }
 
 func (e *Enemy) GetObject() system.Object {
@@ -51,7 +53,7 @@ func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite) *E
 				Destroyed: false,
 			},
 			MaxHealth: 5,
-			Health:    1,
+			Health:    5,
 			Speed:     speed,
 			Flipped:   false,
 		},
@@ -150,7 +152,7 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen) {
 }
 
 // ele devia na vdd soh mandar pra tras qnd levasse tipo 3 hit
-func (e *Enemy) setKnockback(pX int32, pY int32) {
+func (e *Enemy) setKnockback(pX int32) {
 	knockbackStrengthX := int32(20)
 	knockbackStrengthY := int32(0)
 
@@ -160,21 +162,28 @@ func (e *Enemy) setKnockback(pX int32, pY int32) {
 		e.Object.KnockbackX = knockbackStrengthX
 	}
 
-	if e.Object.Y < pY/2 {
-		e.Object.KnockbackY = -knockbackStrengthY
-	} else {
-		e.Object.KnockbackY = knockbackStrengthY
-	}
+	e.Object.KnockbackY = knockbackStrengthY 
 }
 
 func (e *Enemy) TakeDamage(damage int32, pX int32, pY int32) {
-	if e.Health >= 1 {
-		e.Health -= damage
-		e.LastDamageTaken = time.Now()
-		e.setKnockback(pX, pY)
-	} else{
-		println("enemy dead", e.Health)
+	if e.Health <= 0 {
 		e.Object.Destroyed = true
+		return
 	}
 
+	hitWindow := time.Millisecond * 500 
+	if time.Since(e.LastHitTime) > hitWindow {
+		e.HitCount = 0
+	}
+
+	e.Health -= damage
+	e.LastHitTime = time.Now()
+	e.HitCount++
+
+	if e.HitCount >= 3 {
+		e.setKnockback(pX)
+		e.HitCount = 0 
+	}
+
+	e.LastDamageTaken = time.Now()
 }
