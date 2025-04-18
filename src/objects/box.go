@@ -51,16 +51,15 @@ func (b *Box) Update(colliders []system.Object, s *screen.Screen) {
 
 	if b.Object.X-b.Object.Width/2 < 0 {
 		b.Object.X = b.Object.Width / 2
-		b.Object.KnockbackX = -b.Object.KnockbackX * 6 / 10
+		b.Object.KnockbackX = -b.Object.KnockbackX * 8 / 10
 		b.Object.KnockbackY = -abs(b.Object.KnockbackX) / 3
 	}
 	if b.Object.X+b.Object.Width/2 > s.ScenaryWidth {
 		b.Object.X = s.ScenaryWidth - b.Object.Width/2
-		b.Object.KnockbackX = -b.Object.KnockbackX * 6 / 10
+		b.Object.KnockbackX = -b.Object.KnockbackX * 8 / 10
 		b.Object.KnockbackY = -abs(b.Object.KnockbackX) / 3
 	}
 
-	// Stop very small movements
 	if abs(b.Object.KnockbackX) < 2 {
 		b.Object.KnockbackX = 0
 	}

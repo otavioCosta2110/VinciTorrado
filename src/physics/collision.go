@@ -19,19 +19,19 @@ func ResolveCollision(a, b *system.Object) {
 
 	if overlapX < overlapY {
 		if a.X < b.X {
-			a.X -= overlapX / 4
-			b.X += overlapX / 4
+			a.X -= overlapX
+			b.X += overlapX
 		} else {
-			a.X += overlapX / 4
-			b.X -= overlapX / 4
+			a.X += overlapX
+			b.X -= overlapX
 		}
 	} else {
 		if a.Y < b.Y {
-			a.Y -= overlapY / 4
-			b.Y += overlapY / 4
+			a.Y -= overlapY
+			b.Y += overlapY
 		} else {
-			a.Y += overlapY / 4
-			b.Y -= overlapY / 4
+			a.Y += overlapY
+			b.Y -= overlapY
 		}
 	}
 }

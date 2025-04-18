@@ -88,7 +88,7 @@ func (player *Player) CheckKick(box *objects.Box) bool {
 	if rl.IsKeyPressed(rl.KeyX) && time.Since(player.LastKickTime) > player.KickCooldown {
 		player.IsKicking = true
 		player.LastKickTime = time.Now()
-		player.Object.UpdateAnimation(50, []int{0, 0}, []int{2, 0})
+		player.Object.UpdateAnimation(50, []int{0}, []int{2})
 
 		box.OriginalY = box.Object.Y
 
