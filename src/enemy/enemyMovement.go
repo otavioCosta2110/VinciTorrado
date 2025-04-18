@@ -17,8 +17,8 @@ func MoveEnemyTowardPlayer(p system.Player, e Enemy, s screen.Screen) Enemy {
 		return e
 	}
 
-	distX := float64(p.GetObject().X - e.Object.X)
-	distY := float64(p.GetObject().Y - e.Object.Y)
+	distX := float64(p.GetObject().X)
+	distY := float64(p.GetObject().Y - e.Object.Y -20)
 	distance := math.Sqrt(distX*distX + distY*distY) 
 
 	stopDistance := float64(e.Object.Width) * 0.8 

@@ -33,7 +33,7 @@ func (player *Player) CheckMovement(screen screen.Screen) {
 		player.Object.UpdateAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
 	}
 
-	if rl.IsKeyDown(rl.KeyUp) && player.Object.Y > player.Object.Height-player.Object.Y + (screen.ScenaryHeight + player.Object.Height) {
+	if rl.IsKeyDown(rl.KeyUp) && player.Object.Y > player.Object.Height-player.Object.Y+(screen.ScenaryHeight+player.Object.Height) {
 		player.Object.Y -= player.Speed
 		player.Object.UpdateAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
 
@@ -45,23 +45,19 @@ func (player *Player) CheckMovement(screen screen.Screen) {
 
 func (player *Player) CheckAtk(enemyObj system.Object) bool {
 	var isAttacking = false
-
-	// botei essas vars pra ca pra fazer a caixa de colisao aparecer sempre
-	punchX := player.Object.X
-	punchY := player.Object.Y - player.Object.Height/3
-
-	punchWidth := player.Object.Width / 2
+	punchWidth := float32(player.Object.Width) * 1.3
 	punchHeight := player.Object.Height / 2
 
+	punchX := player.Object.X - player.Object.Width*2
+	punchY := player.Object.Y - player.Object.Height/3
+
 	if player.Flipped {
-		punchX -= punchWidth + punchWidth //esquerda
+		punchX = (player.Object.X - player.Object.Width/2) 
 	} else {
-		punchX += punchWidth //direita, n sei pq ta assim
+		punchX = ( player.Object.X + player.Object.Width/2 )
 	}
 
 	// cor da colisão do soco (debug)
-	rl.DrawRectangle(punchX, punchY, punchWidth, punchHeight, rl.Red)
-
 	if rl.IsKeyPressed(rl.KeyZ) {
 		isAttacking = true
 
@@ -70,7 +66,7 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 		punchObj := system.Object{
 			X:      punchX,
 			Y:      punchY,
-			Width:  punchWidth,
+			Width:  int32(punchWidth),
 			Height: punchHeight,
 		}
 
@@ -94,8 +90,6 @@ func (player *Player) CheckKick(enemyObj *system.Object) bool {
 	} else {
 		kickX += kickWidth / 2
 	}
-
-	// Debug: Draw the kick hitbox
 
 	if rl.IsKeyPressed(rl.KeyX) {
 		player.IsKicking = true
@@ -126,6 +120,5 @@ func (player *Player) CheckKick(enemyObj *system.Object) bool {
 		player.IsKicking = false
 	}
 
-	rl.DrawRectangle(kickX, kickY, kickWidth, kickHeight, rl.Blue)
 	return false
 }

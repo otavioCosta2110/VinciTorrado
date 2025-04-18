@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"otaviocosta2110/getTheBlueBlocks/src/enemy"
 
 	"otaviocosta2110/getTheBlueBlocks/src/player"
@@ -98,8 +97,6 @@ func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Tex
 	}
 
 	ui.DrawLife(s, p)
-	rl.DrawText(fmt.Sprintf("Player: %d, %d", p.Object.X, p.Object.Y), 10, 10, 10, rl.Black)
-	rl.DrawText(fmt.Sprintf("Enemies: %d", len(em.Enemies)), 10, 25, 10, rl.Black)
 
 	rl.EndDrawing()
 }

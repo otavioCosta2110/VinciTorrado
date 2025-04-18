@@ -101,8 +101,6 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 		punchX += punchWidth
 	}
 
-	rl.DrawRectangle(punchX, punchY, punchWidth, punchHeight, rl.Red)
-
 	punchObject := system.Object{
 		X:      punchX,
 		Y:      punchY,
