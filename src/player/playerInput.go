@@ -90,6 +90,8 @@ func (player *Player) CheckKick(box *objects.Box) bool {
 		player.LastKickTime = time.Now()
 		player.Object.UpdateAnimation(50, []int{0, 0}, []int{2, 0})
 
+		box.OriginalY = box.Object.Y
+
 		kickWidth := player.Object.Width * 2
 		kickHeight := int32(float32(player.Object.Height) * 1.5)
 
@@ -112,7 +114,7 @@ func (player *Player) CheckKick(box *objects.Box) bool {
 		}
 
 		if physics.CheckCollision(kickObj, box.Object) {
-			knockbackMultiplier := int32(3) //ajusta a força do chute
+			knockbackMultiplier := int32(3)
 
 			if player.Flipped {
 				box.Object.KnockbackX = -player.KickPower * knockbackMultiplier
@@ -120,7 +122,7 @@ func (player *Player) CheckKick(box *objects.Box) bool {
 				box.Object.KnockbackX = player.KickPower * knockbackMultiplier
 			}
 
-			box.Object.KnockbackY = -player.KickPower * 1
+			box.Object.KnockbackY = 0
 
 			return true
 		}
