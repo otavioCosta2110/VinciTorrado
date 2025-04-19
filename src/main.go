@@ -2,7 +2,7 @@ package main
 
 import (
 	"otaviocosta2110/getTheBlueBlocks/src/enemy"
-
+	"otaviocosta2110/getTheBlueBlocks/src/objects"
 	"otaviocosta2110/getTheBlueBlocks/src/player"
 	"otaviocosta2110/getTheBlueBlocks/src/screen"
 	"otaviocosta2110/getTheBlueBlocks/src/sprites"
@@ -31,13 +31,11 @@ func main() {
 
 	screen := screen.NewScreen(windowWidth, windowHeight, buildings.Width, buildings.Height, windowTitle)
 
-
 	chao := rl.LoadTexture("assets/chao.png")
 	chao.Width *= playerScale
 	chao.Height *= playerScale
 
 	defer rl.CloseWindow()
-
 	rl.SetTargetFPS(60)
 
 	playerSprite := sprites.Sprite{
@@ -55,21 +53,34 @@ func main() {
 	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 2, playerScale, playerSprite)
 	enemyManager := enemy.EnemyManager{}
 
+	boxes := []*objects.Box{
+		objects.NewBox(200, screen.Height-100, 50, 50, rl.LightGray), // Spawns at ground level
+	}
+
 	enemyManager.AddEnemy(enemy.NewEnemy(50, 700, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
 	enemyManager.AddEnemy(enemy.NewEnemy(200, 500, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
-	// enemyManager.AddEnemy(enemy.NewEnemy(1000000, 10000, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
 
 	screen.InitCamera(player.Object.X, player.Object.Y)
 
 	for !rl.WindowShouldClose() {
-		update(player, &enemyManager, screen)
-		draw(player, &enemyManager, *screen, chao, buildings)
+		update(player, &enemyManager, screen, boxes)
+		draw(player, &enemyManager, *screen, chao, buildings, boxes)
 	}
 }
 
-func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen) {
+func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, boxes []*objects.Box) {
 	if system.GameOverFlag {
 		return
+	}
+
+	p.CheckMovement(*screen)
+
+	for _, box := range boxes {
+		p.CheckKick(box)
+	}
+
+	for _, box := range boxes {
+		box.Update([]system.Object{p.GetObject()}, screen)
 	}
 
 	em.Update(p, *screen)
@@ -79,7 +90,7 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen) {
 	screen.UpdateCamera(p.Object.X, p.Object.Y, canAdvance)
 }
 
-func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Texture2D, buildings rl.Texture2D) {
+func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Texture2D, buildings rl.Texture2D, boxes []*objects.Box) {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.RayWhite)
 
@@ -87,6 +98,11 @@ func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Tex
 
 	drawTiledBackground(chao, s.Camera, s.Width, s.Height)
 	drawBuildings(buildings)
+
+	for _, box := range boxes {
+		box.Draw()
+	}
+
 	em.Draw()
 	p.Draw()
 

@@ -1,9 +1,11 @@
 package player
 
 import (
+	"otaviocosta2110/getTheBlueBlocks/src/objects"
 	"otaviocosta2110/getTheBlueBlocks/src/physics"
 	"otaviocosta2110/getTheBlueBlocks/src/screen"
 	"otaviocosta2110/getTheBlueBlocks/src/system"
+	"time"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -45,16 +47,16 @@ func (player *Player) CheckMovement(screen screen.Screen) {
 
 func (player *Player) CheckAtk(enemyObj system.Object) bool {
 	var isAttacking = false
-	punchWidth := float32(player.Object.Width) 
+	punchWidth := float32(player.Object.Width)
 	punchHeight := player.Object.Height / 2
 
 	punchX := player.Object.X - player.Object.Width*2
 	punchY := player.Object.Y - player.Object.Height/4
 
 	if player.Flipped {
-		punchX = (player.Object.X - player.Object.Width/2) 
+		punchX = (player.Object.X - player.Object.Width/2)
 	} else {
-		punchX = ( player.Object.X + player.Object.Width/2 )
+		punchX = (player.Object.X + player.Object.Width/2)
 	}
 
 	if rl.IsKeyPressed(rl.KeyZ) {
@@ -77,22 +79,27 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 	return false
 }
 
-func (player *Player) CheckKick(enemyObj *system.Object) bool {
-	kickX := player.Object.X
-	kickY := player.Object.Y
-
-	kickWidth := player.Object.Width
-	kickHeight := player.Object.Height / 2
-
-	if player.Flipped {
-		kickX -= kickWidth + kickWidth/2
-	} else {
-		kickX += kickWidth / 2
-	}
-
-	if rl.IsKeyPressed(rl.KeyX) {
+func (player *Player) CheckKick(box *objects.Box) bool {
+	if rl.IsKeyPressed(rl.KeyX) && time.Since(player.LastKickTime) > player.KickCooldown {
 		player.IsKicking = true
-		player.Object.UpdateAnimation(50, []int{0, 0}, []int{2, 0})
+		player.LastKickTime = time.Now()
+		player.Object.UpdateAnimation(50, []int{0}, []int{2})
+
+		box.OriginalY = box.Object.Y
+
+		kickWidth := player.Object.Width * 2
+		kickHeight := int32(float32(player.Object.Height) * 1.5)
+
+		kickX := player.Object.X
+		kickY := player.Object.Y - player.Object.Height/4
+
+		if player.Flipped {
+			kickX -= kickWidth
+		} else {
+			kickX += player.Object.Width
+		}
+
+		rl.DrawRectangle(kickX, kickY, kickWidth, kickHeight, rl.NewColor(0, 0, 255, 128))
 
 		kickObj := system.Object{
 			X:      kickX,
@@ -101,23 +108,20 @@ func (player *Player) CheckKick(enemyObj *system.Object) bool {
 			Height: kickHeight,
 		}
 
-		// nao me pergunta porque precisa disso
-		newEnObj := system.Object{
-			X:      enemyObj.X - enemyObj.Width/2,
-			Y:      enemyObj.Y - enemyObj.Height/2,
-			Width:  enemyObj.Width,
-			Height: enemyObj.Height,
-		}
+		if physics.CheckCollision(kickObj, box.Object) {
+			knockbackMultiplier := int32(3)
 
-		if physics.CheckCollision(kickObj, *&newEnObj) {
+			if player.Flipped {
+				box.Object.KnockbackX = -player.KickPower * knockbackMultiplier
+			} else {
+				box.Object.KnockbackX = player.KickPower * knockbackMultiplier
+			}
 
-			enemyObj.SetKnockback(kickObj)
-			player.IsKicking = false
+			box.Object.KnockbackY = 0
+
 			return true
 		}
-	} else {
-		player.IsKicking = false
 	}
-
+	player.IsKicking = false
 	return false
 }
