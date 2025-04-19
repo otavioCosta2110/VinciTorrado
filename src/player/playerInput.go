@@ -1,6 +1,7 @@
 package player
 
 import (
+	"math/rand"
 	"otaviocosta2110/getTheBlueBlocks/src/physics"
 	"otaviocosta2110/getTheBlueBlocks/src/screen"
 	"otaviocosta2110/getTheBlueBlocks/src/system"
@@ -45,11 +46,11 @@ func (player *Player) CheckMovement(screen screen.Screen) {
 
 func (player *Player) CheckAtk(enemyObj system.Object) bool {
 	var isAttacking = false
-	punchWidth := float32(player.Object.Width) * 1.3
+	punchWidth := float32(player.Object.Width) 
 	punchHeight := player.Object.Height / 2
 
 	punchX := player.Object.X - player.Object.Width*2
-	punchY := player.Object.Y - player.Object.Height/3
+	punchY := player.Object.Y - player.Object.Height/4
 
 	if player.Flipped {
 		punchX = (player.Object.X - player.Object.Width/2) 
@@ -57,7 +58,6 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 		punchX = ( player.Object.X + player.Object.Width/2 )
 	}
 
-	// cor da colisão do soco (debug)
 	if rl.IsKeyPressed(rl.KeyZ) {
 		isAttacking = true
 
