@@ -52,7 +52,7 @@ func main() {
 		Texture:      rl.LoadTexture("assets/enemy.png"),
 	}
 
-	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 4, playerScale, playerSprite)
+	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 2, playerScale, playerSprite)
 	enemyManager := enemy.EnemyManager{}
 
 	enemyManager.AddEnemy(enemy.NewEnemy(50, 700, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
@@ -97,7 +97,6 @@ func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Tex
 	}
 
 	ui.DrawLife(s, p)
-
 	rl.EndDrawing()
 }
 
