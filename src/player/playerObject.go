@@ -8,7 +8,10 @@ import (
 
 type Player struct {
 	system.LiveObject
-	IsKicking bool
+	IsKicking    bool
+	LastKickTime time.Time
+	KickCooldown time.Duration
+	KickPower    int32
 }
 
 func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite) *Player {
@@ -37,7 +40,10 @@ func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite) *
 			Health:          5,
 			LastDamageTaken: time.Now(),
 		},
-		IsKicking:       false,
+		IsKicking:    false,
+		LastKickTime: time.Now(),
+		KickCooldown: 500 * time.Millisecond,
+		KickPower:    15,
 	}
 }
 

@@ -24,3 +24,5 @@ colocar tag nos obj, ex:
       }
 ai cada obj tem sua tag, tipo o player tem tag de player
 o inimigo tem tag de inimigo, etc
+
+a caixa só vai até o começo do mapa, como eu faço ela seguir junto com a camera?????
