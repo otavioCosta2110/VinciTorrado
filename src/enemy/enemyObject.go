@@ -18,6 +18,10 @@ const (
 type Enemy struct {
 	system.LiveObject
 	LastAttackTime time.Time
+	HitCount       int32
+	LastHitTime    time.Time
+	IsStunned      bool
+	StunEndTime    time.Time
 }
 
 func (e *Enemy) GetObject() system.Object {
@@ -47,11 +51,11 @@ func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite) *E
 					SpriteHeight: height,
 					Texture:      sprite.Texture,
 				},
-				Scale: scale,
+				Scale:     scale,
 				Destroyed: false,
 			},
 			MaxHealth: 5,
-			Health:    1,
+			Health:    5,
 			Speed:     speed,
 			Flipped:   false,
 		},
@@ -99,8 +103,6 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 		punchX += punchWidth
 	}
 
-	rl.DrawRectangle(punchX, punchY, punchWidth, punchHeight, rl.Red)
-
 	punchObject := system.Object{
 		X:      punchX,
 		Y:      punchY,
@@ -138,19 +140,29 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen) {
 	if e.Object.Destroyed {
 		return
 	}
-	physics.TakeKnockback(&e.Object)
-	if e.CheckAtk(p.GetObject()) {
-		p.TakeDamage(1, e.Object)
-		return
+
+	if e.IsStunned && time.Now().After(e.StunEndTime) {
+		e.IsStunned = false
 	}
 
-	if e.Object.KnockbackX == 0 || e.Object.KnockbackY == 0 {
-		*e = MoveEnemyTowardPlayer(p, *e, screen)
+	physics.TakeKnockback(&e.Object)
+
+	if !e.IsStunned {
+		if e.CheckAtk(p.GetObject()) {
+			p.TakeDamage(1, e.Object)
+			return
+		}
+
+		if e.Object.KnockbackX == 0 || e.Object.KnockbackY == 0 {
+			*e = MoveEnemyTowardPlayer(p, *e, screen)
+		}
+	} else {
+		// todo: animacao pra quando o inimigo estiver stunado
 	}
 }
 
 // ele devia na vdd soh mandar pra tras qnd levasse tipo 3 hit
-func (e *Enemy) setKnockback(pX int32, pY int32) {
+func (e *Enemy) setKnockback(pX int32) {
 	knockbackStrengthX := int32(20)
 	knockbackStrengthY := int32(0)
 
@@ -160,20 +172,30 @@ func (e *Enemy) setKnockback(pX int32, pY int32) {
 		e.Object.KnockbackX = knockbackStrengthX
 	}
 
-	if e.Object.Y < pY/2 {
-		e.Object.KnockbackY = -knockbackStrengthY
-	} else {
-		e.Object.KnockbackY = knockbackStrengthY
-	}
+	e.Object.KnockbackY = knockbackStrengthY
 }
 
 func (e *Enemy) TakeDamage(damage int32, pX int32, pY int32) {
-	if e.Health >= 1 {
-		e.Health -= damage
-		e.LastDamageTaken = time.Now()
-		e.setKnockback(pX, pY)
-	} else{
+	if e.Health <= 0 {
 		e.Object.Destroyed = true
+		return
 	}
 
+	hitWindow := time.Millisecond * 500
+	if time.Since(e.LastHitTime) > hitWindow {
+		e.HitCount = 0
+	}
+
+	e.Health -= damage
+	e.LastHitTime = time.Now()
+	e.HitCount++
+
+	if e.HitCount >= 3 {
+		e.setKnockback(pX)
+		e.HitCount = 0
+		e.IsStunned = true
+		e.StunEndTime = time.Now().Add(700 * time.Millisecond)
+	}
+
+	e.LastDamageTaken = time.Now()
 }

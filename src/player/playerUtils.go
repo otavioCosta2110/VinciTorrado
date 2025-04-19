@@ -72,13 +72,13 @@ func (p *Player) Draw() {
 	rl.DrawTexturePro(p.Object.Sprite.Texture, sourceRec, destinationRec, origin, 0.0, color)
 
 	// Desenha a caixa vermelha pra ver colisao
-	rl.DrawRectangleLines(
-		int32(destinationRec.X-origin.X+float32(p.Object.Width)/2),
-		int32(destinationRec.Y-origin.Y),
-		int32(p.Object.Width),
-		int32(p.Object.Height),
-		rl.Red,
-	)
+	// rl.DrawRectangleLines(
+	// 	int32(destinationRec.X-origin.X+float32(p.Object.Width)/2),
+	// 	int32(destinationRec.Y-origin.Y),
+	// 	int32(p.Object.Width),
+	// 	int32(p.Object.Height),
+	// 	rl.Red,
+	// )
 }
 
 func (p *Player) TakeDamage(damage int32, eObj system.Object) {
@@ -91,24 +91,6 @@ func (p *Player) TakeDamage(damage int32, eObj system.Object) {
 			system.GameOverFlag = true
 		}
 	}
-}
-
-func (p *Player) setKnockback(eX int32, eY int32) {
-	knockbackStrengthX := int32(15)
-	knockbackStrengthY := int32(10)
-
-	if p.Object.X < eX {
-		p.Object.KnockbackX = -knockbackStrengthX
-	} else {
-		p.Object.KnockbackX = knockbackStrengthX
-	}
-
-	if p.Object.Y < eY/2 {
-		p.Object.KnockbackY = -knockbackStrengthY
-	} else {
-		p.Object.KnockbackY = knockbackStrengthY
-	}
-
 }
 
 func (p *Player) isInvincible(duration int) bool {

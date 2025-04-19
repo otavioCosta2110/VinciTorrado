@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"otaviocosta2110/getTheBlueBlocks/src/enemy"
 	"otaviocosta2110/getTheBlueBlocks/src/objects"
 	"otaviocosta2110/getTheBlueBlocks/src/player"
@@ -51,7 +50,7 @@ func main() {
 		Texture:      rl.LoadTexture("assets/enemy.png"),
 	}
 
-	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 4, playerScale, playerSprite)
+	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 2, playerScale, playerSprite)
 	enemyManager := enemy.EnemyManager{}
 
 	boxes := []*objects.Box{
@@ -114,10 +113,6 @@ func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Tex
 	}
 
 	ui.DrawLife(s, p)
-	rl.DrawText(fmt.Sprintf("Player: %d, %d", p.Object.X, p.Object.Y), 10, 10, 10, rl.Black)
-	rl.DrawText(fmt.Sprintf("Enemies: %d", len(em.Enemies)), 10, 25, 10, rl.Black)
-	rl.DrawText("Press X to kick boxes", 10, 40, 10, rl.Black)
-
 	rl.EndDrawing()
 }
 

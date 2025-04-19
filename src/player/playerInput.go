@@ -47,22 +47,17 @@ func (player *Player) CheckMovement(screen screen.Screen) {
 
 func (player *Player) CheckAtk(enemyObj system.Object) bool {
 	var isAttacking = false
-
-	// botei essas vars pra ca pra fazer a caixa de colisao aparecer sempre
-	punchX := player.Object.X
-	punchY := player.Object.Y - player.Object.Height/3
-
-	punchWidth := player.Object.Width / 2
+	punchWidth := float32(player.Object.Width)
 	punchHeight := player.Object.Height / 2
 
-	if player.Flipped {
-		punchX -= punchWidth + punchWidth //esquerda
-	} else {
-		punchX += punchWidth //direita, n sei pq ta assim
-	}
+	punchX := player.Object.X - player.Object.Width*2
+	punchY := player.Object.Y - player.Object.Height/4
 
-	// cor da colisão do soco (debug)
-	rl.DrawRectangle(punchX, punchY, punchWidth, punchHeight, rl.Red)
+	if player.Flipped {
+		punchX = (player.Object.X - player.Object.Width/2)
+	} else {
+		punchX = (player.Object.X + player.Object.Width/2)
+	}
 
 	if rl.IsKeyPressed(rl.KeyZ) {
 		isAttacking = true
@@ -72,7 +67,7 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 		punchObj := system.Object{
 			X:      punchX,
 			Y:      punchY,
-			Width:  punchWidth,
+			Width:  int32(punchWidth),
 			Height: punchHeight,
 		}
 
