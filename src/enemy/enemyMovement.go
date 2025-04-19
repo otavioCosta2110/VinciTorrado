@@ -8,36 +8,41 @@ import (
 )
 
 func MoveEnemyTowardPlayer(p system.Player, e Enemy, s screen.Screen) Enemy {
-	hitStunDuration := time.Millisecond * 300 
+	hitStunDuration := time.Millisecond * 300
 	if time.Since(e.LastDamageTaken) < hitStunDuration {
-		return e 
-	}
-
-	if e.Object.FrameY == 1 { 
 		return e
 	}
 
-	distX := float64(p.GetObject().X)
-	distY := float64(p.GetObject().Y - e.Object.Y -20)
-	distance := math.Sqrt(distX*distX + distY*distY) 
+	if e.Object.FrameY == 1 {
+		return e
+	}
 
-	stopDistance := float64(e.Object.Width) * 0.8 
+	playerX := float64(p.GetObject().X)
+	playerY := float64(p.GetObject().Y)
+	enemyX := float64(e.Object.X)
+	enemyY := float64(e.Object.Y)
 
-	if distance > stopDistance { 
-		if e.Object.X < p.GetObject().X {
-			e.Flipped = false
-			e.Object.X += e.Speed
+	distX := playerX - enemyX
+	distY := playerY - enemyY
+	distance := math.Sqrt(distX*distX + distY*distY)
+
+	punchRange := float64(e.Object.Width) * 1.2
+
+	if distance > punchRange {
+		if distance > 0 {
+			distX /= distance
+			distY /= distance
 		}
-		if e.Object.X > p.GetObject().X {
-			e.Flipped = true
-			e.Object.X -= e.Speed
-		}
-		if e.Object.Y < p.GetObject().Y {
-			e.Object.Y += e.Speed
-		}
-		if e.Object.Y > p.GetObject().Y {
-			e.Object.Y -= e.Speed
+
+		e.Object.X += int32((distX * float64(e.Speed)) * 1.5 )
+		e.Object.Y += int32((distY * float64(e.Speed)) * 1.5 )
+
+		if distX > 0 {
+			e.Flipped = false 
+		} else if distX < 0 {
+			e.Flipped = true 
 		}
 	}
+
 	return e
 }
