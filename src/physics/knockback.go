@@ -1,7 +1,7 @@
 package physics
 
 import (
-	"otaviocosta2110/getTheBlueBlocks/src/system"
+	"otaviocosta2110/vincitorrado/src/system"
 )
 
 func TakeKnockback(obj *system.Object) {

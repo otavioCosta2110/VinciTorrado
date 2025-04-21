@@ -1,8 +1,8 @@
 package ui
 
 import (
-	"otaviocosta2110/getTheBlueBlocks/src/player"
-	"otaviocosta2110/getTheBlueBlocks/src/screen"
+	"otaviocosta2110/vincitorrado/src/player"
+	"otaviocosta2110/vincitorrado/src/screen"
   rl "github.com/gen2brain/raylib-go/raylib"
 
 )

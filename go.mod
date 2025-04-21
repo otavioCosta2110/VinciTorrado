@@ -1,4 +1,4 @@
-module otaviocosta2110/getTheBlueBlocks
+module otaviocosta2110/vincitorrado
 
 go 1.23.0
 

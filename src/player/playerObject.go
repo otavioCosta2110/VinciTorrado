@@ -1,8 +1,8 @@
 package player
 
 import (
-	"otaviocosta2110/getTheBlueBlocks/src/sprites"
-	"otaviocosta2110/getTheBlueBlocks/src/system"
+	"otaviocosta2110/vincitorrado/src/sprites"
+	"otaviocosta2110/vincitorrado/src/system"
 	"time"
 )
 

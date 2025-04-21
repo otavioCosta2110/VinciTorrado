@@ -2,10 +2,10 @@ package enemy
 
 import (
 	"math/rand"
-	"otaviocosta2110/getTheBlueBlocks/src/physics"
-	"otaviocosta2110/getTheBlueBlocks/src/screen"
-	"otaviocosta2110/getTheBlueBlocks/src/sprites"
-	"otaviocosta2110/getTheBlueBlocks/src/system"
+	"otaviocosta2110/vincitorrado/src/physics"
+	"otaviocosta2110/vincitorrado/src/screen"
+	"otaviocosta2110/vincitorrado/src/sprites"
+	"otaviocosta2110/vincitorrado/src/system"
 	"time"
 
 	rl "github.com/gen2brain/raylib-go/raylib"

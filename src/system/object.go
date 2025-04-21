@@ -1,7 +1,7 @@
 package system
 
 import (
-	"otaviocosta2110/getTheBlueBlocks/src/sprites"
+	"otaviocosta2110/vincitorrado/src/sprites"
 	"time"
 )
 
