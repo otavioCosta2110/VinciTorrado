@@ -10,11 +10,13 @@ import (
 
 type Box struct {
 	Object    system.Object
-	Color     rl.Color
+	Texture   rl.Texture2D
 	OriginalY int32
 }
 
-func NewBox(x, y, width, height int32, color rl.Color) *Box {
+func NewBox(x, y, width, height int32) *Box {
+	texture := rl.LoadTexture("assets/box.png")
+
 	return &Box{
 		Object: system.Object{
 			X:          x,
@@ -24,12 +26,24 @@ func NewBox(x, y, width, height int32, color rl.Color) *Box {
 			KnockbackX: 0,
 			KnockbackY: 0,
 		},
-		Color: color,
+		Texture: texture,
 	}
 }
 
 func (b *Box) Draw() {
-	rl.DrawRectangle(b.Object.X-b.Object.Width/2, b.Object.Y-b.Object.Height/2, b.Object.Width, b.Object.Height, b.Color)
+	rl.DrawTexturePro(
+		b.Texture,
+		rl.NewRectangle(0, 0, float32(b.Texture.Width), float32(b.Texture.Height)),
+		rl.NewRectangle(
+			float32(b.Object.X),
+			float32(b.Object.Y),
+			float32(b.Object.Width),
+			float32(b.Object.Height),
+		),
+		rl.NewVector2(float32(b.Object.Width)/2, float32(b.Object.Height)/2),
+		0,
+		rl.White,
+	)
 }
 
 func (b *Box) Update(colliders []system.Object, s *screen.Screen) {

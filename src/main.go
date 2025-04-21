@@ -54,7 +54,7 @@ func main() {
 	enemyManager := enemy.EnemyManager{}
 
 	boxes := []*objects.Box{
-		objects.NewBox(200, screen.Height-100, 50, 50, rl.LightGray), // Spawns at ground level
+		objects.NewBox(200, screen.Height-100, 50, 50),
 	}
 
 	enemyManager.AddEnemy(enemy.NewEnemy(50, 700, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
