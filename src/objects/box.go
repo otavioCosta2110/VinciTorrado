@@ -1,9 +1,9 @@
 package objects
 
 import (
-	"otaviocosta2110/getTheBlueBlocks/src/physics"
-	"otaviocosta2110/getTheBlueBlocks/src/screen"
-	"otaviocosta2110/getTheBlueBlocks/src/system"
+	"otaviocosta2110/vincitorrado/src/physics"
+	"otaviocosta2110/vincitorrado/src/screen"
+	"otaviocosta2110/vincitorrado/src/system"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )

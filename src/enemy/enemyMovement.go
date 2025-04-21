@@ -2,8 +2,8 @@ package enemy
 
 import (
 	"math"
-	"otaviocosta2110/getTheBlueBlocks/src/screen"
-	"otaviocosta2110/getTheBlueBlocks/src/system"
+	"otaviocosta2110/vincitorrado/src/screen"
+	"otaviocosta2110/vincitorrado/src/system"
 	"time"
 )
 

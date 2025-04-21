@@ -1,10 +1,10 @@
 package player
 
 import (
-	"otaviocosta2110/getTheBlueBlocks/src/enemy"
-	"otaviocosta2110/getTheBlueBlocks/src/physics"
-	"otaviocosta2110/getTheBlueBlocks/src/screen"
-	"otaviocosta2110/getTheBlueBlocks/src/system"
+	"otaviocosta2110/vincitorrado/src/enemy"
+	"otaviocosta2110/vincitorrado/src/physics"
+	"otaviocosta2110/vincitorrado/src/screen"
+	"otaviocosta2110/vincitorrado/src/system"
 	"time"
 
 	rl "github.com/gen2brain/raylib-go/raylib"

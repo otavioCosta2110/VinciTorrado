@@ -2,7 +2,7 @@ package system
 
 import (
 	rl "github.com/gen2brain/raylib-go/raylib"
-  "otaviocosta2110/getTheBlueBlocks/src/screen"
+  "otaviocosta2110/vincitorrado/src/screen"
 )
 
 var GameOverFlag bool = false

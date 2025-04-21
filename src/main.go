@@ -1,13 +1,13 @@
 package main
 
 import (
-	"otaviocosta2110/getTheBlueBlocks/src/enemy"
-	"otaviocosta2110/getTheBlueBlocks/src/objects"
-	"otaviocosta2110/getTheBlueBlocks/src/player"
-	"otaviocosta2110/getTheBlueBlocks/src/screen"
-	"otaviocosta2110/getTheBlueBlocks/src/sprites"
-	"otaviocosta2110/getTheBlueBlocks/src/system"
-	"otaviocosta2110/getTheBlueBlocks/src/ui"
+	"otaviocosta2110/vincitorrado/src/enemy"
+	"otaviocosta2110/vincitorrado/src/objects"
+	"otaviocosta2110/vincitorrado/src/player"
+	"otaviocosta2110/vincitorrado/src/screen"
+	"otaviocosta2110/vincitorrado/src/sprites"
+	"otaviocosta2110/vincitorrado/src/system"
+	"otaviocosta2110/vincitorrado/src/ui"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
