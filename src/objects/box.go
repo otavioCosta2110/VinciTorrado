@@ -1,6 +1,7 @@
 package objects
 
 import (
+	"otaviocosta2110/vincitorrado/src/enemy"
 	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/system"
@@ -46,7 +47,7 @@ func (b *Box) Draw() {
 	)
 }
 
-func (b *Box) Update(colliders []system.Object, s *screen.Screen) {
+func (b *Box) Update(colliders []system.Object, s *screen.Screen, em *enemy.EnemyManager) {
 	b.Object.X += b.Object.KnockbackX
 	b.Object.Y += b.Object.KnockbackY
 
@@ -86,6 +87,10 @@ func (b *Box) Update(colliders []system.Object, s *screen.Screen) {
 			tempObj := obj
 			physics.ResolveCollision(&b.Object, &tempObj)
 		}
+	}
+
+	if em != nil {
+		em.CheckBoxCollisions(b.Object)
 	}
 }
 
