@@ -191,11 +191,15 @@ func (e *Enemy) TakeDamage(damage int32, pX int32, pY int32) {
 	e.HitCount++
 
 	if e.HitCount >= 3 {
+		e.Object.UpdateAnimation(100, []int{1, 1}, []int{2, 2})
 		e.setKnockback(pX)
 		e.HitCount = 0
 		e.IsStunned = true
 		e.StunEndTime = time.Now().Add(700 * time.Millisecond)
-	}
+	}else{
+	e.Object.UpdateAnimation(100, []int{0, 0}, []int{2, 2})
+
+		}
 
 	e.LastDamageTaken = time.Now()
 }

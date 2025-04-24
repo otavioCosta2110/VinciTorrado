@@ -84,6 +84,7 @@ func (p *Player) Draw() {
 func (p *Player) TakeDamage(damage int32, eObj system.Object) {
 	if !p.isInvincible(invencibilityDuration) {
 		if p.Health > 1 {
+			p.Object.UpdateAnimation(100, []int{0, 1}, []int{3, 3})
 			p.Health -= damage
 			p.LastDamageTaken = time.Now()
 			p.Object.SetKnockback(eObj)
