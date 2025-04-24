@@ -203,3 +203,16 @@ func (e *Enemy) TakeDamage(damage int32, pX int32, pY int32) {
 
 	e.LastDamageTaken = time.Now()
 }
+
+func (e *Enemy) TakeDamageFromBox(box system.Object) {
+	damage := int32(1)
+	e.TakeDamage(damage, box.X, box.Y)
+
+	knockbackStrength := int32(15)
+	if e.Object.X < box.X {
+		e.Object.KnockbackX = -knockbackStrength
+	} else {
+		e.Object.KnockbackX = knockbackStrength
+	}
+	e.Object.KnockbackY = -knockbackStrength / 2
+}
