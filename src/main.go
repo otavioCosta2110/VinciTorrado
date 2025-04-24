@@ -15,7 +15,7 @@ import (
 const (
 	windowWidth   int32  = 1280
 	windowHeight  int32  = 720
-	windowTitle   string = "jogo poggers"
+	windowTitle   string = "Vinci Torrado"
 	obstacleSpeed int32  = 2
 	playerScale   int32  = 4
 	playerSizeX   int32  = 32
@@ -25,13 +25,13 @@ const (
 func main() {
 	rl.InitWindow(windowWidth, windowHeight, windowTitle)
 
-	buildings := rl.LoadTexture("assets/predio.png")
+	buildings := rl.LoadTexture("assets/scenes/predio.png")
 	buildings.Width *= playerScale
 	buildings.Height *= playerScale
 
 	screen := screen.NewScreen(windowWidth, windowHeight, buildings.Width, buildings.Height, windowTitle)
 
-	chao := rl.LoadTexture("assets/chao.png")
+	chao := rl.LoadTexture("assets/scenes/chao.png")
 	chao.Width *= playerScale
 	chao.Height *= playerScale
 
@@ -41,13 +41,13 @@ func main() {
 	playerSprite := sprites.Sprite{
 		SpriteWidth:  playerSizeX,
 		SpriteHeight: playerSizeY,
-		Texture:      rl.LoadTexture("assets/player.png"),
+		Texture:      rl.LoadTexture("assets/player/player.png"),
 	}
 
 	enemySprite := sprites.Sprite{
 		SpriteWidth:  playerSizeX,
 		SpriteHeight: playerSizeY,
-		Texture:      rl.LoadTexture("assets/enemy.png"),
+		Texture:      rl.LoadTexture("assets/enemies/enemy.png"),
 	}
 
 	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 2, playerScale, playerSprite)
