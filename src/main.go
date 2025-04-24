@@ -15,7 +15,7 @@ import (
 const (
 	windowWidth   int32  = 1280
 	windowHeight  int32  = 720
-	windowTitle   string = "jogo poggers"
+	windowTitle   string = "Vinci Torrado"
 	obstacleSpeed int32  = 2
 	playerScale   int32  = 4
 	playerSizeX   int32  = 32
