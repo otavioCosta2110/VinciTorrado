@@ -15,7 +15,7 @@ type Box struct {
 }
 
 func NewBox(x, y, width, height int32) *Box {
-	texture := rl.LoadTexture("assets/box.png")
+	texture := rl.LoadTexture("assets/props/box.png")
 
 	return &Box{
 		Object: system.Object{
