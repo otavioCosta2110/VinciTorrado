@@ -50,6 +50,7 @@ func main() {
 		objects.NewBox(200, screen.Height-100, 50, 50),
 	}
 
+	// nesse arquivos tem informcoes sobre os inimigos, como a posicao inicial, vida, forca, etc
 	enemies, err := enemy.LoadEnemiesFromJSON("assets/enemies/enemyInfo/1_00 enemyInfo.json", playerScale)
 	if err != nil {
 		panic(err)
