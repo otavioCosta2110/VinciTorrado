@@ -21,6 +21,7 @@ type Enemy struct {
 	HitCount       int32
 	LastHitTime    time.Time
 	IsStunned      bool
+	IsActive       bool
 	StunEndTime    time.Time
 }
 
@@ -59,6 +60,7 @@ func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite) *E
 			Speed:     speed,
 			Flipped:   false,
 		},
+		IsActive:   false,
 	}
 }
 
@@ -196,10 +198,10 @@ func (e *Enemy) TakeDamage(damage int32, pX int32, pY int32) {
 		e.HitCount = 0
 		e.IsStunned = true
 		e.StunEndTime = time.Now().Add(700 * time.Millisecond)
-	}else{
-	e.Object.UpdateAnimation(100, []int{0, 0}, []int{2, 2})
+	} else {
+		e.Object.UpdateAnimation(100, []int{0, 0}, []int{2, 2})
 
-		}
+	}
 
 	e.LastDamageTaken = time.Now()
 }
