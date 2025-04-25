@@ -5,6 +5,7 @@ import (
 	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/system"
 	"slices"
+	"sort"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -55,7 +56,6 @@ func (em *EnemyManager) Update(p system.Player, s screen.Screen) {
 			em.RemoveActiveEnemy(enemy)
 		}
 		enemy.Update(p, s)
-		println("enemy", len(em.ActiveEnemies))
 	}
 }
 
@@ -80,7 +80,11 @@ func (em *EnemyManager) RemoveActiveEnemy(enemy *Enemy) {
 }
 
 func (em *EnemyManager) Draw() {
-	for _, enemy := range em.Enemies {
+	enemies := em.Enemies
+	sort.Slice(enemies, func(i, j int) bool {
+		return enemies[i].Layer < enemies[j].Layer
+	})
+	for _, enemy := range enemies {
 		enemy.Draw()
 	}
 }

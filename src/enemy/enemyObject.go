@@ -23,6 +23,7 @@ type Enemy struct {
 	IsStunned      bool
 	IsActive       bool
 	StunEndTime    time.Time
+	Layer          int
 }
 
 func (e *Enemy) GetObject() system.Object {
@@ -60,7 +61,8 @@ func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite) *E
 			Speed:     speed,
 			Flipped:   false,
 		},
-		IsActive:   false,
+		IsActive: false,
+		Layer:  0,
 	}
 }
 
@@ -140,6 +142,8 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 
 func (e *Enemy) Update(p system.Player, screen screen.Screen) {
 	if e.Object.Destroyed {
+		e.Object.FrameX = 0
+		e.Object.FrameY = 3
 		return
 	}
 
@@ -180,6 +184,7 @@ func (e *Enemy) setKnockback(pX int32) {
 func (e *Enemy) TakeDamage(damage int32, pX int32, pY int32) {
 	if e.Health <= 0 {
 		e.Object.Destroyed = true
+		e.Layer = -1
 		return
 	}
 
