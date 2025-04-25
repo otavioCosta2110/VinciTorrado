@@ -44,21 +44,22 @@ func main() {
 		Texture:      rl.LoadTexture("assets/player/player.png"),
 	}
 
-	enemySprite := sprites.Sprite{
-		SpriteWidth:  playerSizeX,
-		SpriteHeight: playerSizeY,
-		Texture:      rl.LoadTexture("assets/enemies/enemy.png"),
-	}
-
 	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 2, playerScale, playerSprite)
-	enemyManager := enemy.EnemyManager{}
 
 	boxes := []*objects.Box{
 		objects.NewBox(200, screen.Height-100, 50, 50),
 	}
 
-	enemyManager.AddEnemy(enemy.NewEnemy(50, 700, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
-	enemyManager.AddEnemy(enemy.NewEnemy(200, 500, obstacleSpeed, playerSizeX, playerSizeY, playerScale, enemySprite))
+	// nesse arquivos tem informcoes sobre os inimigos, como a posicao inicial, vida, forca, etc
+	enemies, err := enemy.LoadEnemiesFromJSON("assets/enemies/enemyInfo/1_00 enemyInfo.json", playerScale)
+	if err != nil {
+		panic(err)
+	}
+
+	enemyManager := enemy.EnemyManager{}
+	for _, e := range enemies {
+		enemyManager.AddEnemy(e)
+	}
 
 	screen.InitCamera(player.Object.X, player.Object.Y)
 

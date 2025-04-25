@@ -5,15 +5,16 @@ import (
 )
 
 type LiveObject struct {
-	Object Object
+	Object          Object
 	Speed           int32
 	Health          int32
 	MaxHealth       int32
+	Damage          int32
 	LastDamageTaken time.Time
 	Flipped         bool
 }
 
-type Live interface  {
+type Live interface {
 	Draw()
 	TakeDamage(damage int32, eX, eY int32)
 	GetObject() Object
@@ -21,11 +22,11 @@ type Live interface  {
 }
 
 type Player interface {
-    GetObject() Object
-    TakeDamage(damage int32, eobj Object)
+	GetObject() Object
+	TakeDamage(damage int32, eobj Object)
 }
 
 type Enemy interface {
-    GetObject() Object
-    TakeDamage(damage int32, pX int32, pY int32)
+	GetObject() Object
+	TakeDamage(damage int32, pX int32, pY int32)
 }

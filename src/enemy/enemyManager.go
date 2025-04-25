@@ -5,26 +5,70 @@ import (
 	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/system"
 	"slices"
+	"sort"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 type EnemyManager struct {
-	Enemies       []*Enemy
-	ActiveEnemies []*Enemy
-	NumEnemies    int
+	Enemies         []*Enemy
+	ActiveEnemies   []*Enemy
+	InactiveEnemies []*Enemy
+	NumEnemies      int
 }
 
-// vou deixar assim pq acho q eh legal se ficar os corpos deles no chao todo desembrenhado
-func (em *EnemyManager) Update(p system.Player, screen screen.Screen) {
-	for i := 0; i < len(em.ActiveEnemies); i++ {
-		enemy := em.ActiveEnemies[i]
-		if enemy.Health > 0 {
-			enemy.Update(p, screen)
-		} else {
-			em.RemoveActiveEnemy(enemy)
-			i--
+func (em *EnemyManager) Update(p system.Player, s screen.Screen) {
+	cameraBounds := rl.Rectangle{
+		X:      s.Camera.Target.X - float32(s.Width)/2,
+		Y:      s.Camera.Target.Y - float32(s.Height)/2,
+		Width:  float32(s.Width),
+		Height: float32(s.Height),
+	}
+
+	for i, enemy := range em.InactiveEnemies {
+		if isInCameraBounds(enemy, cameraBounds) {
+
+			enemy.IsActive = true
+			em.ActiveEnemies = append(em.ActiveEnemies, enemy)
+			em.InactiveEnemies = slices.Delete(em.InactiveEnemies, i, i+1)
+			break
 		}
 	}
+
+	for _, enemy := range em.ActiveEnemies {
+		enemyRect := rl.Rectangle{
+			X:      float32(enemy.Object.X),
+			Y:      float32(enemy.Object.Y),
+			Width:  float32(enemy.Object.Width),
+			Height: float32(enemy.Object.Height),
+		}
+
+		if !rl.CheckCollisionRecs(enemyRect, cameraBounds) {
+			enemy.IsActive = false
+			em.InactiveEnemies = append(em.InactiveEnemies, enemy)
+			em.RemoveActiveEnemy(enemy)
+			break
+		}
+	}
+
+	for _, enemy := range em.ActiveEnemies {
+		if enemy.Object.Destroyed {
+			em.RemoveActiveEnemy(enemy)
+		}
+		enemy.Update(p, s)
+	}
 }
+
+func isInCameraBounds(enemy *Enemy, cameraBounds rl.Rectangle) bool {
+	enemyRect := rl.Rectangle{
+		X:      float32(enemy.Object.X),
+		Y:      float32(enemy.Object.Y),
+		Width:  float32(enemy.Object.Width),
+		Height: float32(enemy.Object.Height),
+	}
+	return rl.CheckCollisionRecs(enemyRect, cameraBounds)
+}
+
 
 func (em *EnemyManager) RemoveActiveEnemy(enemy *Enemy) {
 	for i, e := range em.ActiveEnemies {
@@ -36,7 +80,11 @@ func (em *EnemyManager) RemoveActiveEnemy(enemy *Enemy) {
 }
 
 func (em *EnemyManager) Draw() {
-	for _, enemy := range em.Enemies {
+	enemies := em.Enemies
+	sort.Slice(enemies, func(i, j int) bool {
+		return enemies[i].Layer < enemies[j].Layer
+	})
+	for _, enemy := range enemies {
 		enemy.Draw()
 	}
 }
