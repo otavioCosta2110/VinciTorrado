@@ -39,6 +39,7 @@ func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite) *
 			MaxHealth:       5,
 			Health:          5,
 			LastDamageTaken: time.Now(),
+			Damage: 1,
 		},
 		IsKicking:    false,
 		LastKickTime: time.Now(),

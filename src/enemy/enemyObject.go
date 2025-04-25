@@ -149,7 +149,7 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen) {
 
 	if !e.IsStunned {
 		if e.CheckAtk(p.GetObject()) {
-			p.TakeDamage(1, e.Object)
+			p.TakeDamage(e.Damage, e.Object)
 			return
 		}
 

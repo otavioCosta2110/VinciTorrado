@@ -25,7 +25,7 @@ func (p *Player) Update(em *enemy.EnemyManager, screen screen.Screen) {
 		enemyObject := enemy.GetObject()
 
 		if p.CheckAtk(enemyObject) {
-			enemy.TakeDamage(1, p.Object.X, p.Object.Y)
+			enemy.TakeDamage(p.Damage, p.Object.X, p.Object.Y)
 		}
 	}
 }
