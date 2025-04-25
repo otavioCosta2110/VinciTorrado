@@ -11,7 +11,7 @@
     "scale": 4
   },
   {
-    "sprite": "assets/enemies/bald.png",
+    "sprite": "assets/enemies/bald_blue.png",
     "X": 200,
     "Y": 500,
     "width": 32,
@@ -23,11 +23,22 @@
   },
   {
     "sprite": "assets/enemies/bald_woman.png",
+    "X": 2080,
+    "Y": 600,
+    "width": 32,
+    "height": 32,
+    "health": 1,
+    "damage": 1,
+    "speed": 2,
+    "scale": 4
+  },
+  {
+    "sprite": "assets/enemies/bald_woman_red.png",
     "X": 2000,
     "Y": 400,
     "width": 32,
     "height": 32,
-    "health": 3,
+    "health": 1,
     "damage": 1,
     "speed": 2,
     "scale": 4
