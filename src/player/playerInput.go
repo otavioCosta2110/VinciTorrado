@@ -73,7 +73,10 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 		}
 
 		if physics.CheckCollision(punchObj, enemyObj) {
-			audio.PlayPunch()
+			if !enemyObj.Destroyed{
+				audio.PlayPunch()
+			}
+
 			return true
 		}
 	}
