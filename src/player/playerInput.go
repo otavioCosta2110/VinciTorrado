@@ -122,7 +122,7 @@ func (player *Player) CheckKick(box *objects.Box) bool {
 			}
 
 			box.Object.KnockbackY = 0
-
+			audio.PlayKick()
 			return true
 		}
 	}
