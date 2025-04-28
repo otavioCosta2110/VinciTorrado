@@ -1,6 +1,7 @@
 package player
 
 import (
+	"otaviocosta2110/vincitorrado/src/audio"
 	"otaviocosta2110/vincitorrado/src/objects"
 	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/screen"
@@ -71,7 +72,13 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 			Height: punchHeight,
 		}
 
-		return physics.CheckCollision(punchObj, enemyObj)
+		if physics.CheckCollision(punchObj, enemyObj) {
+			if !enemyObj.Destroyed{
+				audio.PlayPunch()
+			}
+
+			return true
+		}
 	}
 	if !isAttacking {
 		player.Object.UpdateAnimation(int(animationDelay), []int{0}, []int{0})
@@ -118,7 +125,7 @@ func (player *Player) CheckKick(box *objects.Box) bool {
 			}
 
 			box.Object.KnockbackY = 0
-
+			audio.PlayKick()
 			return true
 		}
 	}

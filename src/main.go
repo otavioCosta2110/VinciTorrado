@@ -1,6 +1,7 @@
 package main
 
 import (
+	"otaviocosta2110/vincitorrado/src/audio"
 	"otaviocosta2110/vincitorrado/src/enemy"
 	"otaviocosta2110/vincitorrado/src/objects"
 	"otaviocosta2110/vincitorrado/src/player"
@@ -28,6 +29,11 @@ func main() {
 	buildings := rl.LoadTexture("assets/scenes/predio.png")
 	buildings.Width *= playerScale
 	buildings.Height *= playerScale
+
+	rl.InitAudioDevice()
+	audio.LoadSounds()
+	defer rl.CloseAudioDevice()
+	defer audio.UnloadSounds()
 
 	screen := screen.NewScreen(windowWidth, windowHeight, buildings.Width, buildings.Height, windowTitle)
 

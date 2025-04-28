@@ -2,6 +2,7 @@ package enemy
 
 import (
 	"math/rand"
+	"otaviocosta2110/vincitorrado/src/audio"
 	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/sprites"
@@ -62,7 +63,7 @@ func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite) *E
 			Flipped:   false,
 		},
 		IsActive: false,
-		Layer:  0,
+		Layer:    0,
 	}
 }
 
@@ -132,6 +133,7 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 			framex := rand.Intn(2)
 			e.Object.UpdateAnimation(50, []int{framex}, []int{1})
 
+			audio.PlayPunch()
 			return true
 		}
 	}
