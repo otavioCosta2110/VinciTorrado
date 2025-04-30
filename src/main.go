@@ -43,6 +43,7 @@ func main() {
 
 	defer rl.CloseWindow()
 	rl.SetTargetFPS(60)
+	rl.SetExitKey(0) // desabilita fechar o jogo com esc
 
 	playerSprite := sprites.Sprite{
 		SpriteWidth:  playerSizeX,
@@ -51,6 +52,8 @@ func main() {
 	}
 
 	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 2, playerScale, playerSprite)
+	menu := ui.NewMenu(player, &playerSprite)
+
 
 	boxes := []*objects.Box{
 		objects.NewBox(200, screen.Height-100, 50, 50),
@@ -70,8 +73,12 @@ func main() {
 	screen.InitCamera(player.Object.X, player.Object.Y)
 
 	for !rl.WindowShouldClose() {
-		update(player, &enemyManager, screen, boxes)
-		draw(player, &enemyManager, *screen, chao, buildings, boxes)
+		menu.Update()
+		
+		if !menu.IsVisible {
+			update(player, &enemyManager, screen, boxes)
+		}
+		draw(player, &enemyManager, *screen, chao, buildings, boxes, *menu)
 	}
 }
 
@@ -97,7 +104,7 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 	screen.UpdateCamera(p.Object.X, p.Object.Y, canAdvance)
 }
 
-func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Texture2D, buildings rl.Texture2D, boxes []*objects.Box) {
+func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Texture2D, buildings rl.Texture2D, boxes []*objects.Box, menu ui.Menu) {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.RayWhite)
 
@@ -119,7 +126,9 @@ func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Tex
 		system.GameOver(&s)
 	}
 
+	
 	ui.DrawLife(s, p)
+	menu.Draw()
 	rl.EndDrawing()
 }
 
