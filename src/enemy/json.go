@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"otaviocosta2110/vincitorrado/src/equipment"
 	"otaviocosta2110/vincitorrado/src/sprites"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -32,10 +33,10 @@ type EnemyConfig struct {
 	Speed      int32  `json:"speed"`
 	WindUpTime int64  `json:"windUpTime"`
 	Scale      int32  `json:"scale"`
-	Drops      *Drops `json:"drops"`
+	Drops      Drop   `json:"drops"`
 }
 
-func LoadEnemiesFromJSON(filename string, playerScale int32, handleDrop func(x, y int32, itemName string)) ([]*Enemy, error) {
+func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
 	file, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read enemy file: %w", err)
@@ -54,6 +55,9 @@ func LoadEnemiesFromJSON(filename string, playerScale int32, handleDrop func(x, 
 			Texture:      rl.LoadTexture(config.Sprite),
 		}
 
+		dropSprite := config.Drops.Sprite
+		drop := equipment.New(dropSprite)
+
 		enemyType := "normal"
 		if strings.Contains(strings.ToLower(filepath.Base(config.Sprite)), "dwarf") {
 			enemyType = "dwarf"
@@ -70,15 +74,9 @@ func LoadEnemiesFromJSON(filename string, playerScale int32, handleDrop func(x, 
 			sprite,
 			config.WindUpTime,
 			enemyType,
-			func(x, y int32) {
-				if config.Drops != nil {
-					for _, drop := range config.Drops.Equipment {
-						fmt.Printf("Attempting to drop %s at (%d,%d)\n", drop.Name, x, y)
-						handleDrop(x, y, drop.Name)
-					}
-				}
-			},
+			*drop,
 		)
+
 		enemy.Health = config.Health
 		enemy.MaxHealth = config.Health
 		enemy.Damage = config.Damage

@@ -1,6 +1,7 @@
 package equipment
 
 import (
+	"math"
 	"otaviocosta2110/vincitorrado/src/sprites"
 	"otaviocosta2110/vincitorrado/src/system"
 
@@ -8,46 +9,54 @@ import (
 )
 
 type Equipment struct {
-	Texture     rl.Texture2D
-	IsEquipped  bool
-	OffsetX     int32
-	OffsetY     int32
-	SpriteSheet sprites.Sprite
+	IsEquipped bool
+	OffsetX    int32
+	OffsetY    int32
+	Object     system.Object
 }
 
-func New(texturePath string, spriteSheet sprites.Sprite) *Equipment {
+func New(texturePath string) *Equipment {
+	spritesheet := sprites.Sprite{
+		SpriteWidth:  32,
+		SpriteHeight: 32,
+		Texture:      rl.LoadTexture(texturePath),
+	}
 	return &Equipment{
-		Texture:     rl.LoadTexture(texturePath),
-		SpriteSheet: spriteSheet,
-		OffsetX:     0,
-		OffsetY:     -10,
+		OffsetX: 0,
+		OffsetY: 0,
+		Object: system.Object{
+			Sprite: spritesheet,
+		},
 	}
 }
 
 func (e *Equipment) DrawAnimated(obj *system.Object) {
-	frameWidth := float32(e.SpriteSheet.SpriteWidth)
-	frameHeight := float32(e.SpriteSheet.SpriteHeight)
+    frameWidth := float32(e.Object.Sprite.SpriteWidth)
+    frameHeight := float32(e.Object.Sprite.SpriteHeight)
 
-	source := rl.NewRectangle(
-		float32(obj.FrameX)*frameWidth,
-		float32(obj.FrameY)*frameHeight,
-		frameWidth,
-		frameHeight,
-	)
+    currentTime := float32(rl.GetTime())
+    floatOffset := float32(math.Sin(float64(currentTime*2)) * 5 )
 
-	dest := rl.NewRectangle(
-		float32(obj.X)+float32(e.OffsetX),
-		float32(obj.Y)+float32(e.OffsetY),
-		frameWidth*float32(obj.Scale),
-		frameHeight*float32(obj.Scale),
-	)
+    source := rl.NewRectangle(
+        float32(obj.FrameX)*frameWidth,
+        float32(obj.FrameY)*frameHeight,
+        frameWidth,
+        frameHeight,
+    )
 
-	rl.DrawTexturePro(
-		e.SpriteSheet.Texture,
-		source,
-		dest,
-		rl.NewVector2(dest.Width/2, dest.Height/2),
-		0,
-		rl.White,
-	)
+    dest := rl.NewRectangle(
+        float32(obj.X)+float32(e.OffsetX),
+        float32(obj.Y)+float32(e.OffsetY)+floatOffset - 20, 
+        frameWidth*float32(obj.Scale),
+        frameHeight*float32(obj.Scale),
+    )
+
+    rl.DrawTexturePro(
+        e.Object.Sprite.Texture,
+        source,
+        dest,
+        rl.NewVector2(dest.Width/2, dest.Height/2),
+        0,
+        rl.White,
+    )
 }

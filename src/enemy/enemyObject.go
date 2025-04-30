@@ -3,6 +3,7 @@ package enemy
 import (
 	"math/rand"
 	"otaviocosta2110/vincitorrado/src/audio"
+	"otaviocosta2110/vincitorrado/src/equipment"
 	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/sprites"
@@ -15,8 +16,6 @@ import (
 const (
 	animationDelay int32 = 300
 )
-
-type DropHandler func(x, y int32)
 
 type Enemy struct {
 	system.LiveObject
@@ -31,7 +30,7 @@ type Enemy struct {
 	WindUpTime     int64
 	isSpawning     bool
 	EnemyType      string
-	HandleDrop     DropHandler
+	Drop           equipment.Equipment
 }
 
 func (e *Enemy) GetObject() system.Object {
@@ -42,7 +41,7 @@ func (e *Enemy) SetObject(obj system.Object) {
 	e.Object = obj
 }
 
-func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite, windUpTime int64, enemyType string, handleDrop DropHandler) *Enemy {
+func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite, windUpTime int64, enemyType string, drops equipment.Equipment) *Enemy {
 	return &Enemy{
 		LiveObject: system.LiveObject{
 			Object: system.Object{
@@ -75,7 +74,7 @@ func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite, wi
 		WindUpTime: windUpTime,
 		isSpawning: true,
 		EnemyType:  enemyType,
-		HandleDrop: handleDrop,
+		Drop:      drops,
 	}
 }
 
@@ -105,6 +104,9 @@ func (e *Enemy) Draw() {
 	)
 
 	rl.DrawTexturePro(e.Object.Sprite.Texture, sourceRec, destinationRec, origin, 0.0, rl.White)
+	if e.Object.Destroyed {
+		e.Drop.DrawAnimated(&e.Object)
+	}
 }
 
 func (e *Enemy) CheckAtk(player system.Object) bool {

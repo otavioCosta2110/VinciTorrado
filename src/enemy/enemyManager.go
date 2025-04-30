@@ -54,9 +54,6 @@ func (em *EnemyManager) Update(p system.Player, s screen.Screen) {
 		enemy := em.ActiveEnemies[i]
 		enemy.Update(p, s)
 		if enemy.Object.Destroyed {
-			if enemy.HandleDrop != nil && enemy.EnemyType == "dwarf" {
-				enemy.HandleDrop(enemy.Object.X, enemy.Object.Y)
-			}
 			em.ActiveEnemies = slices.Delete(em.ActiveEnemies, i, i+1)
 		}
 	}
@@ -95,12 +92,6 @@ func (em *EnemyManager) AddEnemy(e *Enemy) {
 	em.Enemies = append(em.Enemies, e)
 	em.InactiveEnemies = append(em.InactiveEnemies, e)
 	em.NumEnemies++
-}
-
-func (em *EnemyManager) SetDropHandler(handler func(x, y int32)) {
-	for _, e := range em.Enemies {
-		e.HandleDrop = handler
-	}
 }
 
 func (em *EnemyManager) CheckBoxCollisions(box system.Object) {

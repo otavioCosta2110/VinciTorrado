@@ -11,12 +11,8 @@
     "windUpTime": 0,
     "scale": 4,
     "drops": {
-      "equipment": [
-        {
-          "name": "Turbante",
-          "sprite": "assets/player/Turbante.png"
-        }
-      ]
+      "name": "Turbante",
+      "sprite": "assets/player/Turbante.png"
     }
   }
 ]
