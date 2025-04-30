@@ -1,4 +1,3 @@
-// src/equipment/equipment.go
 package equipment
 
 import (

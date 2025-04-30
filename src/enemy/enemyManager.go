@@ -19,9 +19,9 @@ type EnemyManager struct {
 
 func (em *EnemyManager) Update(p system.Player, s screen.Screen) {
 	cameraBounds := rl.Rectangle{
-		X:     s.Camera.Target.X - float32(s.Width)/2,
-		Y:     s.Camera.Target.Y - float32(s.Height)/2,
-		Width: float32(s.Width),
+		X:      s.Camera.Target.X - float32(s.Width)/2,
+		Y:      s.Camera.Target.Y - float32(s.Height)/2,
+		Width:  float32(s.Width),
 		Height: float32(s.Height),
 	}
 
@@ -37,9 +37,9 @@ func (em *EnemyManager) Update(p system.Player, s screen.Screen) {
 	for i := len(em.ActiveEnemies) - 1; i >= 0; i-- {
 		enemy := em.ActiveEnemies[i]
 		enemyRect := rl.Rectangle{
-			X:     float32(enemy.Object.X),
-			Y:     float32(enemy.Object.Y),
-			Width: float32(enemy.Object.Width),
+			X:      float32(enemy.Object.X),
+			Y:      float32(enemy.Object.Y),
+			Width:  float32(enemy.Object.Width),
 			Height: float32(enemy.Object.Height),
 		}
 
@@ -54,6 +54,9 @@ func (em *EnemyManager) Update(p system.Player, s screen.Screen) {
 		enemy := em.ActiveEnemies[i]
 		enemy.Update(p, s)
 		if enemy.Object.Destroyed {
+			if enemy.HandleDrop != nil && enemy.EnemyType == "dwarf" {
+				enemy.HandleDrop(enemy.Object.X, enemy.Object.Y)
+			}
 			em.ActiveEnemies = slices.Delete(em.ActiveEnemies, i, i+1)
 		}
 	}
@@ -68,7 +71,6 @@ func isInCameraBounds(enemy *Enemy, cameraBounds rl.Rectangle) bool {
 	}
 	return rl.CheckCollisionRecs(enemyRect, cameraBounds)
 }
-
 
 func (em *EnemyManager) RemoveActiveEnemy(enemy *Enemy) {
 	for i, e := range em.ActiveEnemies {
@@ -91,15 +93,14 @@ func (em *EnemyManager) Draw() {
 
 func (em *EnemyManager) AddEnemy(e *Enemy) {
 	em.Enemies = append(em.Enemies, e)
-	em.ActiveEnemies = append(em.ActiveEnemies, e)
+	em.InactiveEnemies = append(em.InactiveEnemies, e)
 	em.NumEnemies++
 }
 
-func abs(x int32) int32 {
-	if x < 0 {
-		return -x
+func (em *EnemyManager) SetDropHandler(handler func(x, y int32)) {
+	for _, e := range em.Enemies {
+		e.HandleDrop = handler
 	}
-	return x
 }
 
 func (em *EnemyManager) CheckBoxCollisions(box system.Object) {
@@ -110,4 +111,11 @@ func (em *EnemyManager) CheckBoxCollisions(box system.Object) {
 			}
 		}
 	}
+}
+
+func abs(x int32) int32 {
+	if x < 0 {
+		return -x
+	}
+	return x
 }

@@ -33,14 +33,12 @@ func (p *Player) Update(em *enemy.EnemyManager, screen screen.Screen) {
 func (p *Player) Draw() {
 	color := rl.White
 
-	// Handle invincibility flicker
 	if p.isInvincible(invencibilityDuration) {
 		if time.Since(p.LastDamageTaken).Milliseconds()/100%2 == 0 {
 			color = rl.Fade(rl.White, 0.3)
 		}
 	}
 
-	// Calculate drawing parameters
 	var width float32 = float32(p.Object.Sprite.SpriteWidth)
 	if p.Flipped {
 		width = -width
@@ -65,7 +63,6 @@ func (p *Player) Draw() {
 		destinationRec.Height/2,
 	)
 
-	// Draw base player
 	rl.DrawTexturePro(
 		p.Object.Sprite.Texture,
 		sourceRec,
@@ -75,28 +72,16 @@ func (p *Player) Draw() {
 		color,
 	)
 
-	// Draw equipment (turbante) if equipped
 	if p.Equipment != nil && p.Equipment.IsEquipped && p.HatSprite.Texture.ID != 0 {
 		rl.DrawTexturePro(
 			p.HatSprite.Texture,
-			sourceRec,      // Use same frame coordinates as player
-			destinationRec, // Draw at same position as player
+			sourceRec,
+			destinationRec,
 			origin,
 			0.0,
-			color, // Apply same color effects
+			color,
 		)
 	}
-
-	// Debug collision box (optional)
-	/*
-		rl.DrawRectangleLines(
-			int32(destinationRec.X-origin.X+float32(p.Object.Width)/2),
-			int32(destinationRec.Y-origin.Y),
-			int32(p.Object.Width),
-			int32(p.Object.Height),
-			rl.Red,
-		)
-	*/
 }
 
 func (p *Player) TakeDamage(damage int32, eObj system.Object) {

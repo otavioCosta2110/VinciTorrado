@@ -16,12 +16,11 @@ type Player struct {
 	KickCooldown  time.Duration
 	KickPower     int32
 	Equipment     *equipment.Equipment
-	HatSprite     sprites.Sprite // Stores just the hat spritesheet
-	OriginalSpeed int32          // Store base speed for power-ups
+	HatSprite     sprites.Sprite
+	OriginalSpeed int32
 }
 
 func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite) *Player {
-	// Load hat spritesheet (transparent PNG with just the turbante)
 	hatSprite := sprites.Sprite{
 		SpriteWidth:  width,
 		SpriteHeight: height,
@@ -55,7 +54,7 @@ func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite) *
 		KickCooldown:  500 * time.Millisecond,
 		KickPower:     15,
 		HatSprite:     hatSprite,
-		OriginalSpeed: speed, // Store base speed
+		OriginalSpeed: speed,
 	}
 }
 
@@ -73,7 +72,6 @@ func (p *Player) Equip(item *equipment.Equipment) {
 
 func (p *Player) Unequip() {
 	if p.Equipment != nil {
-		// Restore original stats
 		p.Speed = p.OriginalSpeed
 		p.Equipment.IsEquipped = false
 		p.Equipment = nil

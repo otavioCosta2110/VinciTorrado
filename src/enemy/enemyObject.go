@@ -16,6 +16,8 @@ const (
 	animationDelay int32 = 300
 )
 
+type DropHandler func(x, y int32)
+
 type Enemy struct {
 	system.LiveObject
 	LastAttackTime time.Time
@@ -28,6 +30,8 @@ type Enemy struct {
 	CanMove        bool
 	WindUpTime     int64
 	isSpawning     bool
+	EnemyType      string
+	HandleDrop     DropHandler
 }
 
 func (e *Enemy) GetObject() system.Object {
@@ -38,7 +42,7 @@ func (e *Enemy) SetObject(obj system.Object) {
 	e.Object = obj
 }
 
-func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite, windUpTime int64) *Enemy {
+func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite, windUpTime int64, enemyType string, handleDrop DropHandler) *Enemy {
 	return &Enemy{
 		LiveObject: system.LiveObject{
 			Object: system.Object{
@@ -70,6 +74,8 @@ func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite, wi
 		CanMove:    true,
 		WindUpTime: windUpTime,
 		isSpawning: true,
+		EnemyType:  enemyType,
+		HandleDrop: handleDrop,
 	}
 }
 
@@ -122,9 +128,6 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 	}
 
 	attackCooldown := int64(2000)
-	// wind up time eh tipo o tempo que o boneco precisa esperar pra atacar
-	// tipo, ele vai parar na frente do player e esperar 0.5 seg pra atacar de fato
-
 	timeSinceLastAttack := time.Since(e.Object.LastAttackTime).Milliseconds()
 
 	if timeSinceLastAttack < e.WindUpTime && !e.isSpawning {
@@ -133,7 +136,6 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 	}
 
 	e.CanMove = true
-
 
 	if physics.CheckCollision(punchObject, player) {
 		if timeSinceLastAttack >= attackCooldown {
@@ -180,7 +182,6 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen) {
 	}
 }
 
-// ele devia na vdd soh mandar pra tras qnd levasse tipo 3 hit
 func (e *Enemy) setKnockback(pX int32) {
 	knockbackStrengthX := int32(20)
 	knockbackStrengthY := int32(0)
@@ -218,7 +219,6 @@ func (e *Enemy) TakeDamage(damage int32, pX int32, pY int32) {
 		e.StunEndTime = time.Now().Add(700 * time.Millisecond)
 	} else {
 		e.Object.UpdateAnimation(100, []int{0, 0}, []int{2, 2})
-
 	}
 
 	e.LastDamageTaken = time.Now()

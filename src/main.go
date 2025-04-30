@@ -15,13 +15,12 @@ import (
 )
 
 const (
-	windowWidth   int32  = 1280
-	windowHeight  int32  = 720
-	windowTitle   string = "Vinci Torrado"
-	obstacleSpeed int32  = 2
-	playerScale   int32  = 4
-	playerSizeX   int32  = 32
-	playerSizeY   int32  = 32
+	windowWidth  int32  = 1280
+	windowHeight int32  = 720
+	windowTitle  string = "Vinci Torrado"
+	playerScale  int32  = 4
+	playerSizeX  int32  = 32
+	playerSizeY  int32  = 32
 )
 
 func main() {
@@ -31,17 +30,16 @@ func main() {
 	buildings.Width *= playerScale
 	buildings.Height *= playerScale
 
+	chao := rl.LoadTexture("assets/scenes/chao.png")
+	chao.Width *= playerScale
+	chao.Height *= playerScale
+
 	rl.InitAudioDevice()
 	audio.LoadSounds()
 	defer rl.CloseAudioDevice()
 	defer audio.UnloadSounds()
 
 	screen := screen.NewScreen(windowWidth, windowHeight, buildings.Width, buildings.Height, windowTitle)
-
-	chao := rl.LoadTexture("assets/scenes/chao.png")
-	chao.Width *= playerScale
-	chao.Height *= playerScale
-
 	defer rl.CloseWindow()
 	rl.SetTargetFPS(60)
 
@@ -50,24 +48,32 @@ func main() {
 		SpriteHeight: playerSizeY,
 		Texture:      rl.LoadTexture("assets/player/player.png"),
 	}
-
 	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 2, playerScale, playerSprite)
 
 	boxes := []*objects.Box{
-		// objects.NewBox(200, screen.Height-100, 50, 50),
+		objects.NewBox(200, screen.Height-100, 50, 50),
 	}
 
-	equipmentPickups := []*objects.EquipmentPickup{
-		objects.NewTurbantePickup(300, screen.Height-100), // Example position
+	equipmentPickups := []*objects.EquipmentPickup{}
+
+	dropHandler := func(x, y int32) {
+		spawnX := int32(300)
+		spawnY := screen.Height - 400
+
+		println("TA SPAWNANDO AQUI Ó O CHAPÉU:", spawnX, spawnY)
+		equipmentPickups = append(equipmentPickups, objects.NewTurbantePickup(spawnX, spawnY))
 	}
 
-	// nesse arquivos tem informcoes sobre os inimigos, como a posicao inicial, vida, forca, etc
-	enemies, err := enemy.LoadEnemiesFromJSON("assets/enemies/enemyInfo/1_00 enemyInfo.json", playerScale)
+	enemies, err := enemy.LoadEnemiesFromJSON(
+		"assets/enemies/enemyInfo/1_00 enemyInfo.json",
+		playerScale,
+		dropHandler,
+	)
 	if err != nil {
 		panic(err)
 	}
 
-	enemyManager := enemy.EnemyManager{}
+	enemyManager := &enemy.EnemyManager{}
 	for _, e := range enemies {
 		enemyManager.AddEnemy(e)
 	}
@@ -75,8 +81,8 @@ func main() {
 	screen.InitCamera(player.Object.X, player.Object.Y)
 
 	for !rl.WindowShouldClose() {
-		update(player, &enemyManager, screen, boxes, equipmentPickups)
-		draw(player, &enemyManager, *screen, chao, buildings, boxes, equipmentPickups)
+		equipmentPickups = update(player, enemyManager, screen, boxes, equipmentPickups)
+		draw(player, enemyManager, *screen, chao, buildings, boxes, equipmentPickups)
 	}
 }
 
@@ -89,13 +95,9 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 
 	for _, box := range boxes {
 		p.CheckKick(box)
-	}
-
-	for _, box := range boxes {
 		box.Update([]system.Object{p.GetObject()}, screen, em)
 	}
 
-	// Handle equipment pickups
 	remainingPickups := make([]*objects.EquipmentPickup, 0, len(equipmentPickups))
 	for _, ep := range equipmentPickups {
 		if physics.CheckCollision(p.GetObject(), ep.Object) {
@@ -108,8 +110,8 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 	em.Update(p, *screen)
 	p.Update(em, *screen)
 	canAdvance := len(em.ActiveEnemies) <= 0
-
 	screen.UpdateCamera(p.Object.X, p.Object.Y, canAdvance)
+
 	return remainingPickups
 }
 
@@ -118,7 +120,6 @@ func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Tex
 	rl.ClearBackground(rl.RayWhite)
 
 	rl.BeginMode2D(s.Camera)
-
 	drawTiledBackground(chao, s.Camera, s.Width, s.Height)
 	drawBuildings(buildings)
 
@@ -129,7 +130,6 @@ func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Tex
 	for _, ep := range equipmentPickups {
 		ep.Draw()
 	}
-
 	em.Draw()
 	p.Draw()
 
@@ -138,8 +138,8 @@ func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Tex
 	if system.GameOverFlag {
 		system.GameOver(&s)
 	}
-
 	ui.DrawLife(s, p)
+
 	rl.EndDrawing()
 }
 
@@ -152,28 +152,13 @@ func drawTiledBackground(texture rl.Texture2D, camera rl.Camera2D, screenWidth, 
 	visibleEndX := int32(camera.Target.X) + screenWidth/2 + texWidth
 	visibleEndY := int32(camera.Target.Y) + screenHeight/2 + texHeight
 
-	startTileX := visibleStartX / texWidth
-	startTileY := visibleStartY / texHeight
-	endTileX := visibleEndX/texWidth + 1
-	endTileY := visibleEndY/texHeight + 1
-
-	for y := startTileY; y <= endTileY; y++ {
-		for x := startTileX; x <= endTileX; x++ {
-			rl.DrawTexture(
-				texture,
-				x*texWidth,
-				y*texHeight,
-				rl.White,
-			)
+	for y := visibleStartY / texHeight; y <= visibleEndY/texHeight+1; y++ {
+		for x := visibleStartX / texWidth; x <= visibleEndX/texWidth+1; x++ {
+			rl.DrawTexture(texture, x*texWidth, y*texHeight, rl.White)
 		}
 	}
 }
 
 func drawBuildings(texture rl.Texture2D) {
-	rl.DrawTexture(
-		texture,
-		0,
-		0,
-		rl.White,
-	)
+	rl.DrawTexture(texture, 0, 0, rl.White)
 }

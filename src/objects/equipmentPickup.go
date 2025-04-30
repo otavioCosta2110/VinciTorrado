@@ -14,6 +14,7 @@ type EquipmentPickup struct {
 }
 
 func NewTurbantePickup(x, y int32) *EquipmentPickup {
+	texture := rl.LoadTexture("assets/player/Turbante.png")
 	return &EquipmentPickup{
 		Object: system.Object{
 			X:      x,
@@ -21,7 +22,11 @@ func NewTurbantePickup(x, y int32) *EquipmentPickup {
 			Width:  32,
 			Height: 32,
 		},
-		Equipment: equipment.New("assets/player/Turbante.png", sprites.Sprite{}),
+		Equipment: equipment.New("assets/player/Turbante.png", sprites.Sprite{
+			SpriteWidth:  32,
+			SpriteHeight: 32,
+			Texture:      texture,
+		}),
 	}
 }
 

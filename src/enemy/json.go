@@ -2,9 +2,13 @@ package enemy
 
 import (
 	"encoding/json"
-	rl "github.com/gen2brain/raylib-go/raylib"
 	"os"
+	"path/filepath"
+	"strings"
+
 	"otaviocosta2110/vincitorrado/src/sprites"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 type EnemyConfig struct {
@@ -17,9 +21,10 @@ type EnemyConfig struct {
 	Damage     int32  `json:"damage"`
 	Speed      int32  `json:"speed"`
 	WindUpTime int64  `json:"windUpTime"`
+	Scale      int32  `json:"scale"`
 }
 
-func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
+func LoadEnemiesFromJSON(filename string, playerScale int32, handleDrop func(x, y int32)) ([]*Enemy, error) {
 	file, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
@@ -39,6 +44,12 @@ func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
 			Texture:      rl.LoadTexture(config.Sprite),
 		}
 
+		enemyType := "normal"
+		if strings.Contains(strings.ToLower(filepath.Base(config.Sprite)), "dwarf") {
+			enemyType = "dwarf"
+			println("TA PEGANDO ANÃO:", config.Sprite)
+		}
+
 		enemy := NewEnemy(
 			config.X,
 			config.Y,
@@ -48,8 +59,11 @@ func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
 			playerScale,
 			sprite,
 			config.WindUpTime,
+			enemyType,
+			handleDrop,
 		)
 		enemy.Health = config.Health
+		enemy.MaxHealth = config.Health
 		enemy.Damage = config.Damage
 
 		enemies = append(enemies, enemy)
