@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"otaviocosta2110/vincitorrado/src/audio"
 	"otaviocosta2110/vincitorrado/src/enemy"
 	"otaviocosta2110/vincitorrado/src/objects"
@@ -56,12 +57,15 @@ func main() {
 
 	equipmentPickups := []*objects.EquipmentPickup{}
 
-	dropHandler := func(x, y int32) {
-		spawnX := int32(300)
-		spawnY := screen.Height - 400
-
-		println("TA SPAWNANDO AQUI Ó O CHAPÉU:", spawnX, spawnY)
-		equipmentPickups = append(equipmentPickups, objects.NewTurbantePickup(spawnX, spawnY))
+	dropHandler := func(x, y int32, itemName string) {
+		switch itemName {
+		case "Turbante":
+			spawnX, spawnY := int32(300), int32(300)
+			fmt.Println("Spawning Turbante at:", spawnX, spawnY)
+			equipmentPickups = append(equipmentPickups, objects.NewTurbantePickup(spawnX, spawnY))
+		default:
+			fmt.Println("Unknown item dropped:", itemName)
+		}
 	}
 
 	enemies, err := enemy.LoadEnemiesFromJSON(
@@ -69,6 +73,7 @@ func main() {
 		playerScale,
 		dropHandler,
 	)
+
 	if err != nil {
 		panic(err)
 	}

@@ -1,15 +1,22 @@
 [
   {
     "sprite": "assets/enemies/dwarf.png",
-    "X": 3520,
+    "X": 800,
     "Y": 350,
     "width": 32,
     "height": 32,
-    "health": 8,
+    "health": 1,
     "damage": 4,
     "speed": 1,
     "windUpTime": 0,
-    "scale": 4
+    "scale": 4,
+    "drops": {
+      "equipment": [
+        {
+          "name": "Turbante",
+          "sprite": "assets/player/Turbante.png"
+        }
+      ]
+    }
   }
 ]
-

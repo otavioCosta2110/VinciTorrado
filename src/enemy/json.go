@@ -2,6 +2,7 @@ package enemy
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,6 +11,15 @@ import (
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
+
+type Drop struct {
+	Name   string `json:"name"`
+	Sprite string `json:"sprite"`
+}
+
+type Drops struct {
+	Equipment []Drop `json:"equipment"`
+}
 
 type EnemyConfig struct {
 	Sprite     string `json:"sprite"`
@@ -22,18 +32,18 @@ type EnemyConfig struct {
 	Speed      int32  `json:"speed"`
 	WindUpTime int64  `json:"windUpTime"`
 	Scale      int32  `json:"scale"`
+	Drops      *Drops `json:"drops"`
 }
 
-func LoadEnemiesFromJSON(filename string, playerScale int32, handleDrop func(x, y int32)) ([]*Enemy, error) {
+func LoadEnemiesFromJSON(filename string, playerScale int32, handleDrop func(x, y int32, itemName string)) ([]*Enemy, error) {
 	file, err := os.ReadFile(filename)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read enemy file: %w", err)
 	}
 
 	var configs []EnemyConfig
-	err = json.Unmarshal(file, &configs)
-	if err != nil {
-		return nil, err
+	if err := json.Unmarshal(file, &configs); err != nil {
+		return nil, fmt.Errorf("failed to parse enemy JSON: %w", err)
 	}
 
 	var enemies []*Enemy
@@ -47,7 +57,7 @@ func LoadEnemiesFromJSON(filename string, playerScale int32, handleDrop func(x, 
 		enemyType := "normal"
 		if strings.Contains(strings.ToLower(filepath.Base(config.Sprite)), "dwarf") {
 			enemyType = "dwarf"
-			println("TA PEGANDO ANÃO:", config.Sprite)
+			fmt.Println("ANÃO A FRENTE:", config.Sprite)
 		}
 
 		enemy := NewEnemy(
@@ -60,7 +70,14 @@ func LoadEnemiesFromJSON(filename string, playerScale int32, handleDrop func(x, 
 			sprite,
 			config.WindUpTime,
 			enemyType,
-			handleDrop,
+			func(x, y int32) {
+				if config.Drops != nil {
+					for _, drop := range config.Drops.Equipment {
+						fmt.Printf("Attempting to drop %s at (%d,%d)\n", drop.Name, x, y)
+						handleDrop(x, y, drop.Name)
+					}
+				}
+			},
 		)
 		enemy.Health = config.Health
 		enemy.MaxHealth = config.Health

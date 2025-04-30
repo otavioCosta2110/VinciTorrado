@@ -11,6 +11,7 @@ import (
 type EquipmentPickup struct {
 	Object    system.Object
 	Equipment *equipment.Equipment
+	DrawFunc  func(x, y int32)
 }
 
 func NewTurbantePickup(x, y int32) *EquipmentPickup {
@@ -21,12 +22,22 @@ func NewTurbantePickup(x, y int32) *EquipmentPickup {
 			Y:      y,
 			Width:  32,
 			Height: 32,
+			Sprite: sprites.Sprite{
+				SpriteWidth:  32,
+				SpriteHeight: 32,
+				Texture:      texture,
+			},
 		},
-		Equipment: equipment.New("assets/player/Turbante.png", sprites.Sprite{
-			SpriteWidth:  32,
-			SpriteHeight: 32,
-			Texture:      texture,
-		}),
+		Equipment: &equipment.Equipment{
+			Texture: texture,
+			SpriteSheet: sprites.Sprite{
+				SpriteWidth:  32,
+				SpriteHeight: 32,
+				Texture:      texture,
+			},
+			OffsetX: 0,
+			OffsetY: -10,
+		},
 	}
 }
 
@@ -35,8 +46,8 @@ func (ep *EquipmentPickup) Draw() {
 		ep.Equipment.Texture,
 		rl.NewRectangle(0, 0, float32(ep.Equipment.Texture.Width), float32(ep.Equipment.Texture.Height)),
 		rl.NewRectangle(
-			float32(ep.Object.X),
-			float32(ep.Object.Y),
+			float32(ep.Object.X)-float32(ep.Object.Width)/2,
+			float32(ep.Object.Y)-float32(ep.Object.Height)/2,
 			float32(ep.Object.Width),
 			float32(ep.Object.Height),
 		),
