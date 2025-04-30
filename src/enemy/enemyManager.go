@@ -25,7 +25,6 @@ func (em *EnemyManager) Update(p system.Player, s screen.Screen) {
 		Height: float32(s.Height),
 	}
 
-	// Activate inactive enemies
 	for i := len(em.InactiveEnemies) - 1; i >= 0; i-- {
 		enemy := em.InactiveEnemies[i]
 		if isInCameraBounds(enemy, cameraBounds) {
@@ -35,7 +34,6 @@ func (em *EnemyManager) Update(p system.Player, s screen.Screen) {
 		}
 	}
 
-	// Deactivate active enemies
 	for i := len(em.ActiveEnemies) - 1; i >= 0; i-- {
 		enemy := em.ActiveEnemies[i]
 		enemyRect := rl.Rectangle{
@@ -52,7 +50,6 @@ func (em *EnemyManager) Update(p system.Player, s screen.Screen) {
 		}
 	}
 
-	// Update and remove destroyed active enemies (iterating in reverse)
 	for i := len(em.ActiveEnemies) - 1; i >= 0; i-- {
 		enemy := em.ActiveEnemies[i]
 		enemy.Update(p, s)

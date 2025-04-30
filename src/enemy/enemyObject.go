@@ -109,7 +109,7 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 	punchHeight := e.Object.Height / 2
 
 	if e.Flipped {
-		punchX -= (punchWidth + punchWidth) - 30
+		punchX -= (punchWidth + punchWidth) - 25
 	} else {
 		punchX += punchWidth
 	}

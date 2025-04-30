@@ -53,7 +53,7 @@ func main() {
 	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 2, playerScale, playerSprite)
 
 	boxes := []*objects.Box{
-		objects.NewBox(200, screen.Height-100, 50, 50),
+		// objects.NewBox(200, screen.Height-100, 50, 50),
 	}
 
 	// nesse arquivos tem informcoes sobre os inimigos, como a posicao inicial, vida, forca, etc
