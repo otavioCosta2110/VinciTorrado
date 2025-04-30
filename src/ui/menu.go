@@ -119,9 +119,13 @@ func (m *Menu) Update() {
 	}
 
 	if prevSelected != m.SelectedSlot && m.SelectedSlot >= 0 {
+		menu_move_sound := rl.LoadSound("assets/sounds/menu_move.mp3")
+		rl.PlaySound(menu_move_sound)
 	}
 
 	if rl.IsKeyPressed(rl.KeyEnter) && m.SelectedSlot >= 0 {
+		menu_move_sound := rl.LoadSound("assets/sounds/menu_selected.mp3")
+		rl.PlaySound(menu_move_sound)
 		println("Selected:", m.EquipmentSlots[m.SelectedSlot].Name)
 	}
 }
