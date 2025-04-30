@@ -4,6 +4,7 @@ import (
 	"otaviocosta2110/vincitorrado/src/audio"
 	"otaviocosta2110/vincitorrado/src/enemy"
 	"otaviocosta2110/vincitorrado/src/objects"
+	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/player"
 	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/sprites"
@@ -56,6 +57,10 @@ func main() {
 		// objects.NewBox(200, screen.Height-100, 50, 50),
 	}
 
+	equipmentPickups := []*objects.EquipmentPickup{
+		objects.NewTurbantePickup(300, screen.Height-100), // Example position
+	}
+
 	// nesse arquivos tem informcoes sobre os inimigos, como a posicao inicial, vida, forca, etc
 	enemies, err := enemy.LoadEnemiesFromJSON("assets/enemies/enemyInfo/1_00 enemyInfo.json", playerScale)
 	if err != nil {
@@ -70,14 +75,14 @@ func main() {
 	screen.InitCamera(player.Object.X, player.Object.Y)
 
 	for !rl.WindowShouldClose() {
-		update(player, &enemyManager, screen, boxes)
-		draw(player, &enemyManager, *screen, chao, buildings, boxes)
+		update(player, &enemyManager, screen, boxes, equipmentPickups)
+		draw(player, &enemyManager, *screen, chao, buildings, boxes, equipmentPickups)
 	}
 }
 
-func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, boxes []*objects.Box) {
+func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, boxes []*objects.Box, equipmentPickups []*objects.EquipmentPickup) []*objects.EquipmentPickup {
 	if system.GameOverFlag {
-		return
+		return equipmentPickups
 	}
 
 	p.CheckMovement(*screen)
@@ -90,14 +95,25 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 		box.Update([]system.Object{p.GetObject()}, screen, em)
 	}
 
+	// Handle equipment pickups
+	remainingPickups := make([]*objects.EquipmentPickup, 0, len(equipmentPickups))
+	for _, ep := range equipmentPickups {
+		if physics.CheckCollision(p.GetObject(), ep.Object) {
+			p.Equip(ep.Equipment)
+		} else {
+			remainingPickups = append(remainingPickups, ep)
+		}
+	}
+
 	em.Update(p, *screen)
 	p.Update(em, *screen)
 	canAdvance := len(em.ActiveEnemies) <= 0
 
 	screen.UpdateCamera(p.Object.X, p.Object.Y, canAdvance)
+	return remainingPickups
 }
 
-func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Texture2D, buildings rl.Texture2D, boxes []*objects.Box) {
+func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Texture2D, buildings rl.Texture2D, boxes []*objects.Box, equipmentPickups []*objects.EquipmentPickup) {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.RayWhite)
 
@@ -108,6 +124,10 @@ func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Tex
 
 	for _, box := range boxes {
 		box.Draw()
+	}
+
+	for _, ep := range equipmentPickups {
+		ep.Draw()
 	}
 
 	em.Draw()
