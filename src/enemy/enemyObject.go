@@ -25,6 +25,9 @@ type Enemy struct {
 	IsActive       bool
 	StunEndTime    time.Time
 	Layer          int
+	CanMove        bool
+	WindUpTime     int64
+	isSpawning     bool
 }
 
 func (e *Enemy) GetObject() system.Object {
@@ -35,7 +38,7 @@ func (e *Enemy) SetObject(obj system.Object) {
 	e.Object = obj
 }
 
-func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite) *Enemy {
+func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite, windUpTime int64) *Enemy {
 	return &Enemy{
 		LiveObject: system.LiveObject{
 			Object: system.Object{
@@ -62,8 +65,11 @@ func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite) *E
 			Speed:     speed,
 			Flipped:   false,
 		},
-		IsActive: false,
-		Layer:    0,
+		IsActive:   false,
+		Layer:      0,
+		CanMove:    true,
+		WindUpTime: windUpTime,
+		isSpawning: true,
 	}
 }
 
@@ -103,7 +109,7 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 	punchHeight := e.Object.Height / 2
 
 	if e.Flipped {
-		punchX -= punchWidth + punchWidth
+		punchX -= (punchWidth + punchWidth) - 30
 	} else {
 		punchX += punchWidth
 	}
@@ -118,19 +124,23 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 	attackCooldown := int64(2000)
 	// wind up time eh tipo o tempo que o boneco precisa esperar pra atacar
 	// tipo, ele vai parar na frente do player e esperar 0.5 seg pra atacar de fato
-	windUpTime := int64(500)
 
 	timeSinceLastAttack := time.Since(e.Object.LastAttackTime).Milliseconds()
 
-	if timeSinceLastAttack < windUpTime {
+	if timeSinceLastAttack < e.WindUpTime && !e.isSpawning {
+		e.CanMove = false
 		return false
 	}
+
+	e.CanMove = true
+
 
 	if physics.CheckCollision(punchObject, player) {
 		if timeSinceLastAttack >= attackCooldown {
 			e.Object.LastAttackTime = time.Now()
 
 			framex := rand.Intn(2)
+			e.Object.FrameX = int32(framex)
 			e.Object.UpdateAnimation(50, []int{framex}, []int{1})
 
 			audio.PlayPunch()
@@ -143,6 +153,9 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 }
 
 func (e *Enemy) Update(p system.Player, screen screen.Screen) {
+	if e.isSpawning {
+		e.isSpawning = false
+	}
 	if e.Object.Destroyed {
 		e.Object.FrameX = 0
 		e.Object.FrameY = 3
@@ -164,8 +177,6 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen) {
 		if e.Object.KnockbackX == 0 || e.Object.KnockbackY == 0 {
 			*e = MoveEnemyTowardPlayer(p, *e, screen)
 		}
-	} else {
-		// todo: animacao pra quando o inimigo estiver stunado
 	}
 }
 

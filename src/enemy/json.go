@@ -8,14 +8,15 @@ import (
 )
 
 type EnemyConfig struct {
-	Sprite string `json:"sprite"`
-	X      int32  `json:"X"`
-	Y      int32  `json:"Y"`
-	Width  int32  `json:"width"`
-	Height int32  `json:"height"`
-	Health int32    `json:"health"`
-	Damage int32    `json:"damage"`
-	Speed  int32  `json:"speed"`
+	Sprite     string `json:"sprite"`
+	X          int32  `json:"X"`
+	Y          int32  `json:"Y"`
+	Width      int32  `json:"width"`
+	Height     int32  `json:"height"`
+	Health     int32  `json:"health"`
+	Damage     int32  `json:"damage"`
+	Speed      int32  `json:"speed"`
+	WindUpTime int64  `json:"windUpTime"`
 }
 
 func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
@@ -46,6 +47,7 @@ func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
 			config.Height,
 			playerScale,
 			sprite,
+			config.WindUpTime,
 		)
 		enemy.Health = config.Health
 		enemy.Damage = config.Damage
