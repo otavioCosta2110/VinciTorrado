@@ -89,10 +89,11 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 	}
 
 	for _, e := range em.Enemies {
-		if e.Object.Destroyed && !e.DropCollected {
+		if e.EnemyType == "dwarf" && e.Object.Destroyed && !e.DropCollected {
 			dropWidth := int32(32 * e.Object.Scale)
 			dropHeight := int32(32 * e.Object.Scale)
-			dropY := e.Object.Y - 20 // Adjust for the DrawAnimated's Y offset
+			dropY := e.Object.Y - 20
+
 			dropBox := system.Object{
 				X:      e.Object.X,
 				Y:      dropY,
@@ -102,7 +103,7 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 
 			playerObj := p.GetObject()
 			if physics.CheckCollision(playerObj, dropBox) {
-				p.Equip(&e.Drop)
+				p.Equip(e.Drop)
 				e.DropCollected = true
 			}
 		}

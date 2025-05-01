@@ -11,13 +11,15 @@ import (
 
 type Player struct {
 	system.LiveObject
-	IsKicking     bool
-	LastKickTime  time.Time
-	KickCooldown  time.Duration
-	KickPower     int32
-	Equipment     *equipment.Equipment
-	HatSprite     sprites.Sprite
-	OriginalSpeed int32
+	IsKicking         bool
+	LastKickTime      time.Time
+	KickCooldown      time.Duration
+	KickPower         int32
+	Equipment         *equipment.Equipment
+	HatSprite         sprites.Sprite
+	OriginalSpeed     int32
+	OriginalMaxHealth int32
+	OriginalDamage    int32
 }
 
 func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite) *Player {
@@ -49,12 +51,14 @@ func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite) *
 			LastDamageTaken: time.Now(),
 			Damage:          1,
 		},
-		IsKicking:     false,
-		LastKickTime:  time.Now(),
-		KickCooldown:  500 * time.Millisecond,
-		KickPower:     15,
-		HatSprite:     hatSprite,
-		OriginalSpeed: speed,
+		IsKicking:         false,
+		LastKickTime:      time.Now(),
+		KickCooldown:      500 * time.Millisecond,
+		KickPower:         15,
+		HatSprite:         hatSprite,
+		OriginalSpeed:     speed,
+		OriginalMaxHealth: 5,
+		OriginalDamage:    1,
 	}
 }
 
@@ -68,16 +72,21 @@ func (p *Player) Equip(item *equipment.Equipment) {
 	}
 	p.Equipment = item
 	p.Equipment.IsEquipped = true
+
+	p.MaxHealth = p.OriginalMaxHealth + 1
+	p.Damage = p.OriginalDamage + 1
 }
 
 func (p *Player) Unequip() {
 	if p.Equipment != nil {
+		p.MaxHealth = p.OriginalMaxHealth
+		p.Damage = p.OriginalDamage
 		p.Speed = p.OriginalSpeed
+
 		p.Equipment.IsEquipped = false
 		p.Equipment = nil
 	}
 }
-
 func (p *Player) HasEquipment() bool {
 	return p.Equipment != nil
 }

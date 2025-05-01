@@ -74,7 +74,7 @@ func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
 			sprite,
 			config.WindUpTime,
 			enemyType,
-			*drop,
+			drop,
 		)
 
 		enemy.Health = config.Health

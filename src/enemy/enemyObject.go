@@ -30,7 +30,7 @@ type Enemy struct {
 	WindUpTime     int64
 	isSpawning     bool
 	EnemyType      string
-	Drop           equipment.Equipment
+	Drop           *equipment.Equipment
 	DropCollected  bool
 }
 
@@ -42,7 +42,7 @@ func (e *Enemy) SetObject(obj system.Object) {
 	e.Object = obj
 }
 
-func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite, windUpTime int64, enemyType string, drops equipment.Equipment) *Enemy {
+func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite, windUpTime int64, enemyType string, drops *equipment.Equipment) *Enemy {
 	return &Enemy{
 		LiveObject: system.LiveObject{
 			Object: system.Object{
@@ -85,7 +85,7 @@ func (e *Enemy) Draw() {
 		width = -float32(width)
 	}
 
-	if e.Object.Destroyed && !e.DropCollected {
+	if e.Object.Destroyed && e.Drop != nil && !e.DropCollected {
 		e.Drop.DrawAnimated(&e.Object)
 	}
 
