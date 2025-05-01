@@ -100,11 +100,13 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 				Width:  dropWidth,
 				Height: dropHeight,
 			}
+				e.Drop.IsDropped = true
 
 			playerObj := p.GetObject()
 			if physics.CheckCollision(playerObj, dropBox) {
 				p.Equip(e.Drop)
 				e.DropCollected = true
+				e.Drop.IsDropped = false
 			}
 		}
 	}
