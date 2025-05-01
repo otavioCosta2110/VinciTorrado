@@ -4,7 +4,7 @@ import (
 	"otaviocosta2110/vincitorrado/src/audio"
 	"otaviocosta2110/vincitorrado/src/enemy"
 	"otaviocosta2110/vincitorrado/src/objects"
-
+	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/player"
 	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/sprites"
@@ -86,6 +86,26 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 	for _, box := range boxes {
 		p.CheckKick(box)
 		box.Update([]system.Object{p.GetObject()}, screen, em)
+	}
+
+	for _, e := range em.Enemies {
+		if e.Object.Destroyed && !e.DropCollected {
+			dropWidth := int32(32 * e.Object.Scale)
+			dropHeight := int32(32 * e.Object.Scale)
+			dropY := e.Object.Y - 20 // Adjust for the DrawAnimated's Y offset
+			dropBox := system.Object{
+				X:      e.Object.X,
+				Y:      dropY,
+				Width:  dropWidth,
+				Height: dropHeight,
+			}
+
+			playerObj := p.GetObject()
+			if physics.CheckCollision(playerObj, dropBox) {
+				p.Equip(&e.Drop)
+				e.DropCollected = true
+			}
+		}
 	}
 
 	em.Update(p, *screen)

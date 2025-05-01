@@ -68,6 +68,7 @@ func (p *Player) Equip(item *equipment.Equipment) {
 	}
 	p.Equipment = item
 	p.Equipment.IsEquipped = true
+	p.HatSprite = item.Object.Sprite
 }
 
 func (p *Player) Unequip() {

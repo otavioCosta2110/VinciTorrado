@@ -31,6 +31,7 @@ type Enemy struct {
 	isSpawning     bool
 	EnemyType      string
 	Drop           equipment.Equipment
+	DropCollected  bool
 }
 
 func (e *Enemy) GetObject() system.Object {
@@ -74,7 +75,7 @@ func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite, wi
 		WindUpTime: windUpTime,
 		isSpawning: true,
 		EnemyType:  enemyType,
-		Drop:      drops,
+		Drop:       drops,
 	}
 }
 
@@ -82,6 +83,10 @@ func (e *Enemy) Draw() {
 	var width float32 = float32(e.Object.Sprite.SpriteWidth)
 	if e.Flipped {
 		width = -float32(width)
+	}
+
+	if e.Object.Destroyed && !e.DropCollected {
+		e.Drop.DrawAnimated(&e.Object)
 	}
 
 	sourceRec := rl.NewRectangle(
