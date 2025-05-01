@@ -21,8 +21,8 @@ type EquipmentSlot struct {
 	Rect     rl.Rectangle
 	IsActive bool
 	IconPos  rl.Rectangle
-	Item     *equipment.Equipment // Changed to pointer and renamed to Item for clarity
-	IsEmpty  bool                 // Added to track empty slots
+	Item     *equipment.Equipment 
+	IsEmpty  bool                
 }
 
 type Menu struct {
@@ -34,7 +34,7 @@ type Menu struct {
 	SelectedSlot    int
 	Columns         int
 	IconSheet       rl.Texture2D
-	SlotWidth       float32 // Moved to struct level for consistency
+	SlotWidth       float32 
 	SlotHeight      float32
 	SlotSpacing     float32
 }
@@ -61,9 +61,8 @@ func (m *Menu) initEquipmentSlots() {
 	startX := float32(rl.GetScreenWidth())/2 - (float32(m.Columns)*m.SlotWidth)/2 + 50
 	startY := float32(rl.GetScreenHeight() / 5)
 
-	m.EquipmentSlots = make([]EquipmentSlot, 0, 9) // Initialize with capacity for 9 slots
+	m.EquipmentSlots = make([]EquipmentSlot, 0, 9) 
 
-	// Create empty slots with proper positioning
 	for i := range 9 {
 		row := i / m.Columns
 		col := i % m.Columns
@@ -77,7 +76,7 @@ func (m *Menu) initEquipmentSlots() {
 				m.SlotHeight,
 			),
 			IsActive: false,
-			IconPos:  rl.NewRectangle(0, 0, 32, 32), // Default empty icon
+			IconPos:  rl.NewRectangle(0, 0, 32, 32), 
 			Item:     nil,
 			IsEmpty:  true,
 		})
@@ -85,7 +84,6 @@ func (m *Menu) initEquipmentSlots() {
 }
 
 func (m *Menu) AddToMenu(item *equipment.Equipment) bool {
-	// First try to find an empty slot
 	for i := range m.EquipmentSlots {
 		if m.EquipmentSlots[i].IsEmpty {
 			m.fillSlot(i, item)
@@ -93,9 +91,6 @@ func (m *Menu) AddToMenu(item *equipment.Equipment) bool {
 		}
 	}
 
-	// If no empty slots, create a new one (optional)
-	// This part is only needed if you want dynamic slot creation
-	// Otherwise, you might want to return false to indicate inventory is full
 	return m.addNewSlot(item)
 }
 
@@ -149,13 +144,11 @@ func (m *Menu) getItemIconPos(item *equipment.Equipment) rl.Rectangle {
 	}
 }
 
-// Update your Draw method to only draw non-empty slots or handle empty slots differently
 func (m *Menu) Draw() {
 	if !m.IsVisible {
 		return
 	}
 
-	// Background and menu frame drawing remains the same
 	rl.DrawRectangle(0, 0, int32(rl.GetScreenWidth()), int32(rl.GetScreenHeight()), rl.Fade(rl.Black, 0.5))
 
 	menuWidth := float32(rl.GetScreenWidth()) * 0.8
@@ -168,7 +161,6 @@ func (m *Menu) Draw() {
 		0.05, 10, rl.DarkGray,
 	)
 
-	// Draw player preview
 	playerPreviewX := menuX
 	playerPreviewY := menuY * 2
 	sourceRec := rl.NewRectangle(0, 0, float32(m.PlayerSprite.SpriteWidth), float32(m.PlayerSprite.SpriteHeight))
@@ -202,9 +194,7 @@ func (m *Menu) Draw() {
 		)
 	}
 
-	// Draw equipment slots
 	for i, slot := range m.EquipmentSlots {
-		// Skip drawing if you want to hide empty slots
 		if slot.IsEmpty {
 			continue
 		}
@@ -216,7 +206,6 @@ func (m *Menu) Draw() {
 			textColor = rl.White
 		}
 
-		// Different color for empty slots
 		if slot.IsEmpty {
 			color = rl.Fade(rl.Gray, 0.3)
 			textColor = rl.Fade(rl.White, 0.5)
@@ -229,7 +218,7 @@ func (m *Menu) Draw() {
 				m.IconSheet,
 				slot.IconPos,
 				rl.NewRectangle(
-					slot.Rect.X+slot.Rect.Width/2-42.5, // Center the icon
+					slot.Rect.X+slot.Rect.Width/2-42.5, 
 					slot.Rect.Y+slot.Rect.Height/2-42.5,
 					85,
 					85,
@@ -245,7 +234,6 @@ func (m *Menu) Draw() {
 	rl.DrawText("Press U to unequip", int32(menuWidth)/5, int32(menuHeight), 20, rl.White)
 }
 
-// Update your Update method to handle empty slots
 func (m *Menu) Update() {
 	if rl.IsKeyPressed(rl.KeyEscape) {
 		m.IsVisible = !m.IsVisible
@@ -257,14 +245,12 @@ func (m *Menu) Update() {
 
 	prevSelected := m.SelectedSlot
 
-	// Navigation logic that skips empty slots if desired
 	if rl.IsKeyPressed(rl.KeyRight) {
 		for {
 			m.SelectedSlot++
 			if m.SelectedSlot >= len(m.EquipmentSlots) {
 				m.SelectedSlot = 0
 			}
-			// Break if we find a non-empty slot or if we've looped completely
 			if !m.EquipmentSlots[m.SelectedSlot].IsEmpty || m.SelectedSlot == prevSelected {
 				break
 			}
