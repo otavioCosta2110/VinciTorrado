@@ -74,6 +74,7 @@ func (p *Player) Equip(item *equipment.Equipment) {
 	p.Equipment.IsEquipped = true
 
 	p.MaxHealth = p.OriginalMaxHealth + 1
+	p.Health += 1
 	p.Damage = p.OriginalDamage + 1
 }
 
@@ -82,6 +83,10 @@ func (p *Player) Unequip() {
 		p.MaxHealth = p.OriginalMaxHealth
 		p.Damage = p.OriginalDamage
 		p.Speed = p.OriginalSpeed
+
+		if p.Health > p.MaxHealth {
+			p.Health = p.MaxHealth
+		}
 
 		p.Equipment.IsEquipped = false
 		p.Equipment = nil
