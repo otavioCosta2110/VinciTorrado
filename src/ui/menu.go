@@ -1,9 +1,11 @@
 package ui
 
 import (
-	rl "github.com/gen2brain/raylib-go/raylib"
+	"otaviocosta2110/vincitorrado/src/equipment"
 	"otaviocosta2110/vincitorrado/src/player"
 	"otaviocosta2110/vincitorrado/src/sprites"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 type MenuState int
@@ -19,6 +21,8 @@ type EquipmentSlot struct {
 	Rect     rl.Rectangle
 	IsActive bool
 	IconPos  rl.Rectangle
+	Item     *equipment.Equipment // Changed to pointer and renamed to Item for clarity
+	IsEmpty  bool                 // Added to track empty slots
 }
 
 type Menu struct {
@@ -30,6 +34,9 @@ type Menu struct {
 	SelectedSlot    int
 	Columns         int
 	IconSheet       rl.Texture2D
+	SlotWidth       float32 // Moved to struct level for consistency
+	SlotHeight      float32
+	SlotSpacing     float32
 }
 
 func NewMenu(player *player.Player, sprite *sprites.Sprite) *Menu {
@@ -41,100 +48,114 @@ func NewMenu(player *player.Player, sprite *sprites.Sprite) *Menu {
 		SelectedSlot:    0,
 		Columns:         3,
 		IconSheet:       rl.LoadTexture("assets/ui/equipamentos.png"),
+		SlotWidth:       120,
+		SlotHeight:      120,
+		SlotSpacing:     50,
 	}
 
-	equipmentTypes := []struct {
-		Name string
-		X    int32
-		Y    int32
-	}{
-		{"Nada", 0, 0},
-		{"Turbante", 1, 0},
-	}
-
-	slotWidth := float32(120)
-	slotHeight := float32(120)
-	spacing := float32(50)
-	startX := float32(rl.GetScreenWidth())/2 - (float32(menu.Columns)*slotWidth)/2 + 50
-	startY := float32(rl.GetScreenHeight()/5)
-
-	for i, eq := range equipmentTypes {
-		row := i / menu.Columns
-		col := i % menu.Columns
-		
-		menu.EquipmentSlots = append(menu.EquipmentSlots, EquipmentSlot{
-			Name: eq.Name,
-			Rect: rl.NewRectangle(
-				startX + float32(col)*(slotWidth+spacing),
-				startY + float32(row)*(slotHeight+spacing),
-				slotWidth,
-				slotHeight,
-			),
-			IsActive: false,
-			IconPos: rl.NewRectangle(
-				float32(eq.X)*32,
-				float32(eq.Y)*32,
-				32,
-				32,
-			),
-		})
-	}
-
+	menu.initEquipmentSlots()
 	return menu
 }
 
-func (m *Menu) Update() {
-	if rl.IsKeyPressed(rl.KeyEscape) {
-		m.IsVisible = !m.IsVisible
-	}
+func (m *Menu) initEquipmentSlots() {
+	startX := float32(rl.GetScreenWidth())/2 - (float32(m.Columns)*m.SlotWidth)/2 + 50
+	startY := float32(rl.GetScreenHeight() / 5)
 
-	if !m.IsVisible {
-		return
-	}
+	m.EquipmentSlots = make([]EquipmentSlot, 0, 9) // Initialize with capacity for 9 slots
 
-	prevSelected := m.SelectedSlot
-	if rl.IsKeyPressed(rl.KeyRight) {
-		m.SelectedSlot++
-		if m.SelectedSlot >= len(m.EquipmentSlots) {
-			m.SelectedSlot = 0
-		}
-	} else if rl.IsKeyPressed(rl.KeyLeft) {
-		m.SelectedSlot--
-		if m.SelectedSlot < 0 {
-			m.SelectedSlot = len(m.EquipmentSlots) - 1
-		}
-	} else if rl.IsKeyPressed(rl.KeyDown) {
-		m.SelectedSlot += m.Columns
-		if m.SelectedSlot >= len(m.EquipmentSlots) {
-			m.SelectedSlot %= len(m.EquipmentSlots)
-		}
-	} else if rl.IsKeyPressed(rl.KeyUp) {
-		m.SelectedSlot -= m.Columns
-		if m.SelectedSlot < 0 {
-			m.SelectedSlot += len(m.EquipmentSlots)
-			if m.SelectedSlot < 0 {
-				m.SelectedSlot = 0
-			}
-		}
-	}
+	// Create empty slots with proper positioning
+	for i := range 9 {
+		row := i / m.Columns
+		col := i % m.Columns
 
-	if prevSelected != m.SelectedSlot && m.SelectedSlot >= 0 {
-		menu_move_sound := rl.LoadSound("assets/sounds/menu_move.mp3")
-		rl.PlaySound(menu_move_sound)
-	}
-
-	if rl.IsKeyPressed(rl.KeyEnter) && m.SelectedSlot >= 0 {
-		menu_move_sound := rl.LoadSound("assets/sounds/menu_selected.mp3")
-		rl.PlaySound(menu_move_sound)
-		println("Selected:", m.EquipmentSlots[m.SelectedSlot].Name)
+		m.EquipmentSlots = append(m.EquipmentSlots, EquipmentSlot{
+			Name: "Empty",
+			Rect: rl.NewRectangle(
+				startX+float32(col)*(m.SlotWidth+m.SlotSpacing),
+				startY+float32(row)*(m.SlotHeight+m.SlotSpacing),
+				m.SlotWidth,
+				m.SlotHeight,
+			),
+			IsActive: false,
+			IconPos:  rl.NewRectangle(0, 0, 32, 32), // Default empty icon
+			Item:     nil,
+			IsEmpty:  true,
+		})
 	}
 }
 
+func (m *Menu) AddToMenu(item *equipment.Equipment) bool {
+	// First try to find an empty slot
+	for i := range m.EquipmentSlots {
+		if m.EquipmentSlots[i].IsEmpty {
+			m.fillSlot(i, item)
+			return true
+		}
+	}
+
+	// If no empty slots, create a new one (optional)
+	// This part is only needed if you want dynamic slot creation
+	// Otherwise, you might want to return false to indicate inventory is full
+	return m.addNewSlot(item)
+}
+
+func (m *Menu) fillSlot(index int, item *equipment.Equipment) {
+	m.EquipmentSlots[index].Name = item.Name
+	m.EquipmentSlots[index].IconPos = m.getItemIconPos(item)
+	m.EquipmentSlots[index].Item = item
+	m.EquipmentSlots[index].IsEmpty = false
+}
+
+func (m *Menu) addNewSlot(item *equipment.Equipment) bool {
+	startX := float32(rl.GetScreenWidth())/2 - (float32(m.Columns)*m.SlotWidth)/2 + 50
+	startY := float32(rl.GetScreenHeight() / 5)
+
+	row := len(m.EquipmentSlots) / m.Columns
+	col := len(m.EquipmentSlots) % m.Columns
+
+	newSlot := EquipmentSlot{
+		Name: item.Name,
+		Rect: rl.NewRectangle(
+			startX+float32(col)*(m.SlotWidth+m.SlotSpacing),
+			startY+float32(row)*(m.SlotHeight+m.SlotSpacing),
+			m.SlotWidth,
+			m.SlotHeight,
+		),
+		IsActive: false,
+		IconPos:  m.getItemIconPos(item),
+		Item:     item,
+		IsEmpty:  false,
+	}
+
+	m.EquipmentSlots = append(m.EquipmentSlots, newSlot)
+	return true
+}
+
+func (m *Menu) RemoveFromMenu(index int) {
+	if index >= 0 && index < len(m.EquipmentSlots) {
+		m.EquipmentSlots[index].Name = "Empty"
+		m.EquipmentSlots[index].IconPos = rl.NewRectangle(0, 0, 32, 32)
+		m.EquipmentSlots[index].Item = nil
+		m.EquipmentSlots[index].IsEmpty = true
+	}
+}
+
+func (m *Menu) getItemIconPos(item *equipment.Equipment) rl.Rectangle {
+	switch item.Name {
+	case "Turbante":
+		return rl.NewRectangle(32, 32, 32, 32)
+	default:
+		return rl.NewRectangle(0, 0, 32, 32)
+	}
+}
+
+// Update your Draw method to only draw non-empty slots or handle empty slots differently
 func (m *Menu) Draw() {
 	if !m.IsVisible {
 		return
 	}
 
+	// Background and menu frame drawing remains the same
 	rl.DrawRectangle(0, 0, int32(rl.GetScreenWidth()), int32(rl.GetScreenHeight()), rl.Fade(rl.Black, 0.5))
 
 	menuWidth := float32(rl.GetScreenWidth()) * 0.8
@@ -147,23 +168,47 @@ func (m *Menu) Draw() {
 		0.05, 10, rl.DarkGray,
 	)
 
-	playerPreviewX := menuX 
+	// Draw player preview
+	playerPreviewX := menuX
 	playerPreviewY := menuY * 2
+	sourceRec := rl.NewRectangle(0, 0, float32(m.PlayerSprite.SpriteWidth), float32(m.PlayerSprite.SpriteHeight))
+
+	destinationRec := rl.NewRectangle(
+		playerPreviewX,
+		playerPreviewY,
+		float32(m.PlayerSprite.SpriteWidth)*float32(m.PlayerReference.Object.Scale*3),
+		float32(m.PlayerSprite.SpriteHeight)*float32(m.PlayerReference.Object.Scale*3),
+	)
+
+	origin := rl.NewVector2(0, 0)
+
 	rl.DrawTexturePro(
 		m.PlayerSprite.Texture,
-		rl.NewRectangle(0, 0, float32(m.PlayerSprite.SpriteWidth), float32(m.PlayerSprite.SpriteHeight)),
-		rl.NewRectangle(
-			playerPreviewX,
-			playerPreviewY,
-			float32(m.PlayerSprite.SpriteWidth)*float32(m.PlayerReference.Object.Scale * 3),
-			float32(m.PlayerSprite.SpriteHeight)*float32(m.PlayerReference.Object.Scale * 3),
-		),
-		rl.NewVector2(0, 0),
+		sourceRec,
+		destinationRec,
+		origin,
 		0,
 		rl.White,
 	)
 
+	if m.PlayerReference.HasEquipment() {
+		rl.DrawTexturePro(
+			m.PlayerReference.HatSprite.Texture,
+			sourceRec,
+			destinationRec,
+			origin,
+			0.0,
+			rl.White,
+		)
+	}
+
+	// Draw equipment slots
 	for i, slot := range m.EquipmentSlots {
+		// Skip drawing if you want to hide empty slots
+		if slot.IsEmpty {
+			continue
+		}
+
 		color := rl.Gray
 		textColor := rl.White
 		if i == m.SelectedSlot {
@@ -171,20 +216,110 @@ func (m *Menu) Draw() {
 			textColor = rl.White
 		}
 
+		// Different color for empty slots
+		if slot.IsEmpty {
+			color = rl.Fade(rl.Gray, 0.3)
+			textColor = rl.Fade(rl.White, 0.5)
+		}
+
 		rl.DrawRectangleRounded(slot.Rect, 0.1, 5, color)
-		rl.DrawTexturePro(
-			m.IconSheet,
-			slot.IconPos,
-			rl.NewRectangle(
-				slot.Rect.X + slot.IconPos.Width/2,
-				slot.Rect.Y + slot.IconPos.Width/2,
-				85,
-				85,
-			),
-			rl.NewVector2(0, 0),
-			0,
-			rl.White,
-		)
+
+		if !slot.IsEmpty {
+			rl.DrawTexturePro(
+				m.IconSheet,
+				slot.IconPos,
+				rl.NewRectangle(
+					slot.Rect.X+slot.Rect.Width/2-42.5, // Center the icon
+					slot.Rect.Y+slot.Rect.Height/2-42.5,
+					85,
+					85,
+				),
+				rl.NewVector2(0, 0),
+				0,
+				rl.White,
+			)
+		}
+
 		rl.DrawText(slot.Name, int32(slot.Rect.X+2), int32(slot.Rect.Y-20), 20, textColor)
+	}
+	rl.DrawText("Press U to unequip", int32(menuWidth)/5, int32(menuHeight), 20, rl.White)
+}
+
+// Update your Update method to handle empty slots
+func (m *Menu) Update() {
+	if rl.IsKeyPressed(rl.KeyEscape) {
+		m.IsVisible = !m.IsVisible
+	}
+
+	if !m.IsVisible {
+		return
+	}
+
+	prevSelected := m.SelectedSlot
+
+	// Navigation logic that skips empty slots if desired
+	if rl.IsKeyPressed(rl.KeyRight) {
+		for {
+			m.SelectedSlot++
+			if m.SelectedSlot >= len(m.EquipmentSlots) {
+				m.SelectedSlot = 0
+			}
+			// Break if we find a non-empty slot or if we've looped completely
+			if !m.EquipmentSlots[m.SelectedSlot].IsEmpty || m.SelectedSlot == prevSelected {
+				break
+			}
+		}
+	} else if rl.IsKeyPressed(rl.KeyLeft) {
+		for {
+			m.SelectedSlot--
+			if m.SelectedSlot < 0 {
+				m.SelectedSlot = len(m.EquipmentSlots) - 1
+			}
+			if !m.EquipmentSlots[m.SelectedSlot].IsEmpty || m.SelectedSlot == prevSelected {
+				break
+			}
+		}
+	} else if rl.IsKeyPressed(rl.KeyDown) {
+		for {
+			m.SelectedSlot += m.Columns
+			if m.SelectedSlot >= len(m.EquipmentSlots) {
+				m.SelectedSlot %= len(m.EquipmentSlots)
+			}
+			if !m.EquipmentSlots[m.SelectedSlot].IsEmpty || m.SelectedSlot == prevSelected {
+				break
+			}
+		}
+	} else if rl.IsKeyPressed(rl.KeyUp) {
+		for {
+			m.SelectedSlot -= m.Columns
+			if m.SelectedSlot < 0 {
+				m.SelectedSlot += len(m.EquipmentSlots)
+				if m.SelectedSlot < 0 {
+					m.SelectedSlot = 0
+				}
+			}
+			if !m.EquipmentSlots[m.SelectedSlot].IsEmpty || m.SelectedSlot == prevSelected {
+				break
+			}
+		}
+	}
+
+	if prevSelected != m.SelectedSlot && m.SelectedSlot >= 0 {
+		menu_move_sound := rl.LoadSound("assets/sounds/menu_move.mp3")
+		rl.PlaySound(menu_move_sound)
+	}
+
+	if rl.IsKeyPressed(rl.KeyEnter) && m.SelectedSlot >= 0 && !m.EquipmentSlots[m.SelectedSlot].IsEmpty {
+		m.PlayerReference.Equip(m.EquipmentSlots[m.SelectedSlot].Item)
+		menu_select_sound := rl.LoadSound("assets/sounds/menu_selected.mp3")
+		rl.PlaySound(menu_select_sound)
+	}
+
+	if rl.IsKeyPressed(rl.KeyU) && m.SelectedSlot >= 0 && !m.EquipmentSlots[m.SelectedSlot].IsEmpty {
+		if m.PlayerReference.HasEquipment() {
+			m.PlayerReference.Unequip()
+			menu_select_sound := rl.LoadSound("assets/sounds/menu_selected.mp3")
+			rl.PlaySound(menu_select_sound)
+		}
 	}
 }

@@ -10,6 +10,10 @@ import (
 func MoveEnemyTowardPlayer(p system.Player, e Enemy, s screen.Screen) Enemy {
 	hitStunDuration := time.Millisecond * 300
 	if time.Since(e.LastDamageTaken) < hitStunDuration {
+		e.CanMove = false
+	}
+
+	if !e.CanMove {
 		return e
 	}
 
@@ -34,13 +38,13 @@ func MoveEnemyTowardPlayer(p system.Player, e Enemy, s screen.Screen) Enemy {
 			distY /= distance
 		}
 
-		e.Object.X += int32((distX * float64(e.Speed)) * 1.5 )
-		e.Object.Y += int32((distY * float64(e.Speed)) * 1.5 )
+		e.Object.X += int32((distX * float64(e.Speed)) * 1.5)
+		e.Object.Y += int32((distY * float64(e.Speed)) * 1.5)
 
 		if distX > 0 {
-			e.Flipped = false 
+			e.Flipped = false
 		} else if distX < 0 {
-			e.Flipped = true 
+			e.Flipped = true
 		}
 	}
 

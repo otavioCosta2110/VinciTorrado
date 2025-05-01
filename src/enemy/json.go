@@ -2,32 +2,49 @@ package enemy
 
 import (
 	"encoding/json"
-	rl "github.com/gen2brain/raylib-go/raylib"
+	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
+
+	"otaviocosta2110/vincitorrado/src/equipment"
 	"otaviocosta2110/vincitorrado/src/sprites"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-type EnemyConfig struct {
+type Drop struct {
+	Name   string `json:"name"`
 	Sprite string `json:"sprite"`
-	X      int32  `json:"X"`
-	Y      int32  `json:"Y"`
-	Width  int32  `json:"width"`
-	Height int32  `json:"height"`
-	Health int32    `json:"health"`
-	Damage int32    `json:"damage"`
-	Speed  int32  `json:"speed"`
+}
+
+type Drops struct {
+	Equipment []Drop `json:"equipment"`
+}
+
+type EnemyConfig struct {
+	Sprite     string `json:"sprite"`
+	X          int32  `json:"X"`
+	Y          int32  `json:"Y"`
+	Width      int32  `json:"width"`
+	Height     int32  `json:"height"`
+	Health     int32  `json:"health"`
+	Damage     int32  `json:"damage"`
+	Speed      int32  `json:"speed"`
+	WindUpTime int64  `json:"windUpTime"`
+	Scale      int32  `json:"scale"`
+	Drops      Drop   `json:"drops"`
 }
 
 func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
 	file, err := os.ReadFile(filename)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read enemy file: %w", err)
 	}
 
 	var configs []EnemyConfig
-	err = json.Unmarshal(file, &configs)
-	if err != nil {
-		return nil, err
+	if err := json.Unmarshal(file, &configs); err != nil {
+		return nil, fmt.Errorf("failed to parse enemy JSON: %w", err)
 	}
 
 	var enemies []*Enemy
@@ -38,6 +55,16 @@ func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
 			Texture:      rl.LoadTexture(config.Sprite),
 		}
 
+		dropSprite := config.Drops.Sprite
+		dropName := config.Drops.Name
+		drop := equipment.New(dropName, dropSprite)
+
+		enemyType := "normal"
+		if strings.Contains(strings.ToLower(filepath.Base(config.Sprite)), "dwarf") {
+			enemyType = "dwarf"
+			fmt.Println("ANÃO A FRENTE:", config.Sprite)
+		}
+
 		enemy := NewEnemy(
 			config.X,
 			config.Y,
@@ -46,8 +73,13 @@ func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
 			config.Height,
 			playerScale,
 			sprite,
+			config.WindUpTime,
+			enemyType,
+			drop,
 		)
+
 		enemy.Health = config.Health
+		enemy.MaxHealth = config.Health
 		enemy.Damage = config.Damage
 
 		enemies = append(enemies, enemy)
