@@ -88,7 +88,7 @@ func main() {
 		if !menu.IsVisible {
 			update(player, enemyManager, screen, boxes, items)
 		}
-		draw(player, enemyManager, *screen, chao, buildings, boxes, *menu)
+		draw(player, enemyManager, *screen, chao, buildings, boxes, items, *menu)
 	}
 }
 
@@ -131,7 +131,6 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 
 	for _, item := range items {
 		if !item.IsDropped {
-			// Create collision box for item
 			itemBox := system.Object{
 				X:      item.Object.X,
 				Y:      item.Object.Y,
@@ -156,13 +155,19 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 	return
 }
 
-func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Texture2D, buildings rl.Texture2D, boxes []*objects.Box, menu ui.Menu) {
+func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Texture2D, buildings rl.Texture2D, boxes []*objects.Box, items []*equipment.Equipment, menu ui.Menu) {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.RayWhite)
 
 	rl.BeginMode2D(s.Camera)
 	drawTiledBackground(chao, s.Camera, s.Width, s.Height)
 	drawBuildings(buildings)
+
+	for _, item := range items {
+		if !item.IsDropped {
+			item.DrawAnimated(&item.Object)
+		}
+	}
 
 	for _, box := range boxes {
 		box.Draw()

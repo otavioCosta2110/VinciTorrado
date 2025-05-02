@@ -33,6 +33,7 @@ type Menu struct {
 	SelectedSlot    int
 	Columns         int
 	IconSheet       rl.Texture2D
+	ConsumableSheet rl.Texture2D
 	SlotWidth       float32
 	SlotHeight      float32
 	SlotSpacing     float32
@@ -45,8 +46,9 @@ func NewMenu(player *player.Player, sprite *sprites.Sprite) *Menu {
 		PlayerSprite:    sprite,
 		PlayerReference: player,
 		SelectedSlot:    0,
-		Columns:         3,
+		Columns:         2,
 		IconSheet:       rl.LoadTexture("assets/ui/equipamentos.png"),
+		ConsumableSheet: rl.LoadTexture("assets/ui/items.png"),
 		SlotWidth:       120,
 		SlotHeight:      120,
 		SlotSpacing:     50,
@@ -108,9 +110,18 @@ func (m *Menu) getItemIconPos(item *equipment.Equipment) rl.Rectangle {
 		return rl.NewRectangle(0, 0, 32, 32)
 	}
 
-	switch item.Name {
-	case "Turbante":
+	switch {
+	case item.Name == "Turbante":
 		return rl.NewRectangle(32, 32, 32, 32)
+	case item.Type == "consumable":
+		switch item.Name {
+		case "Hamburgão":
+			return rl.NewRectangle(0, 0, 32, 32)
+		case "Saunduiche":
+			return rl.NewRectangle(32, 0, 32, 32)
+		default:
+			return rl.NewRectangle(0, 0, 32, 32)
+		}
 	default:
 		return rl.NewRectangle(0, 0, 32, 32)
 	}
@@ -183,8 +194,15 @@ func (m *Menu) Draw() {
 		rl.DrawRectangleRounded(slot.Rect, 0.1, 5, color)
 
 		if slot.Item != nil {
+			var texture rl.Texture2D
+			if slot.Item.Type == "consumable" {
+				texture = m.ConsumableSheet
+			} else {
+				texture = m.IconSheet
+			}
+
 			rl.DrawTexturePro(
-				m.IconSheet,
+				texture,
 				slot.IconPos,
 				rl.NewRectangle(
 					slot.Rect.X+slot.Rect.Width/2-42.5,
@@ -287,10 +305,23 @@ func (m *Menu) Update() {
 		rl.PlaySound(menu_move_sound)
 	}
 
-	if rl.IsKeyPressed(rl.KeyEnter) && m.SelectedSlot >= 0 && m.EquipmentSlots[m.SelectedSlot].Item != nil {
-		m.PlayerReference.Equip(m.EquipmentSlots[m.SelectedSlot].Item)
-		menu_select_sound := rl.LoadSound("assets/sounds/menu_selected.mp3")
-		rl.PlaySound(menu_select_sound)
+	if rl.IsKeyPressed(rl.KeyEnter) && m.SelectedSlot >= 0 {
+		item := m.EquipmentSlots[m.SelectedSlot].Item
+		if item != nil {
+			if item.Type == "consumable" {
+				m.PlayerReference.UseConsumable(m.SelectedSlot)
+				m.Refresh()
+				menu_select_sound := rl.LoadSound("assets/sounds/menu_selected.mp3")
+				rl.PlaySound(menu_select_sound)
+			} else {
+				if m.PlayerReference.Equipped != nil {
+					m.PlayerReference.Unequip()
+				}
+				m.PlayerReference.Equip(item)
+				menu_select_sound := rl.LoadSound("assets/sounds/menu_selected.mp3")
+				rl.PlaySound(menu_select_sound)
+			}
+		}
 	}
 
 	if rl.IsKeyPressed(rl.KeyU) && m.PlayerReference.HasEquipment() {
