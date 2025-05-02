@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
 
 	"otaviocosta2110/vincitorrado/src/equipment"
 	"otaviocosta2110/vincitorrado/src/sprites"
@@ -33,7 +31,7 @@ type EnemyConfig struct {
 	Speed      int32  `json:"speed"`
 	WindUpTime int64  `json:"windUpTime"`
 	Scale      int32  `json:"scale"`
-	Drops      Drop   `json:"drops"`
+	Drops      *Drop  `json:"drops"`
 }
 
 func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
@@ -55,15 +53,15 @@ func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
 			Texture:      rl.LoadTexture(config.Sprite),
 		}
 
-		dropSprite := config.Drops.Sprite
-		dropName := config.Drops.Name
-		drop := equipment.New(dropName, dropSprite)
-
-		enemyType := "normal"
-		if strings.Contains(strings.ToLower(filepath.Base(config.Sprite)), "dwarf") {
-			enemyType = "dwarf"
-			fmt.Println("ANÃO A FRENTE:", config.Sprite)
+		var drop *equipment.Equipment
+		if config.Drops != nil {
+			dropSprite := config.Drops.Sprite
+			dropName := config.Drops.Name
+			drop = equipment.New(dropName, dropSprite)
+		} else {
+			drop = nil
 		}
+		println(drop == nil)
 
 		enemy := NewEnemy(
 			config.X,
@@ -74,7 +72,7 @@ func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
 			playerScale,
 			sprite,
 			config.WindUpTime,
-			enemyType,
+			"normal",
 			drop,
 		)
 

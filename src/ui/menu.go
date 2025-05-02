@@ -17,12 +17,10 @@ const (
 )
 
 type EquipmentSlot struct {
-	Name     string
 	Rect     rl.Rectangle
 	IsActive bool
 	IconPos  rl.Rectangle
 	Item     *equipment.Equipment 
-	IsEmpty  bool                
 }
 
 type Menu struct {
@@ -45,7 +43,7 @@ func NewMenu(player *player.Player, sprite *sprites.Sprite) *Menu {
 		IsVisible:       false,
 		PlayerSprite:    sprite,
 		PlayerReference: player,
-		SelectedSlot:    0,
+		SelectedSlot:    0, 
 		Columns:         3,
 		IconSheet:       rl.LoadTexture("assets/ui/equipamentos.png"),
 		SlotWidth:       120,
@@ -61,14 +59,31 @@ func (m *Menu) initEquipmentSlots() {
 	startX := float32(rl.GetScreenWidth())/2 - (float32(m.Columns)*m.SlotWidth)/2 + 50
 	startY := float32(rl.GetScreenHeight() / 5)
 
-	m.EquipmentSlots = make([]EquipmentSlot, 0, 9) 
+	// Initialize slots based on player's current inventory
+	inventorySize := len(m.PlayerReference.Equipment)
 
-	for i := range 9 {
+	if inventorySize == 0 {
+		inventorySize = 0 // Default empty slots
+	}
+
+	m.EquipmentSlots = make([]EquipmentSlot, 0, inventorySize)
+
+	for i := range inventorySize {
 		row := i / m.Columns
 		col := i % m.Columns
 
+		var item *equipment.Equipment
+		var iconPos rl.Rectangle
+		
+		// If player has equipment at this position
+		if i < len(m.PlayerReference.Equipment) {
+			item = m.PlayerReference.Equipment[i]
+			iconPos = m.getItemIconPos(item)
+		} else {
+			iconPos = rl.NewRectangle(0, 0, 32, 32)
+		}
+
 		m.EquipmentSlots = append(m.EquipmentSlots, EquipmentSlot{
-			Name: "Empty",
 			Rect: rl.NewRectangle(
 				startX+float32(col)*(m.SlotWidth+m.SlotSpacing),
 				startY+float32(row)*(m.SlotHeight+m.SlotSpacing),
@@ -76,66 +91,25 @@ func (m *Menu) initEquipmentSlots() {
 				m.SlotHeight,
 			),
 			IsActive: false,
-			IconPos:  rl.NewRectangle(0, 0, 32, 32), 
-			Item:     nil,
-			IsEmpty:  true,
+			IconPos:  iconPos,
+			Item:     item,
 		})
 	}
-}
-
-func (m *Menu) AddToMenu(item *equipment.Equipment) bool {
-	for i := range m.EquipmentSlots {
-		if m.EquipmentSlots[i].IsEmpty {
-			m.fillSlot(i, item)
-			return true
+	
+	// Set initial selection to first non-empty slot if available
+	for i, slot := range m.EquipmentSlots {
+		if slot.Item != nil {
+			m.SelectedSlot = i
+			break
 		}
-	}
-
-	return m.addNewSlot(item)
-}
-
-func (m *Menu) fillSlot(index int, item *equipment.Equipment) {
-	m.EquipmentSlots[index].Name = item.Name
-	m.EquipmentSlots[index].IconPos = m.getItemIconPos(item)
-	m.EquipmentSlots[index].Item = item
-	m.EquipmentSlots[index].IsEmpty = false
-}
-
-func (m *Menu) addNewSlot(item *equipment.Equipment) bool {
-	startX := float32(rl.GetScreenWidth())/2 - (float32(m.Columns)*m.SlotWidth)/2 + 50
-	startY := float32(rl.GetScreenHeight() / 5)
-
-	row := len(m.EquipmentSlots) / m.Columns
-	col := len(m.EquipmentSlots) % m.Columns
-
-	newSlot := EquipmentSlot{
-		Name: item.Name,
-		Rect: rl.NewRectangle(
-			startX+float32(col)*(m.SlotWidth+m.SlotSpacing),
-			startY+float32(row)*(m.SlotHeight+m.SlotSpacing),
-			m.SlotWidth,
-			m.SlotHeight,
-		),
-		IsActive: false,
-		IconPos:  m.getItemIconPos(item),
-		Item:     item,
-		IsEmpty:  false,
-	}
-
-	m.EquipmentSlots = append(m.EquipmentSlots, newSlot)
-	return true
-}
-
-func (m *Menu) RemoveFromMenu(index int) {
-	if index >= 0 && index < len(m.EquipmentSlots) {
-		m.EquipmentSlots[index].Name = "Empty"
-		m.EquipmentSlots[index].IconPos = rl.NewRectangle(0, 0, 32, 32)
-		m.EquipmentSlots[index].Item = nil
-		m.EquipmentSlots[index].IsEmpty = true
 	}
 }
 
 func (m *Menu) getItemIconPos(item *equipment.Equipment) rl.Rectangle {
+	if item == nil {
+		return rl.NewRectangle(0, 0, 32, 32)
+	}
+	
 	switch item.Name {
 	case "Turbante":
 		return rl.NewRectangle(32, 32, 32, 32)
@@ -161,6 +135,7 @@ func (m *Menu) Draw() {
 		0.05, 10, rl.DarkGray,
 	)
 
+	// Draw player preview
 	playerPreviewX := menuX
 	playerPreviewY := menuY * 2
 	sourceRec := rl.NewRectangle(0, 0, float32(m.PlayerSprite.SpriteWidth), float32(m.PlayerSprite.SpriteHeight))
@@ -194,26 +169,24 @@ func (m *Menu) Draw() {
 		)
 	}
 
+	// Draw equipment slots
 	for i, slot := range m.EquipmentSlots {
-		if slot.IsEmpty {
-			continue
-		}
-
 		color := rl.Gray
 		textColor := rl.White
+		
 		if i == m.SelectedSlot {
 			color = rl.White
 			textColor = rl.White
 		}
 
-		if slot.IsEmpty {
+		if slot.Item == nil {
 			color = rl.Fade(rl.Gray, 0.3)
 			textColor = rl.Fade(rl.White, 0.5)
 		}
 
 		rl.DrawRectangleRounded(slot.Rect, 0.1, 5, color)
 
-		if !slot.IsEmpty {
+		if slot.Item != nil {
 			rl.DrawTexturePro(
 				m.IconSheet,
 				slot.IconPos,
@@ -227,16 +200,22 @@ func (m *Menu) Draw() {
 				0,
 				rl.White,
 			)
+			
+			rl.DrawText(slot.Item.Name, int32(slot.Rect.X+2), int32(slot.Rect.Y-20), 20, textColor)
+		} else {
+			rl.DrawText("Empty", int32(slot.Rect.X+2), int32(slot.Rect.Y-20), 20, textColor)
 		}
-
-		rl.DrawText(slot.Name, int32(slot.Rect.X+2), int32(slot.Rect.Y-20), 20, textColor)
 	}
-	rl.DrawText("Press U to unequip", int32(menuWidth)/5, int32(menuHeight), 20, rl.White)
+	
+	if m.PlayerReference.HasEquipment() {
+		rl.DrawText("Press U to unequip", int32(menuWidth)/5, int32(menuHeight), 20, rl.White)
+	}
 }
 
 func (m *Menu) Update() {
 	if rl.IsKeyPressed(rl.KeyEscape) {
 		m.IsVisible = !m.IsVisible
+		m.Refresh()
 	}
 
 	if !m.IsVisible {
@@ -246,48 +225,13 @@ func (m *Menu) Update() {
 	prevSelected := m.SelectedSlot
 
 	if rl.IsKeyPressed(rl.KeyRight) {
-		for {
-			m.SelectedSlot++
-			if m.SelectedSlot >= len(m.EquipmentSlots) {
-				m.SelectedSlot = 0
-			}
-			if !m.EquipmentSlots[m.SelectedSlot].IsEmpty || m.SelectedSlot == prevSelected {
-				break
-			}
-		}
+		m.findNextValidSlot(1)
 	} else if rl.IsKeyPressed(rl.KeyLeft) {
-		for {
-			m.SelectedSlot--
-			if m.SelectedSlot < 0 {
-				m.SelectedSlot = len(m.EquipmentSlots) - 1
-			}
-			if !m.EquipmentSlots[m.SelectedSlot].IsEmpty || m.SelectedSlot == prevSelected {
-				break
-			}
-		}
+		m.findNextValidSlot(-1)
 	} else if rl.IsKeyPressed(rl.KeyDown) {
-		for {
-			m.SelectedSlot += m.Columns
-			if m.SelectedSlot >= len(m.EquipmentSlots) {
-				m.SelectedSlot %= len(m.EquipmentSlots)
-			}
-			if !m.EquipmentSlots[m.SelectedSlot].IsEmpty || m.SelectedSlot == prevSelected {
-				break
-			}
-		}
+		m.findNextValidSlot(m.Columns)
 	} else if rl.IsKeyPressed(rl.KeyUp) {
-		for {
-			m.SelectedSlot -= m.Columns
-			if m.SelectedSlot < 0 {
-				m.SelectedSlot += len(m.EquipmentSlots)
-				if m.SelectedSlot < 0 {
-					m.SelectedSlot = 0
-				}
-			}
-			if !m.EquipmentSlots[m.SelectedSlot].IsEmpty || m.SelectedSlot == prevSelected {
-				break
-			}
-		}
+		m.findNextValidSlot(-m.Columns)
 	}
 
 	if prevSelected != m.SelectedSlot && m.SelectedSlot >= 0 {
@@ -295,17 +239,49 @@ func (m *Menu) Update() {
 		rl.PlaySound(menu_move_sound)
 	}
 
-	if rl.IsKeyPressed(rl.KeyEnter) && m.SelectedSlot >= 0 && !m.EquipmentSlots[m.SelectedSlot].IsEmpty {
+	if rl.IsKeyPressed(rl.KeyEnter) && m.SelectedSlot >= 0 && m.EquipmentSlots[m.SelectedSlot].Item != nil {
 		m.PlayerReference.Equip(m.EquipmentSlots[m.SelectedSlot].Item)
 		menu_select_sound := rl.LoadSound("assets/sounds/menu_selected.mp3")
 		rl.PlaySound(menu_select_sound)
 	}
 
-	if rl.IsKeyPressed(rl.KeyU) && m.SelectedSlot >= 0 && !m.EquipmentSlots[m.SelectedSlot].IsEmpty {
-		if m.PlayerReference.HasEquipment() {
-			m.PlayerReference.Unequip()
-			menu_select_sound := rl.LoadSound("assets/sounds/menu_selected.mp3")
-			rl.PlaySound(menu_select_sound)
+	if rl.IsKeyPressed(rl.KeyU) && m.PlayerReference.HasEquipment() {
+		m.PlayerReference.Unequip()
+		menu_select_sound := rl.LoadSound("assets/sounds/menu_selected.mp3")
+		rl.PlaySound(menu_select_sound)
+	}
+}
+
+func (m *Menu) findNextValidSlot(step int) {
+	if len(m.EquipmentSlots) == 0 {
+		m.SelectedSlot = -1
+		return
+	}
+
+	start := m.SelectedSlot
+	if start < 0 {
+		start = 0
+	}
+
+	for i := 1; i <= len(m.EquipmentSlots); i++ {
+		next := (start + i*step) % len(m.EquipmentSlots)
+		if next < 0 {
+			next += len(m.EquipmentSlots)
+		}
+		
+		if m.EquipmentSlots[next].Item != nil {
+			m.SelectedSlot = next
+			return
 		}
 	}
+	
+	// If no items found, keep current selection or set to -1
+	if m.SelectedSlot >= len(m.EquipmentSlots) || m.EquipmentSlots[m.SelectedSlot].Item == nil {
+		m.SelectedSlot = -1
+	}
+}
+
+func (m *Menu) Refresh() {
+	// Reinitialize slots when menu is reopened to reflect any changes
+	m.initEquipmentSlots()
 }

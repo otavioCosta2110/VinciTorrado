@@ -77,13 +77,13 @@ func main() {
 		menu.Update()
 		
 		if !menu.IsVisible {
-			update(player, enemyManager, screen, boxes, *menu)
+			update(player, enemyManager, screen, boxes)
 		}
 		draw(player, enemyManager, *screen, chao, buildings, boxes, *menu)
 	}
 }
 
-func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, boxes []*objects.Box, menu ui.Menu) {
+func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, boxes []*objects.Box) {
 	if system.GameOverFlag {
 		return
 	}
@@ -96,7 +96,7 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 	}
 
 	for _, e := range em.Enemies {
-		if e.EnemyType == "dwarf" && e.Object.Destroyed && !e.DropCollected {
+		if e.Object.Destroyed && e.Drop != nil && !e.DropCollected {
 			dropWidth := int32(32 * e.Object.Scale)
 			dropHeight := int32(32 * e.Object.Scale)
 			dropY := e.Object.Y - 20
@@ -113,7 +113,7 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 			if physics.CheckCollision(playerObj, dropBox) {
 				menu_select_sound := rl.LoadSound("assets/sounds/collect_item.mp3")
 				rl.PlaySound(menu_select_sound)
-				menu.AddToMenu(e.Drop)
+				p.AddToInventory(e.Drop)
 				e.DropCollected = true
 				e.Drop.IsDropped = false
 			}

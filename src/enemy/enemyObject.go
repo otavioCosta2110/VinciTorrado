@@ -109,7 +109,7 @@ func (e *Enemy) Draw() {
 	)
 
 	rl.DrawTexturePro(e.Object.Sprite.Texture, sourceRec, destinationRec, origin, 0.0, rl.White)
-	if e.Object.Destroyed {
+	if e.Object.Destroyed && e.Drop != nil {
 		e.Drop.DrawAnimated(&e.Object)
 	}
 }
@@ -243,3 +243,4 @@ func (e *Enemy) TakeDamageFromBox(box system.Object) {
 	}
 	e.Object.KnockbackY = -knockbackStrength / 2
 }
+
