@@ -211,16 +211,13 @@ func (m *Menu) Draw() {
         statsX := menuX + menuWidth - 250
         statsY := menuY + 50
         
-        // Draw stats background
         rl.DrawRectangleRounded(
             rl.NewRectangle(statsX, statsY, 200, 150),
             0.1, 5, rl.Fade(rl.Black, 0.7),
         )
         
-        // Draw item name
         rl.DrawText(item.Name, int32(statsX+10), int32(statsY+35), 20, rl.Gold)
         
-        // Draw individual stats
         yOffset := int32(60)
         if item.Stats.Life != 0 {
             rl.DrawText("Health: ", int32(statsX+10), int32(int32(statsY)+yOffset), 18, rl.White)
@@ -242,7 +239,6 @@ func (m *Menu) Draw() {
     }
 }
 
-// Helper functions for stats display
 func formatStat(value int) string {
     if value > 0 {
         return "+" + strconv.Itoa(value)
