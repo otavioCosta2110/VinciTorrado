@@ -1,13 +1,16 @@
 package objects
 
 import (
-	"otaviocosta2110/vincitorrado/src/enemy"
 	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/system"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
+
+type BoxCollisionHandler interface {
+	CheckBoxCollisions(box system.Object)
+}
 
 type Box struct {
 	Object    system.Object
@@ -47,7 +50,7 @@ func (b *Box) Draw() {
 	)
 }
 
-func (b *Box) Update(colliders []system.Object, s *screen.Screen, em *enemy.EnemyManager) {
+func (b *Box) Update(colliders []system.Object, s *screen.Screen, handler BoxCollisionHandler) {
 	b.Object.X += b.Object.KnockbackX
 	b.Object.Y += b.Object.KnockbackY
 
@@ -89,8 +92,8 @@ func (b *Box) Update(colliders []system.Object, s *screen.Screen, em *enemy.Enem
 		}
 	}
 
-	if em != nil {
-		em.CheckBoxCollisions(b.Object)
+	if handler != nil {
+		handler.CheckBoxCollisions(b.Object)
 	}
 }
 
