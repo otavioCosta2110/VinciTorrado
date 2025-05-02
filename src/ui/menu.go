@@ -4,6 +4,7 @@ import (
 	"otaviocosta2110/vincitorrado/src/equipment"
 	"otaviocosta2110/vincitorrado/src/player"
 	"otaviocosta2110/vincitorrado/src/sprites"
+	"strconv"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -59,11 +60,10 @@ func (m *Menu) initEquipmentSlots() {
 	startX := float32(rl.GetScreenWidth())/2 - (float32(m.Columns)*m.SlotWidth)/2 + 50
 	startY := float32(rl.GetScreenHeight() / 5)
 
-	// Initialize slots based on player's current inventory
 	inventorySize := len(m.PlayerReference.Equipment)
 
 	if inventorySize == 0 {
-		inventorySize = 0 // Default empty slots
+		inventorySize = 0 
 	}
 
 	m.EquipmentSlots = make([]EquipmentSlot, 0, inventorySize)
@@ -75,7 +75,6 @@ func (m *Menu) initEquipmentSlots() {
 		var item *equipment.Equipment
 		var iconPos rl.Rectangle
 		
-		// If player has equipment at this position
 		if i < len(m.PlayerReference.Equipment) {
 			item = m.PlayerReference.Equipment[i]
 			iconPos = m.getItemIconPos(item)
@@ -96,7 +95,6 @@ func (m *Menu) initEquipmentSlots() {
 		})
 	}
 	
-	// Set initial selection to first non-empty slot if available
 	for i, slot := range m.EquipmentSlots {
 		if slot.Item != nil {
 			m.SelectedSlot = i
@@ -135,7 +133,6 @@ func (m *Menu) Draw() {
 		0.05, 10, rl.DarkGray,
 	)
 
-	// Draw player preview
 	playerPreviewX := menuX
 	playerPreviewY := menuY * 2
 	sourceRec := rl.NewRectangle(0, 0, float32(m.PlayerSprite.SpriteWidth), float32(m.PlayerSprite.SpriteHeight))
@@ -169,7 +166,6 @@ func (m *Menu) Draw() {
 		)
 	}
 
-	// Draw equipment slots
 	for i, slot := range m.EquipmentSlots {
 		color := rl.Gray
 		textColor := rl.White
@@ -210,6 +206,57 @@ func (m *Menu) Draw() {
 	if m.PlayerReference.HasEquipment() {
 		rl.DrawText("Press U to unequip", int32(menuWidth)/5, int32(menuHeight), 20, rl.White)
 	}
+	 if m.SelectedSlot >= 0 && m.SelectedSlot < len(m.EquipmentSlots) && m.EquipmentSlots[m.SelectedSlot].Item != nil {
+        item := m.EquipmentSlots[m.SelectedSlot].Item
+        statsX := menuX + menuWidth - 250
+        statsY := menuY + 50
+        
+        // Draw stats background
+        rl.DrawRectangleRounded(
+            rl.NewRectangle(statsX, statsY, 200, 150),
+            0.1, 5, rl.Fade(rl.Black, 0.7),
+        )
+        
+        // Draw item name
+        rl.DrawText(item.Name, int32(statsX+10), int32(statsY+35), 20, rl.Gold)
+        
+        // Draw individual stats
+        yOffset := int32(60)
+        if item.Stats.Life != 0 {
+            rl.DrawText("Health: ", int32(statsX+10), int32(int32(statsY)+yOffset), 18, rl.White)
+            rl.DrawText(formatStat(int(item.Stats.Life)), int32(statsX+100), int32(int32(statsY)+yOffset), 18, getStatColor(int(item.Stats.Life)))
+            yOffset += 25
+        }
+        
+        if item.Stats.Damage != 0 {
+            rl.DrawText("Damage: ", int32(statsX+10), int32(int32(statsY)+yOffset), 18, rl.White)
+            rl.DrawText(formatStat(int(item.Stats.Damage)), int32(statsX+100), int32(int32(statsY)+yOffset), 18, getStatColor(int(item.Stats.Damage)))
+            yOffset += 25
+        }
+        
+        if item.Stats.Speed != 0 {
+            rl.DrawText("Speed: ", int32(statsX+10), int32(int32(statsY)+yOffset), 18, rl.White)
+            rl.DrawText(formatStat(int(item.Stats.Speed)), int32(statsX+100), int32(int32(statsY)+yOffset), 18, getStatColor(int(item.Stats.Speed)))
+            yOffset += 25
+        }
+    }
+}
+
+// Helper functions for stats display
+func formatStat(value int) string {
+    if value > 0 {
+        return "+" + strconv.Itoa(value)
+    }
+    return strconv.Itoa(value)
+}
+
+func getStatColor(value int) rl.Color {
+    if value > 0 {
+        return rl.Green
+    } else if value < 0 {
+        return rl.Red
+    }
+    return rl.White
 }
 
 func (m *Menu) Update() {
@@ -258,10 +305,7 @@ func (m *Menu) findNextValidSlot(step int) {
 		return
 	}
 
-	start := m.SelectedSlot
-	if start < 0 {
-		start = 0
-	}
+	start := max(m.SelectedSlot, 0)
 
 	for i := 1; i <= len(m.EquipmentSlots); i++ {
 		next := (start + i*step) % len(m.EquipmentSlots)
@@ -275,13 +319,11 @@ func (m *Menu) findNextValidSlot(step int) {
 		}
 	}
 	
-	// If no items found, keep current selection or set to -1
 	if m.SelectedSlot >= len(m.EquipmentSlots) || m.EquipmentSlots[m.SelectedSlot].Item == nil {
 		m.SelectedSlot = -1
 	}
 }
 
 func (m *Menu) Refresh() {
-	// Reinitialize slots when menu is reopened to reflect any changes
 	m.initEquipmentSlots()
 }

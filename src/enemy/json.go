@@ -11,9 +11,16 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
+type DropStats struct {
+	Health int32 `json:"health"`
+	Speed int32 `json:"speed"`
+	Damage int32 `json:"damage"`
+}
+
 type Drop struct {
-	Name   string `json:"name"`
-	Sprite string `json:"sprite"`
+	Name   string    `json:"name"`
+	Sprite string    `json:"sprite"`
+	Stats  DropStats `json:"stats"`
 }
 
 type Drops struct {
@@ -57,7 +64,9 @@ func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
 		if config.Drops != nil {
 			dropSprite := config.Drops.Sprite
 			dropName := config.Drops.Name
-			drop = equipment.New(dropName, dropSprite)
+			dropStatsJson := config.Drops.Stats
+			dropStats := equipment.Stats{Life: dropStatsJson.Health, Damage: dropStatsJson.Damage, Speed: dropStatsJson.Speed}
+			drop = equipment.New(dropName, dropSprite, dropStats)
 		} else {
 			drop = nil
 		}

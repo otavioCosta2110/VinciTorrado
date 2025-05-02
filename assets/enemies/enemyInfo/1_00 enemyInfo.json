@@ -12,7 +12,12 @@
     "scale": 4,
     "drops": {
       "name": "Turbante",
-      "sprite": "assets/player/playerTurbante.png"
+      "sprite": "assets/player/playerTurbante.png",
+      "stats": {
+        "health": 1,
+        "speed": 0,
+        "damage": 1
+      }
     }
   },
     {

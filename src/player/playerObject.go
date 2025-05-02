@@ -72,17 +72,20 @@ func (p *Player) Equip(item *equipment.Equipment) {
 	p.Equipped = item
 	p.Equipped.IsEquipped = true
 
-	p.MaxHealth = p.OriginalMaxHealth + 1
-	p.Health += 1
-	p.Damage = p.OriginalDamage + 1
+	p.MaxHealth += p.Equipped.Stats.Life
+	p.Damage += p.Equipped.Stats.Damage
+	p.Speed += p.Equipped.Stats.Speed
+
+	println(p.MaxHealth)
+
 	p.HatSprite = item.Object.Sprite
 }
 
 func (p *Player) Unequip() {
 	if p.Equipped != nil {
-		p.MaxHealth = p.OriginalMaxHealth
-		p.Damage = p.OriginalDamage
-		p.Speed = p.OriginalSpeed
+		p.MaxHealth -= p.Equipped.Stats.Life
+		p.Damage -= p.Equipped.Stats.Damage
+		p.Speed -= p.Equipped.Stats.Speed
 
 		if p.Health > p.MaxHealth {
 			p.Health = p.MaxHealth
