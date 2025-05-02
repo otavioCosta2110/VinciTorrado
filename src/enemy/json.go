@@ -13,7 +13,7 @@ import (
 
 type DropStats struct {
 	Health int32 `json:"health"`
-	Speed int32 `json:"speed"`
+	Speed  int32 `json:"speed"`
 	Damage int32 `json:"damage"`
 }
 

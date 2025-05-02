@@ -15,7 +15,7 @@ type Player struct {
 	LastKickTime      time.Time
 	KickCooldown      time.Duration
 	KickPower         int32
-	Equipped         *equipment.Equipment
+	Equipped          *equipment.Equipment
 	Equipment         []*equipment.Equipment
 	HatSprite         sprites.Sprite
 	OriginalSpeed     int32
@@ -61,7 +61,7 @@ func (p *Player) GetObject() system.Object {
 	return p.Object
 }
 
-func(p *Player) AddToInventory(item *equipment.Equipment){
+func (p *Player) AddToInventory(item *equipment.Equipment) {
 	p.Equipment = append(p.Equipment, item)
 }
 
@@ -101,4 +101,20 @@ func (p *Player) HasEquipment() bool {
 
 func (p *Player) Cleanup() {
 	rl.UnloadTexture(p.HatSprite.Texture)
+}
+
+func (p *Player) UseConsumable(index int) {
+	if index >= 0 && index < len(p.Equipment) {
+		item := p.Equipment[index]
+		if item.Type == "consumable" {
+			// Apply healing
+			p.Health = p.Health + item.Stats.Heal
+			if p.Health > p.MaxHealth {
+				p.Health = p.MaxHealth
+			}
+
+			// Remove from inventory
+			p.Equipment = append(p.Equipment[:index], p.Equipment[index+1:]...)
+		}
+	}
 }

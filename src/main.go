@@ -3,6 +3,7 @@ package main
 import (
 	"otaviocosta2110/vincitorrado/src/audio"
 	"otaviocosta2110/vincitorrado/src/enemy"
+	"otaviocosta2110/vincitorrado/src/equipment"
 	"otaviocosta2110/vincitorrado/src/objects"
 	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/player"
@@ -42,7 +43,7 @@ func main() {
 	screen := screen.NewScreen(windowWidth, windowHeight, buildings.Width, buildings.Height, windowTitle)
 	defer rl.CloseWindow()
 	rl.SetTargetFPS(60)
-	rl.SetExitKey(0) 
+	rl.SetExitKey(0)
 
 	playerSprite := sprites.Sprite{
 		SpriteWidth:  playerSizeX,
@@ -52,7 +53,6 @@ func main() {
 	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 2, playerScale, playerSprite)
 	menu := ui.NewMenu(player, &playerSprite)
 
-
 	boxes := []*objects.Box{
 		// objects.NewBox(200, screen.Height-100, 50, 50),
 	}
@@ -61,6 +61,15 @@ func main() {
 		"assets/enemies/enemyInfo/1_00 enemyInfo.json",
 		playerScale,
 	)
+
+	items, err := enemy.LoadItemsFromJSON("assets/items/items.json", playerScale)
+	if err != nil {
+		panic("Failed to load items: " + err.Error())
+	}
+
+	if err != nil {
+		panic("Failed to load items: " + err.Error())
+	}
 
 	if err != nil {
 		panic(err)
@@ -75,15 +84,15 @@ func main() {
 
 	for !rl.WindowShouldClose() {
 		menu.Update()
-		
+
 		if !menu.IsVisible {
-			update(player, enemyManager, screen, boxes)
+			update(player, enemyManager, screen, boxes, items)
 		}
 		draw(player, enemyManager, *screen, chao, buildings, boxes, *menu)
 	}
 }
 
-func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, boxes []*objects.Box) {
+func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, boxes []*objects.Box, items []*equipment.Equipment) {
 	if system.GameOverFlag {
 		return
 	}
@@ -104,10 +113,10 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 			dropBox := system.Object{
 				X:      e.Object.X,
 				Y:      dropY,
-				Width:  dropWidth/2,
-				Height: dropHeight/2,
+				Width:  dropWidth / 2,
+				Height: dropHeight / 2,
 			}
-				e.Drop.IsDropped = true
+			e.Drop.IsDropped = true
 
 			playerObj := p.GetObject()
 			if physics.CheckCollision(playerObj, dropBox) {
@@ -116,6 +125,25 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 				p.AddToInventory(e.Drop)
 				e.DropCollected = true
 				e.Drop.IsDropped = false
+			}
+		}
+	}
+
+	for _, item := range items {
+		if !item.IsDropped {
+			// Create collision box for item
+			itemBox := system.Object{
+				X:      item.Object.X,
+				Y:      item.Object.Y,
+				Width:  item.Object.Width,
+				Height: item.Object.Height,
+			}
+
+			if physics.CheckCollision(p.GetObject(), itemBox) {
+				p.AddToInventory(item)
+				item.IsDropped = true
+				collectSound := rl.LoadSound("assets/sounds/collect_item.mp3")
+				rl.PlaySound(collectSound)
 			}
 		}
 	}
@@ -143,14 +171,12 @@ func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Tex
 	em.Draw()
 	p.Draw()
 
-
 	rl.EndMode2D()
 
 	if system.GameOverFlag {
 		system.GameOver(&s)
 	}
 
-	
 	ui.DrawLife(s, p)
 	menu.Draw()
 
