@@ -1,7 +1,7 @@
 [
     {
       "name": "Hamburgão",
-      "sprite": "assets/items/hamburgão.png",
+      "sprite": "assets/items/hamburgao.png",
       "X": 1200,
       "Y": 600,
       "width": 32,

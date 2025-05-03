@@ -41,13 +41,13 @@ func LoadItemsFromJSON(filename string, playerScale int32) ([]*equipment.Equipme
 			config.Stats,
 		)
 
+		item.IsDropped = true
 		item.Type = config.Type
 		item.Object.X = config.X
 		item.Object.Y = config.Y
 		item.Object.Width = config.Width * config.Scale
 		item.Object.Height = config.Height * config.Scale
 		item.Object.Scale = config.Scale
-		item.IsDropped = false
 		item.Object.Sprite.Texture = rl.LoadTexture(config.Sprite)
 
 		items = append(items, item)

@@ -97,6 +97,7 @@ func (m *Menu) initEquipmentSlots() {
 		})
 	}
 
+	m.SelectedSlot = -1
 	for i, slot := range m.EquipmentSlots {
 		if slot.Item != nil {
 			m.SelectedSlot = i

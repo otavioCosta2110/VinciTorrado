@@ -130,7 +130,7 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 	}
 
 	for _, item := range items {
-		if !item.IsDropped {
+		if item.IsDropped {
 			itemBox := system.Object{
 				X:      item.Object.X,
 				Y:      item.Object.Y,
@@ -140,7 +140,7 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 
 			if physics.CheckCollision(p.GetObject(), itemBox) {
 				p.AddToInventory(item)
-				item.IsDropped = true
+				item.IsDropped = false
 				collectSound := rl.LoadSound("assets/sounds/collect_item.mp3")
 				rl.PlaySound(collectSound)
 			}
@@ -164,7 +164,7 @@ func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Tex
 	drawBuildings(buildings)
 
 	for _, item := range items {
-		if !item.IsDropped {
+		if item.IsDropped {
 			item.DrawAnimated(&item.Object)
 		}
 	}
