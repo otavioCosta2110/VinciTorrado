@@ -330,22 +330,6 @@ func (m *Menu) Update() {
 		menu_select_sound := rl.LoadSound("assets/sounds/menu_selected.mp3")
 		rl.PlaySound(menu_select_sound)
 	}
-
-	if rl.IsKeyPressed(rl.KeyEnter) && m.SelectedSlot >= 0 {
-		item := m.EquipmentSlots[m.SelectedSlot].Item
-		if item != nil {
-			if item.Type == "consumable" {
-				m.PlayerReference.UseConsumable(m.SelectedSlot)
-				m.Refresh()
-				menu_select_sound := rl.LoadSound("assets/sounds/menu_selected.mp3")
-				rl.PlaySound(menu_select_sound)
-			} else {
-				m.PlayerReference.Equip(item)
-				menu_select_sound := rl.LoadSound("assets/sounds/menu_selected.mp3")
-				rl.PlaySound(menu_select_sound)
-			}
-		}
-	}
 }
 
 func (m *Menu) findNextValidSlot(step int) {

@@ -17,6 +17,7 @@ type Player struct {
 	KickPower         int32
 	Equipped          *equipment.Equipment
 	Equipment         []*equipment.Equipment
+	Consumables       []*equipment.Equipment
 	HatSprite         sprites.Sprite
 	OriginalSpeed     int32
 	OriginalMaxHealth int32
@@ -107,13 +108,11 @@ func (p *Player) UseConsumable(index int) {
 	if index >= 0 && index < len(p.Equipment) {
 		item := p.Equipment[index]
 		if item.Type == "consumable" {
-			// Apply healing
 			p.Health = p.Health + item.Stats.Heal
 			if p.Health > p.MaxHealth {
 				p.Health = p.MaxHealth
 			}
 
-			// Remove from inventory
 			p.Equipment = append(p.Equipment[:index], p.Equipment[index+1:]...)
 		}
 	}
