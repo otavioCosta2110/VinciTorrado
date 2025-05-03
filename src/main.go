@@ -50,7 +50,7 @@ func main() {
 		SpriteHeight: playerSizeY,
 		Texture:      rl.LoadTexture("assets/player/player.png"),
 	}
-	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 2, playerScale, playerSprite, *screen)
+	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 2, playerScale, playerSprite, screen)
 	menu := ui.NewMenu(player, &playerSprite)
 
 	boxes := []*objects.Box{

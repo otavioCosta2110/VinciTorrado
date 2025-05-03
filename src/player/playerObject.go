@@ -20,10 +20,10 @@ type Player struct {
 	Equipment    []*equipment.Equipment
 	Consumables  []*equipment.Equipment
 	HatSprite    sprites.Sprite
-	Screen       screen.Screen
+	Screen       *screen.Screen
 }
 
-func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite, s screen.Screen) *Player {
+func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite, s *screen.Screen) *Player {
 
 	return &Player{
 		LiveObject: system.LiveObject{

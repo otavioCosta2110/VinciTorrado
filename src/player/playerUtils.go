@@ -15,8 +15,8 @@ const (
 )
 
 func (p *Player) Update(em *enemy.EnemyManager, screen screen.Screen) {
+	p.adjustKnockbackToScreenBounds()
 	physics.TakeKnockback(&p.Object)
-
 	if p.Object.KnockbackX == 0 || p.Object.KnockbackY == 0 {
 		p.CheckMovement(screen)
 	}
@@ -92,8 +92,6 @@ func (p *Player) TakeDamage(damage int32, eObj system.Object) {
             p.LastDamageTaken = time.Now()
             
             p.Object.SetKnockback(eObj)
-            
-            p.adjustKnockbackToScreenBounds()
         } else {
             system.GameOverFlag = true
         }
@@ -101,25 +99,31 @@ func (p *Player) TakeDamage(damage int32, eObj system.Object) {
 }
 
 func (p *Player) adjustKnockbackToScreenBounds() {
-    screenLeft := p.Object.Width/2
-    screenRight := p.Screen.Width - p.Object.Width/2
-    
+    screenLeft := int32(p.Screen.Camera.Target.X - float32(p.Screen.Width)/2 + float32(p.Object.Width/2))
+    screenRight := int32(p.Screen.Camera.Target.X + float32(p.Screen.Width)/2 - float32(p.Object.Width/2))
+
     screenTop := p.Object.Height - p.Object.Y + (p.Screen.ScenaryHeight + p.Object.Height)
-    screenBottom := p.Screen.Height - (p.Object.Height)/2
+    screenBottom := p.Screen.Height-(p.Object.Height)/2 
     
     newX := p.Object.X + p.Object.KnockbackX
     newY := p.Object.Y + p.Object.KnockbackY
     
+		println(screenTop, screenBottom, screenRight, screenLeft)
+		println(p.Object.Y, p.Object.X)
     if newX < screenLeft {
         p.Object.KnockbackX = screenLeft - p.Object.X
+        println("left boundary hit")
     } else if newX > screenRight {
         p.Object.KnockbackX = screenRight - p.Object.X
+        println("right boundary hit")
     }
     
     if newY < screenTop {
         p.Object.KnockbackY = screenTop - p.Object.Y
+        println("top boundary hit")
     } else if newY > screenBottom {
         p.Object.KnockbackY = screenBottom - p.Object.Y
+        println("bottom boundary hit")
     }
 }
 
