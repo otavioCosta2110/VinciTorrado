@@ -2,6 +2,7 @@ package player
 
 import (
 	"otaviocosta2110/vincitorrado/src/equipment"
+	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/sprites"
 	"otaviocosta2110/vincitorrado/src/system"
 	"time"
@@ -11,20 +12,18 @@ import (
 
 type Player struct {
 	system.LiveObject
-	IsKicking         bool
-	LastKickTime      time.Time
-	KickCooldown      time.Duration
-	KickPower         int32
-	Equipped          *equipment.Equipment
-	Equipment         []*equipment.Equipment
-	Consumables       []*equipment.Equipment
-	HatSprite         sprites.Sprite
-	OriginalSpeed     int32
-	OriginalMaxHealth int32
-	OriginalDamage    int32
+	IsKicking    bool
+	LastKickTime time.Time
+	KickCooldown time.Duration
+	KickPower    int32
+	Equipped     *equipment.Equipment
+	Equipment    []*equipment.Equipment
+	Consumables  []*equipment.Equipment
+	HatSprite    sprites.Sprite
+	Screen       screen.Screen
 }
 
-func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite) *Player {
+func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite, s screen.Screen) *Player {
 
 	return &Player{
 		LiveObject: system.LiveObject{
@@ -48,13 +47,11 @@ func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite) *
 			LastDamageTaken: time.Now(),
 			Damage:          1,
 		},
-		IsKicking:         false,
-		LastKickTime:      time.Now(),
-		KickCooldown:      500 * time.Millisecond,
-		KickPower:         15,
-		OriginalSpeed:     speed,
-		OriginalMaxHealth: 5,
-		OriginalDamage:    1,
+		IsKicking:    false,
+		LastKickTime: time.Now(),
+		KickCooldown: 500 * time.Millisecond,
+		KickPower:    15,
+		Screen: s,
 	}
 }
 

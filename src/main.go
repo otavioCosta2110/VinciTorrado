@@ -50,7 +50,7 @@ func main() {
 		SpriteHeight: playerSizeY,
 		Texture:      rl.LoadTexture("assets/player/player.png"),
 	}
-	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 2, playerScale, playerSprite)
+	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 2, playerScale, playerSprite, *screen)
 	menu := ui.NewMenu(player, &playerSprite)
 
 	boxes := []*objects.Box{
@@ -65,14 +65,6 @@ func main() {
 	items, err := enemy.LoadItemsFromJSON("assets/items/items.json", playerScale)
 	if err != nil {
 		panic("Failed to load items: " + err.Error())
-	}
-
-	if err != nil {
-		panic("Failed to load items: " + err.Error())
-	}
-
-	if err != nil {
-		panic(err)
 	}
 
 	enemyManager := &enemy.EnemyManager{}
@@ -134,8 +126,8 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 			itemBox := system.Object{
 				X:      item.Object.X,
 				Y:      item.Object.Y,
-				Width:  item.Object.Width,
-				Height: item.Object.Height,
+				Width:  item.Object.Width / 2,
+				Height: item.Object.Height / 2,
 			}
 
 			if physics.CheckCollision(p.GetObject(), itemBox) {
