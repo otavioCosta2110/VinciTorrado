@@ -2,7 +2,7 @@
     {
       "name": "Hamburgão",
       "sprite": "assets/items/hamburgao.png",
-      "X": 1200,
+      "X": 3600,
       "Y": 600,
       "width": 32,
       "height": 32,
@@ -18,7 +18,7 @@
     {
       "name": "Saunduiche",
       "sprite": "assets/items/saunduiche.png",
-      "X": 1500,
+      "X": 2500,
       "Y": 450,
       "width": 32,
       "height": 32,

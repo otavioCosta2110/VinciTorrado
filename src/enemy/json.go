@@ -70,7 +70,6 @@ func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
 		} else {
 			drop = nil
 		}
-		println(drop == nil)
 
 		enemy := NewEnemy(
 			config.X,

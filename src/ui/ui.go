@@ -13,16 +13,15 @@ var (
 )
 
 func DrawLife(s screen.Screen, p *player.Player) {
-	// Load texture only once
 	if !textureLoaded {
 		heartTexture = rl.LoadTexture("assets/ui/heart.png")
 		textureLoaded = true
 	}
 
 	scale := float32(p.Object.Scale)
-	heartWidth := int32(heartTexture.Width * p.Object.Scale)   // Adjust based on your heart image size
-	heartHeight := int32(heartTexture.Height * p.Object.Scale) // Adjust based on your heart image size
-	padding := int32(5 * scale) // Scale padding too
+	heartWidth := int32(heartTexture.Width * p.Object.Scale)   
+	heartHeight := int32(heartTexture.Height * p.Object.Scale) 
+	padding := int32(5 * scale) 
 
 	posX := int32(20)
 	posY := int32(20)
@@ -56,6 +55,6 @@ func DrawLife(s screen.Screen, p *player.Player) {
 			color,
 		)
 
-		posX += heartWidth + padding // Moved INSIDE the loop
+		posX += heartWidth + padding 
 	}
 }

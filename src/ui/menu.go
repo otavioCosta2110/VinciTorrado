@@ -315,12 +315,14 @@ func (m *Menu) Update() {
 				menu_select_sound := rl.LoadSound("assets/sounds/menu_selected.mp3")
 				rl.PlaySound(menu_select_sound)
 			} else {
-				if m.PlayerReference.Equipped != nil {
+				if m.PlayerReference.Equipped != m.EquipmentSlots[m.SelectedSlot].Item {
 					m.PlayerReference.Unequip()
 				}
-				m.PlayerReference.Equip(item)
-				menu_select_sound := rl.LoadSound("assets/sounds/menu_selected.mp3")
-				rl.PlaySound(menu_select_sound)
+				if m.PlayerReference.Equipped != m.EquipmentSlots[m.SelectedSlot].Item {
+					m.PlayerReference.Equip(item)
+					menu_select_sound := rl.LoadSound("assets/sounds/menu_selected.mp3")
+					rl.PlaySound(menu_select_sound)
+				}
 			}
 		}
 	}

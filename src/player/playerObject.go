@@ -74,8 +74,6 @@ func (p *Player) Equip(item *equipment.Equipment) {
 	p.Damage += p.Equipped.Stats.Damage
 	p.Speed += p.Equipped.Stats.Speed
 
-	println(p.MaxHealth)
-
 	p.HatSprite = item.Object.Sprite
 }
 

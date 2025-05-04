@@ -1,11 +1,11 @@
 [
   {
     "sprite": "assets/enemies/dwarf.png",
-    "X": 800,
+    "X": 3520,
     "Y": 350,
     "width": 32,
     "height": 32,
-    "health": 1,
+    "health": 10,
     "damage": 4,
     "speed": 1,
     "windUpTime": 0,
