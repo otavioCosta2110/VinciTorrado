@@ -18,47 +18,30 @@ type EnemyManager struct {
 }
 
 func (em *EnemyManager) Update(p system.Player, s screen.Screen) {
-	cameraBounds := rl.Rectangle{
-		X:      s.Camera.Target.X - float32(s.Width)/2,
-		Y:      s.Camera.Target.Y - float32(s.Height)/2,
-		Width:  float32(s.Width),
-		Height: float32(s.Height),
-	}
+    cameraBounds := rl.Rectangle{
+        X:      s.Camera.Target.X - float32(s.Width)/2,
+        Y:      s.Camera.Target.Y - float32(s.Height)/2,
+        Width:  float32(s.Width),
+        Height: float32(s.Height),
+    }
 
-	for i := len(em.InactiveEnemies) - 1; i >= 0; i-- {
-		enemy := em.InactiveEnemies[i]
-		if isInCameraBounds(enemy, cameraBounds) {
-			enemy.IsActive = true
-			em.ActiveEnemies = append(em.ActiveEnemies, enemy)
-			em.InactiveEnemies = slices.Delete(em.InactiveEnemies, i, i+1)
-		}
-	}
+    for i := len(em.InactiveEnemies) - 1; i >= 0; i-- {
+        enemy := em.InactiveEnemies[i]
+        if isInCameraBounds(enemy, cameraBounds) {
+            enemy.IsActive = true
+            em.ActiveEnemies = append(em.ActiveEnemies, enemy)
+            em.InactiveEnemies = slices.Delete(em.InactiveEnemies, i, i+1)
+        }
+    }
 
-	for i := len(em.ActiveEnemies) - 1; i >= 0; i-- {
-		enemy := em.ActiveEnemies[i]
-		enemyRect := rl.Rectangle{
-			X:      float32(enemy.Object.X),
-			Y:      float32(enemy.Object.Y),
-			Width:  float32(enemy.Object.Width),
-			Height: float32(enemy.Object.Height),
-		}
-
-		if !rl.CheckCollisionRecs(enemyRect, cameraBounds) {
-			enemy.IsActive = false
-			em.InactiveEnemies = append(em.InactiveEnemies, enemy)
-			em.ActiveEnemies = slices.Delete(em.ActiveEnemies, i, i+1)
-		}
-	}
-
-	for i := len(em.ActiveEnemies) - 1; i >= 0; i-- {
-		enemy := em.ActiveEnemies[i]
-		enemy.Update(p, s)
-		if enemy.Object.Destroyed {
-			em.ActiveEnemies = slices.Delete(em.ActiveEnemies, i, i+1)
-		}
-	}
+    for i := len(em.ActiveEnemies) - 1; i >= 0; i-- {
+        enemy := em.ActiveEnemies[i]
+        enemy.Update(p, s)
+        if enemy.Object.Destroyed {
+            em.ActiveEnemies = slices.Delete(em.ActiveEnemies, i, i+1)
+        }
+    }
 }
-
 func isInCameraBounds(enemy *Enemy, cameraBounds rl.Rectangle) bool {
 	enemyRect := rl.Rectangle{
 		X:      float32(enemy.Object.X),

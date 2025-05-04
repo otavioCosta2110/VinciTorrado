@@ -12,21 +12,22 @@ type Equipment struct {
 	Name       string
 	IsEquipped bool
 	IsDropped  bool
-	Stats			 Stats
+	Type       string
+	Stats      Stats
 	OffsetX    int32
 	OffsetY    int32
 	Object     system.Object
 }
 
-func New(name string,  texturePath string, stats Stats) *Equipment {
+func New(name string, texturePath string, stats Stats) *Equipment {
 	spritesheet := sprites.Sprite{
 		SpriteWidth:  32,
 		SpriteHeight: 32,
 		Texture:      rl.LoadTexture(texturePath),
 	}
 	return &Equipment{
-		Name: name,
-		Stats: stats,
+		Name:    name,
+		Stats:   stats,
 		OffsetX: 0,
 		OffsetY: 0,
 		Object: system.Object{

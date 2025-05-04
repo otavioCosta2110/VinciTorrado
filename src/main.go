@@ -3,6 +3,7 @@ package main
 import (
 	"otaviocosta2110/vincitorrado/src/audio"
 	"otaviocosta2110/vincitorrado/src/enemy"
+	"otaviocosta2110/vincitorrado/src/equipment"
 	"otaviocosta2110/vincitorrado/src/objects"
 	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/player"
@@ -42,16 +43,15 @@ func main() {
 	screen := screen.NewScreen(windowWidth, windowHeight, buildings.Width, buildings.Height, windowTitle)
 	defer rl.CloseWindow()
 	rl.SetTargetFPS(60)
-	rl.SetExitKey(0) 
+	rl.SetExitKey(0)
 
 	playerSprite := sprites.Sprite{
 		SpriteWidth:  playerSizeX,
 		SpriteHeight: playerSizeY,
 		Texture:      rl.LoadTexture("assets/player/player.png"),
 	}
-	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 2, playerScale, playerSprite)
+	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 2, playerScale, playerSprite, screen)
 	menu := ui.NewMenu(player, &playerSprite)
-
 
 	boxes := []*objects.Box{
 		// objects.NewBox(200, screen.Height-100, 50, 50),
@@ -62,8 +62,9 @@ func main() {
 		playerScale,
 	)
 
+	items, err := enemy.LoadItemsFromJSON("assets/items/items.json", playerScale)
 	if err != nil {
-		panic(err)
+		panic("Failed to load items: " + err.Error())
 	}
 
 	enemyManager := &enemy.EnemyManager{}
@@ -75,15 +76,15 @@ func main() {
 
 	for !rl.WindowShouldClose() {
 		menu.Update()
-		
+
 		if !menu.IsVisible {
-			update(player, enemyManager, screen, boxes)
+			update(player, enemyManager, screen, boxes, items)
 		}
-		draw(player, enemyManager, *screen, chao, buildings, boxes, *menu)
+		draw(player, enemyManager, *screen, chao, buildings, boxes, items, *menu)
 	}
 }
 
-func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, boxes []*objects.Box) {
+func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, boxes []*objects.Box, items []*equipment.Equipment) {
 	if system.GameOverFlag {
 		return
 	}
@@ -104,10 +105,10 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 			dropBox := system.Object{
 				X:      e.Object.X,
 				Y:      dropY,
-				Width:  dropWidth/2,
-				Height: dropHeight/2,
+				Width:  dropWidth / 2,
+				Height: dropHeight / 2,
 			}
-				e.Drop.IsDropped = true
+			e.Drop.IsDropped = true
 
 			playerObj := p.GetObject()
 			if physics.CheckCollision(playerObj, dropBox) {
@@ -120,6 +121,24 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 		}
 	}
 
+	for _, item := range items {
+		if item.IsDropped {
+			itemBox := system.Object{
+				X:      item.Object.X,
+				Y:      item.Object.Y,
+				Width:  item.Object.Width / 2,
+				Height: item.Object.Height / 2,
+			}
+
+			if physics.CheckCollision(p.GetObject(), itemBox) {
+				p.AddToInventory(item)
+				item.IsDropped = false
+				collectSound := rl.LoadSound("assets/sounds/collect_item.mp3")
+				rl.PlaySound(collectSound)
+			}
+		}
+	}
+
 	em.Update(p, *screen)
 	p.Update(em, *screen)
 	canAdvance := len(em.ActiveEnemies) <= 0
@@ -128,13 +147,19 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 	return
 }
 
-func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Texture2D, buildings rl.Texture2D, boxes []*objects.Box, menu ui.Menu) {
+func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Texture2D, buildings rl.Texture2D, boxes []*objects.Box, items []*equipment.Equipment, menu ui.Menu) {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.RayWhite)
 
 	rl.BeginMode2D(s.Camera)
 	drawTiledBackground(chao, s.Camera, s.Width, s.Height)
 	drawBuildings(buildings)
+
+	for _, item := range items {
+		if item.IsDropped {
+			item.DrawAnimated(&item.Object)
+		}
+	}
 
 	for _, box := range boxes {
 		box.Draw()
@@ -143,14 +168,12 @@ func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Tex
 	em.Draw()
 	p.Draw()
 
-
 	rl.EndMode2D()
 
 	if system.GameOverFlag {
 		system.GameOver(&s)
 	}
 
-	
 	ui.DrawLife(s, p)
 	menu.Draw()
 
