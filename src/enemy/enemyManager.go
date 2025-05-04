@@ -44,8 +44,8 @@ func (em *EnemyManager) Update(p system.Player, s screen.Screen) {
 }
 func isInCameraBounds(enemy *Enemy, cameraBounds rl.Rectangle) bool {
 	enemyRect := rl.Rectangle{
-		X:      float32(enemy.Object.X),
-		Y:      float32(enemy.Object.Y),
+		X: float32(enemy.Activate_pos_X),
+		Y: float32(enemy.Activate_pos_Y),
 		Width:  float32(enemy.Object.Width),
 		Height: float32(enemy.Object.Height),
 	}

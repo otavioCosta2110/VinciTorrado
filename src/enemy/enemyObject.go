@@ -19,6 +19,8 @@ const (
 
 type Enemy struct {
 	system.LiveObject
+	Activate_pos_X int32
+	Activate_pos_Y int32
 	LastAttackTime time.Time
 	HitCount       int32
 	LastHitTime    time.Time
@@ -42,7 +44,7 @@ func (e *Enemy) SetObject(obj system.Object) {
 	e.Object = obj
 }
 
-func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite, windUpTime int64, enemyType string, drops *equipment.Equipment) *Enemy {
+func NewEnemy(x, y, aX, aY, speed, width, height, scale int32, sprite sprites.Sprite, windUpTime int64, enemyType string, drops *equipment.Equipment) *Enemy {
 	return &Enemy{
 		LiveObject: system.LiveObject{
 			Object: system.Object{
@@ -69,6 +71,8 @@ func NewEnemy(x, y, speed, width, height, scale int32, sprite sprites.Sprite, wi
 			Speed:     speed,
 			Flipped:   false,
 		},
+		Activate_pos_X: aX,
+		Activate_pos_Y: aY,
 		IsActive:   false,
 		Layer:      0,
 		CanMove:    true,
@@ -243,4 +247,3 @@ func (e *Enemy) TakeDamageFromBox(box system.Object) {
 	}
 	e.Object.KnockbackY = -knockbackStrength / 2
 }
-

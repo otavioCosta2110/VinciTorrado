@@ -1,5 +1,53 @@
 [
   {
+    "sprite": "assets/enemies/bald.png",
+    "X": 50,
+    "Y": 700,
+    "width": 32,
+    "height": 32,
+    "health": 6,
+    "damage": 1,
+    "speed": 2,
+    "windUpTime": 200,
+    "scale": 4
+  },
+  {
+    "sprite": "assets/enemies/bald_blue.png",
+    "X": 200,
+    "Y": 500,
+    "width": 32,
+    "height": 32,
+    "health": 6,
+    "damage": 1,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4
+  },
+  {
+    "sprite": "assets/enemies/bald_woman.png",
+    "X": 2080,
+    "Y": 600,
+    "width": 32,
+    "height": 32,
+    "health": 4,
+    "damage": 1,
+    "speed": 2,
+    "windUpTime": 20,
+    "scale": 4
+  },
+  {
+    "sprite": "assets/enemies/bald_woman_red.png",
+    "X": 2000,
+    "Y": 400,
+    "width": 32,
+    "height": 32,
+    "health": 4,
+    "damage": 1,
+    "speed": 3,
+    "windUpTime": 20,
+    "scale": 4
+  },
+  {
     "sprite": "assets/enemies/dwarf.png",
     "X": 3520,
     "Y": 350,
@@ -20,88 +68,46 @@
       }
     }
   },
-    {
-      "sprite": "assets/enemies/bald.png",
-      "X": 50,
-      "Y": 700,
-      "width": 32,
-      "height": 32,
-      "health": 6,
-      "damage": 1,
-      "speed": 2,
-      "windUpTime": 200,
-      "scale": 4
-    },
-    {
-      "sprite": "assets/enemies/bald_blue.png",
-      "X": 200,
-      "Y": 500,
-      "width": 32,
-      "height": 32,
-      "health": 6,
-      "damage": 1,
-      "speed": 2,
-      "windUpTime": 500,
-      "scale": 4
-    },
-    {
-      "sprite": "assets/enemies/bald_woman.png",
-      "X": 2080,
-      "Y": 600,
-      "width": 32,
-      "height": 32,
-      "health": 4,
-      "damage": 1,
-      "speed": 2,
-      "windUpTime": 20,
-      "scale": 4
-    },
-    {
-      "sprite": "assets/enemies/bald_woman_red.png",
-      "X": 2000,
-      "Y": 400,
-      "width": 32,
-      "height": 32,
-      "health": 4,
-      "damage": 1,
-      "speed": 3,
-      "windUpTime": 20,
-      "scale": 4
-    },
-    {
-      "sprite": "assets/enemies/bald_woman.png",
-      "X": 3520,
-      "Y": 528,
-      "width": 32,
-      "height": 32,
-      "health": 3,
-      "damage": 1,
-      "speed": 2,
-      "windUpTime": 20,
-      "scale": 4
-    },
-    {
-      "sprite": "assets/enemies/bald_woman_red.png",
-      "X": 3520,
-      "Y": 644,
-      "width": 32,
-      "height": 32,
-      "health": 3,
-      "damage": 1,
-      "speed": 3,
-      "windUpTime": 20,
-      "scale": 4
-    },
-    {
-      "sprite": "assets/enemies/bald_woman.png",
-      "X": 3520,
-      "Y": 324,
-      "width": 32,
-      "height": 32,
-      "health": 3,
-      "damage": 1,
-      "speed": 2,
-      "windUpTime": 20,
-      "scale": 4
-    }
+  {
+    "sprite": "assets/enemies/bald_woman.png",
+    "X": 4000,
+    "Y": 528,
+    "activate_pos_X": 3520,
+    "activate_pos_Y": 350,
+    "width": 32,
+    "height": 32,
+    "health": 3,
+    "damage": 1,
+    "speed": 2,
+    "windUpTime": 20,
+    "scale": 4
+  },
+  {
+    "sprite": "assets/enemies/bald_woman_red.png",
+    "X": 4200,
+    "Y": 644,
+    "activate_pos_X": 3520,
+    "activate_pos_Y": 350,
+    "width": 32,
+    "height": 32,
+    "health": 3,
+    "damage": 1,
+    "speed": 3,
+    "windUpTime": 20,
+    "scale": 4
+  },
+  {
+    "sprite": "assets/enemies/bald_woman.png",
+    "X": 3720,
+    "Y": 324,
+    "activate_pos_X": 3520,
+    "activate_pos_Y": 350,
+    "width": 32,
+    "height": 32,
+    "health": 3,
+    "damage": 1,
+    "speed": 2,
+    "windUpTime": 20,
+    "scale": 4
+  }
 ]
