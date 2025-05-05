@@ -28,17 +28,19 @@ type Drops struct {
 }
 
 type EnemyConfig struct {
-	Sprite     string `json:"sprite"`
-	X          int32  `json:"X"`
-	Y          int32  `json:"Y"`
-	Width      int32  `json:"width"`
-	Height     int32  `json:"height"`
-	Health     int32  `json:"health"`
-	Damage     int32  `json:"damage"`
-	Speed      int32  `json:"speed"`
-	WindUpTime int64  `json:"windUpTime"`
-	Scale      int32  `json:"scale"`
-	Drops      *Drop  `json:"drops"`
+	Sprite         string `json:"sprite"`
+	X              int32  `json:"X"`
+	Y              int32  `json:"Y"`
+	Activate_pos_X *int32  `json:"activate_pos_X"`
+	Activate_pos_Y *int32  `json:"activate_pos_Y"`
+	Width          int32  `json:"width"`
+	Height         int32  `json:"height"`
+	Health         int32  `json:"health"`
+	Damage         int32  `json:"damage"`
+	Speed          int32  `json:"speed"`
+	WindUpTime     int64  `json:"windUpTime"`
+	Scale          int32  `json:"scale"`
+	Drops          *Drop  `json:"drops"`
 }
 
 func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
@@ -71,9 +73,18 @@ func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
 			drop = nil
 		}
 
+		if config.Activate_pos_X == nil {
+			config.Activate_pos_X = &config.X
+		}
+		if config.Activate_pos_Y == nil {
+			config.Activate_pos_Y = &config.Y
+		}
+
 		enemy := NewEnemy(
 			config.X,
 			config.Y,
+			*config.Activate_pos_X,
+			*config.Activate_pos_Y,
 			config.Speed,
 			config.Width,
 			config.Height,
