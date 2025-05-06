@@ -13,17 +13,17 @@ import (
 )
 
 type WeaponConfig struct {
-	Sprite    string         `json:"sprite"`
-	X         int32          `json:"X"`
-	Y         int32          `json:"Y"`
-	HitboxX   int32          `json:"hitbox_X"`
-	HitboxY   int32          `json:"hitbox_Y"`
-	OffsetX   int32          `json:"offset_X"`
-	OffsetY   int32          `json:"offset_Y"`
-	Width     int32          `json:"width"`
-	Height    int32          `json:"height"`
-	Damage    int32            `json:"damage"`
-	Scale     int32          `json:"scale"`
+	Sprite  string `json:"sprite"`
+	X       int32  `json:"X"`
+	Y       int32  `json:"Y"`
+	HitboxX int32  `json:"hitbox_X"`
+	HitboxY int32  `json:"hitbox_Y"`
+	OffsetX int32  `json:"offset_X"`
+	OffsetY int32  `json:"offset_Y"`
+	Width   int32  `json:"width"`
+	Height  int32  `json:"height"`
+	Damage  int32  `json:"damage"`
+	Scale   int32  `json:"scale"`
 }
 
 func LoadWeaponsFromJSON(filename string) ([]*Weapon, error) {
@@ -60,6 +60,8 @@ func LoadWeaponsFromJSON(filename string) ([]*Weapon, error) {
 			},
 			IsDropped: true,
 			Stats:     stats,
+			HitboxX:   config.HitboxX,
+			HitboxY:   config.HitboxY,
 			OffsetX:   config.OffsetX,
 			OffsetY:   config.OffsetY,
 		}

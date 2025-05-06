@@ -53,8 +53,3 @@ func (w *Weapon) DrawAnimated(obj *system.Object) {
         rl.White,
     )
 }
-
-func (w *Weapon) Animate(animationDelay int, framesX, framesY []int){
-	w.Object.UpdateAnimation(50, []int{0, 1}, []int{1, 1}) 
-}
-

@@ -48,8 +48,13 @@ func (player *Player) CheckMovement(screen screen.Screen) {
 
 func (player *Player) CheckAtk(enemyObj system.Object) bool {
 	var isAttacking = false
-	punchWidth := float32(player.Object.Width)
-	punchHeight := player.Object.Height / 2
+	punchWidth := int32(float32(player.Object.Width))
+	punchHeight := float32(player.Object.Height / 2)
+
+	if player.Weapon != nil {
+		punchWidth = int32(float32(player.Object.Width) + float32(player.Weapon.HitboxX))
+		punchHeight = float32(player.Object.Height / 2) + float32(player.Weapon.HitboxY)
+	}
 
 	punchX := player.Object.X - player.Object.Width*2
 	punchY := player.Object.Y - player.Object.Height/4
@@ -65,14 +70,14 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 
 		player.Object.UpdateAnimation(50, []int{0, 1}, []int{1, 1})
 		if player.Weapon != nil {
-			player.Weapon.Object.UpdateAnimation(50, []int{0, 1}, []int{1, 1}) 
+			player.Weapon.Object.UpdateAnimation(50, []int{0, 1}, []int{1, 1})
 		}
 
 		punchObj := system.Object{
 			X:      punchX,
 			Y:      punchY,
 			Width:  int32(punchWidth),
-			Height: punchHeight,
+			Height: int32(punchHeight),
 		}
 
 		if physics.CheckCollision(punchObj, enemyObj) {
@@ -85,6 +90,10 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 	}
 	if !isAttacking {
 		player.Object.UpdateAnimation(int(animationDelay), []int{0}, []int{0})
+
+		if player.Weapon != nil {
+			player.Weapon.Object.UpdateAnimation(int(animationDelay), []int{0}, []int{0})
+		}
 	}
 	return false
 }

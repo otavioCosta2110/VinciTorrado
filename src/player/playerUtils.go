@@ -83,36 +83,43 @@ func (p *Player) Draw() {
 		)
 	}
 
-	if p.Weapon != nil {
-		weaponOffsetX := p.Weapon.OffsetX
-		if p.Flipped {
-			weaponOffsetX = (int32(p.Weapon.Object.Sprite.SpriteWidth) -3) - weaponOffsetX * 2
-		}
+if p.Weapon != nil {
+    frameWidth := float32(p.Weapon.Object.Sprite.SpriteWidth)
+    if p.Flipped {
+        frameWidth = -frameWidth
+    }
+    frameHeight := float32(p.Weapon.Object.Sprite.SpriteHeight)
 
-		weaponDestination := rl.Rectangle{
-			X:      float32(p.Object.X) + float32(weaponOffsetX) * float32(p.Object.Scale),
-			Y:      float32(p.Object.Y),
-			Width:  float32(p.Weapon.Object.Sprite.SpriteWidth) * float32(p.Object.Scale),
-			Height: float32(p.Weapon.Object.Sprite.SpriteHeight) * float32(p.Object.Scale),
-		}
-		weaponOrigin := rl.NewVector2(
-			weaponDestination.Width/2,
-			weaponDestination.Height/2,
-		)
-		rl.DrawTexturePro(
-			p.Weapon.Object.Sprite.Texture,
-			rl.Rectangle{
-				X:      0,
-				Y:      0,
-				Width:  float32(p.Weapon.Object.Sprite.SpriteWidth),
-				Height: float32(p.Weapon.Object.Sprite.SpriteHeight),
-			},
-			weaponDestination,
-			weaponOrigin,
-			0.0,
-			color,
-		)
-	}
+    weaponSource := rl.NewRectangle(
+        float32(p.Weapon.Object.FrameX)*float32(p.Weapon.Object.Sprite.SpriteWidth),
+        float32(p.Weapon.Object.FrameY)*frameHeight,
+        frameWidth,
+        frameHeight,
+    )
+
+    weaponOffsetX := p.Weapon.OffsetX
+    if p.Flipped {
+        weaponOffsetX = (int32(p.Weapon.Object.Sprite.SpriteWidth)) - ((2 + p.Weapon.Object.Width / p.Weapon.Object.Scale) + weaponOffsetX)
+    }
+    weaponDestination := rl.Rectangle{
+        X:      float32(p.Object.X) + float32(weaponOffsetX)*float32(p.Object.Scale),
+        Y:      float32(p.Object.Y),
+        Width:  float32(p.Weapon.Object.Sprite.SpriteWidth) * float32(p.Object.Scale),
+        Height: float32(p.Weapon.Object.Sprite.SpriteHeight) * float32(p.Object.Scale),
+    }
+    weaponOrigin := rl.NewVector2(
+        weaponDestination.Width/2,
+        weaponDestination.Height/2,
+    )
+    rl.DrawTexturePro(
+        p.Weapon.Object.Sprite.Texture,
+        weaponSource,
+        weaponDestination,
+        weaponOrigin,
+        0.0,
+        color,
+    )
+}
 }
 
 func (p *Player) TakeDamage(damage int32, eObj system.Object) {

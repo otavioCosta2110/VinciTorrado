@@ -113,12 +113,12 @@ func (p *Player) UseConsumable(index int) {
 	}
 }
 
-func (p *Player) PickUp(w *weapon.Weapon) {
+func (p *Player) PickUp(w weapon.Weapon) {
     if p.Weapon != nil {
         p.DropWeapon()
     }
 
-    p.Weapon = w
+    p.Weapon = &w
     p.Weapon.IsDropped = false
     p.Weapon.IsEquipped = true
     

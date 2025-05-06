@@ -125,7 +125,7 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 
             playerObj := p.GetObject()
             if physics.CheckCollision(playerObj, dropBox) {
-                p.PickUp(weapon)
+                p.PickUp(*weapon)
                 *weapons = slices.Delete(*weapons, i, i+1)
                 i-- 
             }
