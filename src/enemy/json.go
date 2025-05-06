@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"otaviocosta2110/vincitorrado/src/equipment"
+	"otaviocosta2110/vincitorrado/src/objects"
 	"otaviocosta2110/vincitorrado/src/sprites"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -67,7 +68,7 @@ func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
 			dropSprite := config.Drops.Sprite
 			dropName := config.Drops.Name
 			dropStatsJson := config.Drops.Stats
-			dropStats := equipment.Stats{Life: dropStatsJson.Health, Damage: dropStatsJson.Damage, Speed: dropStatsJson.Speed}
+			dropStats := objects.Stats{Life: dropStatsJson.Health, Damage: dropStatsJson.Damage, Speed: dropStatsJson.Speed}
 			drop = equipment.New(dropName, dropSprite, dropStats)
 		} else {
 			drop = nil

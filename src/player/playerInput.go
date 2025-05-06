@@ -25,7 +25,7 @@ func (player *Player) CheckMovement(screen screen.Screen) {
 		return
 	}
 
-	if rl.IsKeyDown(rl.KeyLeft) && float32(player.Object.X) > screen.Camera.Target.X - float32(player.Screen.Width)/2 + float32(player.Object.Width/2) {
+	if rl.IsKeyDown(rl.KeyLeft) && float32(player.Object.X) > screen.Camera.Target.X-float32(player.Screen.Width)/2+float32(player.Object.Width/2) {
 		player.Object.X -= player.Speed
 		player.Flipped = true
 		player.Object.UpdateAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
@@ -64,6 +64,9 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 		isAttacking = true
 
 		player.Object.UpdateAnimation(50, []int{0, 1}, []int{1, 1})
+		if player.Weapon != nil {
+			player.Weapon.Object.UpdateAnimation(50, []int{0, 1}, []int{1, 1}) 
+		}
 
 		punchObj := system.Object{
 			X:      punchX,
@@ -73,7 +76,7 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 		}
 
 		if physics.CheckCollision(punchObj, enemyObj) {
-			if !enemyObj.Destroyed{
+			if !enemyObj.Destroyed {
 				audio.PlayPunch()
 			}
 

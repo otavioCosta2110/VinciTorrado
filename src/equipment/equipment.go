@@ -2,6 +2,7 @@ package equipment
 
 import (
 	"math"
+	"otaviocosta2110/vincitorrado/src/objects"
 	"otaviocosta2110/vincitorrado/src/sprites"
 	"otaviocosta2110/vincitorrado/src/system"
 
@@ -13,13 +14,13 @@ type Equipment struct {
 	IsEquipped bool
 	IsDropped  bool
 	Type       string
-	Stats      Stats
+	Stats      objects.Stats
 	OffsetX    int32
 	OffsetY    int32
 	Object     system.Object
 }
 
-func New(name string, texturePath string, stats Stats) *Equipment {
+func New(name string, texturePath string, stats objects.Stats) *Equipment {
 	spritesheet := sprites.Sprite{
 		SpriteWidth:  32,
 		SpriteHeight: 32,

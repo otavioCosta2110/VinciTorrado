@@ -11,8 +11,10 @@ import (
 	"otaviocosta2110/vincitorrado/src/sprites"
 	"otaviocosta2110/vincitorrado/src/system"
 	"otaviocosta2110/vincitorrado/src/ui"
+	"otaviocosta2110/vincitorrado/src/weapon"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
+	"slices"
 )
 
 const (
@@ -53,6 +55,8 @@ func main() {
 	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 2, playerScale, playerSprite, screen)
 	menu := ui.NewMenu(player, &playerSprite)
 
+	println(screen.Width/2, screen.Height/2)
+
 	boxes := []*objects.Box{
 		// objects.NewBox(200, screen.Height-100, 50, 50),
 	}
@@ -61,6 +65,15 @@ func main() {
 		"assets/enemies/enemyInfo/1_00 enemyInfo.json",
 		playerScale,
 	)
+
+	weapons := []*weapon.Weapon{} 
+	weaponsPtr := &weapons 
+
+	loadedWeapons, err := weapon.LoadWeaponsFromJSON("assets/weapons/1_00 weapon.json")
+	if err != nil {
+		panic("Failed to load weapons: " + err.Error())
+	}
+	*weaponsPtr = loadedWeapons 
 
 	items, err := enemy.LoadItemsFromJSON("assets/items/items.json", playerScale)
 	if err != nil {
@@ -78,13 +91,13 @@ func main() {
 		menu.Update()
 
 		if !menu.IsVisible {
-			update(player, enemyManager, screen, boxes, items)
+			update(player, enemyManager, screen, boxes, items, weaponsPtr)
 		}
-		draw(player, enemyManager, *screen, chao, buildings, boxes, items, *menu)
+		draw(player, enemyManager, *screen, chao, buildings, boxes, items, *weaponsPtr, *menu)
 	}
 }
 
-func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, boxes []*objects.Box, items []*equipment.Equipment) {
+func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, boxes []*objects.Box, items []*equipment.Equipment, weapons *[]*weapon.Weapon) {
 	if system.GameOverFlag {
 		return
 	}
@@ -95,6 +108,29 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 		p.CheckKick(box)
 		box.Update([]system.Object{p.GetObject()}, screen, em)
 	}
+
+    for i := 0; i < len(*weapons); i++ {
+        weapon := (*weapons)[i]
+        if weapon.IsDropped {
+            dropWidth := int32(32 * weapon.Object.Scale)
+            dropHeight := int32(32 * weapon.Object.Scale)
+            dropY := weapon.Object.Y - 20
+
+            dropBox := system.Object{
+                X:      weapon.Object.X,
+                Y:      dropY,
+                Width:  dropWidth / 2,
+                Height: dropHeight / 2,
+            }
+
+            playerObj := p.GetObject()
+            if physics.CheckCollision(playerObj, dropBox) {
+                p.PickUp(weapon)
+                *weapons = slices.Delete(*weapons, i, i+1)
+                i-- 
+            }
+        }
+    }
 
 	for _, e := range em.Enemies {
 		if e.Object.Destroyed && e.Drop != nil && !e.DropCollected {
@@ -147,7 +183,7 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 	return
 }
 
-func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Texture2D, buildings rl.Texture2D, boxes []*objects.Box, items []*equipment.Equipment, menu ui.Menu) {
+func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Texture2D, buildings rl.Texture2D, boxes []*objects.Box, items []*equipment.Equipment, weapons []*weapon.Weapon, menu ui.Menu) {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.RayWhite)
 
@@ -158,6 +194,12 @@ func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Tex
 	for _, item := range items {
 		if item.IsDropped {
 			item.DrawAnimated(&item.Object)
+		}
+	}
+
+	for _, weapon := range weapons {
+		if weapon.IsDropped {
+			weapon.DrawAnimated(weapon.Object)
 		}
 	}
 
