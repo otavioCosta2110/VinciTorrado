@@ -27,12 +27,12 @@ func (player *Player) CheckMovement(screen screen.Screen) {
 
 	if rl.IsKeyDown(rl.KeyLeft) && float32(player.Object.X) > screen.Camera.Target.X-float32(player.Screen.Width)/2+float32(player.Object.Width/2) {
 		player.Object.X -= player.Speed
-		player.Flipped = true
+		player.Object.Flipped = true
 		player.Object.UpdateAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
 
 	} else if rl.IsKeyDown(rl.KeyRight) && float32(player.Object.X) < screen.Camera.Target.X+float32(screen.Width)/2.0-float32(player.Object.Width/2.0) {
 		player.Object.X += player.Speed
-		player.Flipped = false
+		player.Object.Flipped = false
 		player.Object.UpdateAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
 	}
 
@@ -59,7 +59,7 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 	punchX := player.Object.X - player.Object.Width*2
 	punchY := player.Object.Y - player.Object.Height/4
 
-	if player.Flipped {
+	if player.Object.Flipped {
 		punchX = (player.Object.X - player.Object.Width/2)
 	} else {
 		punchX = (player.Object.X + player.Object.Width/2)
@@ -83,6 +83,14 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 		if physics.CheckCollision(punchObj, enemyObj) {
 			if !enemyObj.Destroyed {
 				audio.PlayPunch()
+			}
+
+			if player.Weapon != nil{
+				player.Weapon.Health -= 1
+				if player.Weapon.Health <= 0 {
+					// todo: adicionar som de arma quebando
+					player.DropWeapon()
+				}
 			}
 
 			return true
@@ -112,7 +120,7 @@ func (player *Player) CheckKick(box *objects.Box) bool {
 		kickX := player.Object.X
 		kickY := player.Object.Y - player.Object.Height/4
 
-		if player.Flipped {
+		if player.Object.Flipped {
 			kickX -= kickWidth
 		} else {
 			kickX += player.Object.Width
@@ -130,7 +138,7 @@ func (player *Player) CheckKick(box *objects.Box) bool {
 		if physics.CheckCollision(kickObj, box.Object) {
 			knockbackMultiplier := int32(3)
 
-			if player.Flipped {
+			if player.Object.Flipped {
 				box.Object.KnockbackX = -player.KickPower * knockbackMultiplier
 			} else {
 				box.Object.KnockbackX = player.KickPower * knockbackMultiplier

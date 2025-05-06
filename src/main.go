@@ -55,8 +55,6 @@ func main() {
 	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 2, playerScale, playerSprite, screen)
 	menu := ui.NewMenu(player, &playerSprite)
 
-	println(screen.Width/2, screen.Height/2)
-
 	boxes := []*objects.Box{
 		// objects.NewBox(200, screen.Height-100, 50, 50),
 	}
@@ -199,7 +197,7 @@ func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Tex
 
 	for _, weapon := range weapons {
 		if weapon.IsDropped {
-			weapon.DrawAnimated(weapon.Object)
+			weapon.DrawAnimated()
 		}
 	}
 

@@ -8,6 +8,7 @@ import (
 	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/sprites"
 	"otaviocosta2110/vincitorrado/src/system"
+	"otaviocosta2110/vincitorrado/src/weapon"
 	"time"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -34,6 +35,7 @@ type Enemy struct {
 	EnemyType      string
 	Drop           *equipment.Equipment
 	DropCollected  bool
+	Weapon *weapon.Weapon
 }
 
 func (e *Enemy) GetObject() system.Object {
@@ -44,7 +46,7 @@ func (e *Enemy) SetObject(obj system.Object) {
 	e.Object = obj
 }
 
-func NewEnemy(x, y, aX, aY, speed, width, height, scale int32, sprite sprites.Sprite, windUpTime int64, enemyType string, drops *equipment.Equipment) *Enemy {
+func NewEnemy(x, y, aX, aY, speed, width, height, scale int32, sprite sprites.Sprite, windUpTime int64, enemyType string, drops *equipment.Equipment, weapon *weapon.Weapon) *Enemy {
 	return &Enemy{
 		LiveObject: system.LiveObject{
 			Object: system.Object{
@@ -65,11 +67,11 @@ func NewEnemy(x, y, aX, aY, speed, width, height, scale int32, sprite sprites.Sp
 				},
 				Scale:     scale,
 				Destroyed: false,
+				Flipped:   false,
 			},
 			MaxHealth: 5,
 			Health:    5,
 			Speed:     speed,
-			Flipped:   false,
 		},
 		Activate_pos_X: aX,
 		Activate_pos_Y: aY,
@@ -80,12 +82,13 @@ func NewEnemy(x, y, aX, aY, speed, width, height, scale int32, sprite sprites.Sp
 		isSpawning: true,
 		EnemyType:  enemyType,
 		Drop:       drops,
+		Weapon: weapon,
 	}
 }
 
 func (e *Enemy) Draw() {
 	var width float32 = float32(e.Object.Sprite.SpriteWidth)
-	if e.Flipped {
+	if e.Object.Flipped {
 		width = -float32(width)
 	}
 
@@ -112,9 +115,14 @@ func (e *Enemy) Draw() {
 		destinationRec.Height/2,
 	)
 
+	// println(e.Weapon.Object.Width)
+
 	rl.DrawTexturePro(e.Object.Sprite.Texture, sourceRec, destinationRec, origin, 0.0, rl.White)
 	if e.Object.Destroyed && e.Drop != nil {
 		e.Drop.DrawAnimated(&e.Object)
+	}
+	if e.Weapon != nil {
+		e.Weapon.DrawEquipped(&e.Object)
 	}
 }
 
@@ -125,7 +133,7 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 	punchWidth := e.Object.Width / 2
 	punchHeight := e.Object.Height / 2
 
-	if e.Flipped {
+	if e.Object.Flipped {
 		punchX -= (punchWidth + punchWidth) - 35
 	} else {
 		punchX += punchWidth
@@ -155,6 +163,9 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 			framex := rand.Intn(2)
 			e.Object.FrameX = int32(framex)
 			e.Object.UpdateAnimation(50, []int{framex}, []int{1})
+			if e.Weapon != nil {
+				e.Weapon.Object.UpdateAnimation(50, []int{framex}, []int{1})
+			}
 
 			audio.PlayPunch()
 			return true
@@ -162,6 +173,9 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 	}
 
 	e.Object.UpdateAnimation(300, []int{0, 1}, []int{0, 0})
+	if e.Weapon != nil {
+		e.Weapon.Object.UpdateAnimation(300, []int{0, 0}, []int{0, 0})
+	}
 	return false
 }
 

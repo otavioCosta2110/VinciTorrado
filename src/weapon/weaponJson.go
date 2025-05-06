@@ -23,6 +23,7 @@ type WeaponConfig struct {
 	Width   int32  `json:"width"`
 	Height  int32  `json:"height"`
 	Damage  int32  `json:"damage"`
+	Health  int32  `json:"health"`
 	Scale   int32  `json:"scale"`
 }
 
@@ -53,8 +54,8 @@ func LoadWeaponsFromJSON(filename string) ([]*Weapon, error) {
 			Object: &system.Object{
 				X:      config.X,
 				Y:      config.Y,
-				Width:  config.HitboxX * config.Scale,
-				Height: config.HitboxY * config.Scale,
+				Width:  config.Width * config.Scale,
+				Height: config.Height * config.Scale,
 				Scale:  config.Scale,
 				Sprite: spritesheet,
 			},
@@ -64,6 +65,7 @@ func LoadWeaponsFromJSON(filename string) ([]*Weapon, error) {
 			HitboxY:   config.HitboxY,
 			OffsetX:   config.OffsetX,
 			OffsetY:   config.OffsetY,
+			Health:    config.Health,
 		}
 
 		weapons = append(weapons, weapon)
