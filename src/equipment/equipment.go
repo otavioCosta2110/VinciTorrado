@@ -70,3 +70,21 @@ func (e *Equipment) DrawAnimated(obj *system.Object) {
 		rl.White,
 	)
 }
+
+func NewConsumable(name, spritePath string, stats Stats) *Equipment {
+	return &Equipment{
+		Name:  name,
+		Type:  "consumable",
+		Stats: stats,
+		Object: system.Object{
+			Width:  32,
+			Height: 32,
+			Scale:  4,
+			Sprite: sprites.Sprite{
+				Texture:      rl.LoadTexture(spritePath),
+				SpriteWidth:  32,
+				SpriteHeight: 32,
+			},
+		},
+	}
+}

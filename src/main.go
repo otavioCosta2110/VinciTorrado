@@ -54,7 +54,16 @@ func main() {
 	menu := ui.NewMenu(player, &playerSprite)
 
 	boxes := []*objects.Box{
-		// objects.NewBox(200, screen.Height-100, 50, 50),
+		objects.NewBox(200, screen.Height-100, 50, 50),
+	}
+
+	trashLoot := []*equipment.Equipment{
+		equipment.NewConsumable("Hamburgão", "assets/items/hamburgao.png", equipment.Stats{Heal: 3}),
+		equipment.NewConsumable("Saunduiche", "assets/items/sounduiche.png", equipment.Stats{Heal: 2}),
+	}
+
+	trashCans := []*objects.TrashCan{
+		objects.NewTrashCan(1000, 500, playerScale, trashLoot),
 	}
 
 	enemies, err := enemy.LoadEnemiesFromJSON(
@@ -77,14 +86,23 @@ func main() {
 	for !rl.WindowShouldClose() {
 		menu.Update()
 
-		if !menu.IsVisible {
-			update(player, enemyManager, screen, boxes, items)
+		for _, trash := range trashCans {
+			trash.Update(player.GetObject(), &items)
 		}
-		draw(player, enemyManager, *screen, chao, buildings, boxes, items, *menu)
+
+		if !menu.IsVisible {
+			update(player, enemyManager, screen, boxes, trashCans, items)
+		}
+		draw(player, enemyManager, *screen, chao, buildings, boxes, items, trashCans, *menu)
 	}
 }
 
-func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, boxes []*objects.Box, items []*equipment.Equipment) {
+func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, boxes []*objects.Box, trashCans []*objects.TrashCan, items []*equipment.Equipment) {
+
+	if p.CheckKick([]*objects.Box{boxes[0]}, trashCans, &items) {
+		// som chute
+	}
+
 	if system.GameOverFlag {
 		return
 	}
@@ -92,7 +110,7 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 	p.CheckMovement(*screen)
 
 	for _, box := range boxes {
-		p.CheckKick(box)
+		p.CheckKick([]*objects.Box{box}, trashCans, &items)
 		box.Update([]system.Object{p.GetObject()}, screen, em)
 	}
 
@@ -147,7 +165,7 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 	return
 }
 
-func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Texture2D, buildings rl.Texture2D, boxes []*objects.Box, items []*equipment.Equipment, menu ui.Menu) {
+func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Texture2D, buildings rl.Texture2D, boxes []*objects.Box, items []*equipment.Equipment, trashCans []*objects.TrashCan, menu ui.Menu) {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.RayWhite)
 
@@ -163,6 +181,10 @@ func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Tex
 
 	for _, box := range boxes {
 		box.Draw()
+	}
+
+	for _, trash := range trashCans {
+		trash.Draw()
 	}
 
 	em.Draw()

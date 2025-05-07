@@ -1,7 +1,9 @@
 package player
 
 import (
+	"math/rand"
 	"otaviocosta2110/vincitorrado/src/audio"
+	"otaviocosta2110/vincitorrado/src/equipment"
 	"otaviocosta2110/vincitorrado/src/objects"
 	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/screen"
@@ -25,7 +27,7 @@ func (player *Player) CheckMovement(screen screen.Screen) {
 		return
 	}
 
-	if rl.IsKeyDown(rl.KeyLeft) && float32(player.Object.X) > screen.Camera.Target.X - float32(player.Screen.Width)/2 + float32(player.Object.Width/2) {
+	if rl.IsKeyDown(rl.KeyLeft) && float32(player.Object.X) > screen.Camera.Target.X-float32(player.Screen.Width)/2+float32(player.Object.Width/2) {
 		player.Object.X -= player.Speed
 		player.Flipped = true
 		player.Object.UpdateAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
@@ -73,7 +75,7 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 		}
 
 		if physics.CheckCollision(punchObj, enemyObj) {
-			if !enemyObj.Destroyed{
+			if !enemyObj.Destroyed {
 				audio.PlayPunch()
 			}
 
@@ -86,49 +88,60 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 	return false
 }
 
-func (player *Player) CheckKick(box *objects.Box) bool {
-	if rl.IsKeyPressed(rl.KeyX) && time.Since(player.LastKickTime) > player.KickCooldown {
-		player.IsKicking = true
-		player.LastKickTime = time.Now()
-		player.Object.UpdateAnimation(50, []int{0}, []int{2})
+func (p *Player) CheckKick(boxes []*objects.Box, trashCans []*objects.TrashCan, items *[]*equipment.Equipment) bool {
+	kickedSomething := false
 
-		box.OriginalY = box.Object.Y
+	if rl.IsKeyPressed(rl.KeyX) && time.Since(p.LastKickTime) > p.KickCooldown {
+		p.IsKicking = true
+		p.LastKickTime = time.Now()
+		p.Object.UpdateAnimation(50, []int{0}, []int{2})
 
-		kickWidth := player.Object.Width * 2
-		kickHeight := int32(float32(player.Object.Height) * 1.5)
+		kickWidth := p.Object.Width * 2
+		kickHeight := p.Object.Height
+		kickX := p.Object.X
+		kickY := p.Object.Y - p.Object.Height/4
 
-		kickX := player.Object.X
-		kickY := player.Object.Y - player.Object.Height/4
-
-		if player.Flipped {
+		if p.Flipped {
 			kickX -= kickWidth
 		} else {
-			kickX += player.Object.Width
+			kickX += p.Object.Width
 		}
 
-		rl.DrawRectangle(kickX, kickY, kickWidth, kickHeight, rl.NewColor(0, 0, 255, 128))
-
-		kickObj := system.Object{
+		kickHitbox := system.Object{
 			X:      kickX,
 			Y:      kickY,
 			Width:  kickWidth,
 			Height: kickHeight,
 		}
 
-		if physics.CheckCollision(kickObj, box.Object) {
-			knockbackMultiplier := int32(3)
-
-			if player.Flipped {
-				box.Object.KnockbackX = -player.KickPower * knockbackMultiplier
-			} else {
-				box.Object.KnockbackX = player.KickPower * knockbackMultiplier
+		for _, box := range boxes {
+			if physics.CheckCollision(kickHitbox, box.Object) {
+				knockbackMultiplier := int32(3)
+				if p.Flipped {
+					box.Object.KnockbackX = -p.KickPower * knockbackMultiplier
+				} else {
+					box.Object.KnockbackX = p.KickPower * knockbackMultiplier
+				}
+				box.Object.KnockbackY = 0
+				audio.PlayKick()
+				kickedSomething = true
 			}
+		}
 
-			box.Object.KnockbackY = 0
-			audio.PlayKick()
-			return true
+		for _, trash := range trashCans {
+			if !trash.Kicked && physics.CheckCollision(kickHitbox, trash.Object) {
+				trash.Kicked = true
+				item := *trash.LootTable[rand.Intn(len(trash.LootTable))]
+				item.Object.X = trash.Object.X
+				item.Object.Y = trash.Object.Y
+				item.IsDropped = true
+				*items = append(*items, &item)
+				audio.PlayKick()
+				kickedSomething = true
+			}
 		}
 	}
-	player.IsKicking = false
-	return false
+
+	p.IsKicking = false
+	return kickedSomething
 }
