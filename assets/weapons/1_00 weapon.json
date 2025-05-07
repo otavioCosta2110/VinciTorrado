@@ -1,7 +1,7 @@
 [
   {
     "sprite": "assets/weapons/knife.png",
-    "X": 640,
+    "X": 800,
     "Y": 360,
     "hitbox_X": 30,
     "hitbox_Y": 0,

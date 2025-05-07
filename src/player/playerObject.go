@@ -42,7 +42,7 @@ func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite, s
 				LastFrameTime: time.Now(),
 				Sprite:        sprite,
 				Scale:         scale,
-				Flipped:         false,
+				Flipped:       false,
 			},
 			Speed:           speed,
 			MaxHealth:       5,
@@ -106,7 +106,7 @@ func (p *Player) UseConsumable(index int) {
 	if index >= 0 && index < len(p.Equipment) {
 		item := p.Equipment[index]
 		if item.Type == "consumable" {
-			p.Health = min(p.Health + item.Stats.Heal, p.MaxHealth)
+			p.Health = min(p.Health+item.Stats.Heal, p.MaxHealth)
 
 			p.Equipment = slices.Delete(p.Equipment, index, index+1)
 		}
@@ -114,26 +114,28 @@ func (p *Player) UseConsumable(index int) {
 }
 
 func (p *Player) PickUp(w weapon.Weapon) {
-    if p.Weapon != nil {
-        p.DropWeapon()
-    }
+	if p.Weapon != nil {
+		p.DropWeapon()
+	}
 
-    p.Weapon = &w
-    p.Weapon.IsDropped = false
-    p.Weapon.IsEquipped = true
-    
-    p.Damage += w.Stats.Damage
+	p.Weapon = &w
+	p.Weapon.IsDropped = false
+	p.Weapon.IsEquipped = true
+	menu_select_sound := rl.LoadSound("assets/sounds/collect_item.mp3")
+	rl.PlaySound(menu_select_sound)
+
+	p.Damage += w.Stats.Damage
 }
 
 func (p *Player) DropWeapon() {
-    if p.Weapon != nil {
-        p.Damage -= p.Weapon.Stats.Damage
-        
-        p.Weapon.Object.X = p.Object.X
-        p.Weapon.Object.Y = p.Object.Y
-        p.Weapon.IsDropped = true
-        p.Weapon.IsEquipped = false
-        
-        p.Weapon = nil
-    }
+	if p.Weapon != nil {
+		p.Damage -= p.Weapon.Stats.Damage
+
+		p.Weapon.Object.X = p.Object.X
+		p.Weapon.Object.Y = p.Object.Y
+		p.Weapon.IsDropped = true
+		p.Weapon.IsEquipped = false
+
+		p.Weapon = nil
+	}
 }

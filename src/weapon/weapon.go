@@ -20,7 +20,7 @@ type Weapon struct {
 	Health     int32
 }
 
-func New( obj *system.Object, offsetX, offsetY int32, hitboxX, hitboxY int32, stats objects.Stats, health int32, isEquipped bool, isDropped bool) *Weapon {
+func New(obj *system.Object, offsetX, offsetY int32, hitboxX, hitboxY int32, stats objects.Stats, health int32, isEquipped bool, isDropped bool) *Weapon {
 	return &Weapon{
 		Object:     obj,
 		IsDropped:  isDropped,
@@ -35,10 +35,6 @@ func New( obj *system.Object, offsetX, offsetY int32, hitboxX, hitboxY int32, st
 }
 
 func (w *Weapon) DrawAnimated() {
-	if !w.IsDropped {
-		return
-	}
-
 	frameWidth := float32(w.Object.Sprite.SpriteWidth)
 	frameHeight := float32(w.Object.Sprite.SpriteHeight)
 
@@ -84,10 +80,8 @@ func (w *Weapon) DrawEquipped(obj *system.Object) {
 	)
 
 	weaponOffsetX := w.OffsetX
-	// println(int32(w.Object.Sprite.SpriteWidth) - ((w.Object.Width/w.Object.Scale) + weaponOffsetX))
-	println(w.IsEquipped)
 	if obj.Flipped {
-		weaponOffsetX = (int32(w.Object.Sprite.SpriteWidth)) - ((w.Object.Width/w.Object.Scale) + weaponOffsetX)
+		weaponOffsetX = (int32(w.Object.Sprite.SpriteWidth)) - ((w.Object.Width / w.Object.Scale) + weaponOffsetX)
 	}
 	weaponDestination := rl.Rectangle{
 		X:      float32(obj.X) + float32(weaponOffsetX)*float32(obj.Scale),
@@ -107,4 +101,17 @@ func (w *Weapon) DrawEquipped(obj *system.Object) {
 		0.0,
 		rl.White,
 	)
+}
+func (w *Weapon) Clone() *Weapon {
+	return &Weapon{
+		Object:     w.Object,
+		IsDropped:  w.IsDropped,
+		IsEquipped: w.IsEquipped,
+		OffsetX:    w.OffsetX,
+		OffsetY:    w.OffsetY,
+		HitboxX:    w.HitboxX,
+		HitboxY:    w.HitboxY,
+		Stats:      w.Stats,
+		Health:     w.Health,
+	}
 }

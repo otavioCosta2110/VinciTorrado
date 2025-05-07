@@ -92,7 +92,6 @@ func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
 
 		var weaponFromJson *weapon.Weapon
 		if config.Weapon != nil {
-			// Create a weapon.Weapon from the WeaponDrop data.
 			weaponSprite := sprites.Sprite{
 				SpriteWidth:  config.Weapon.Width,
 				SpriteHeight: config.Weapon.Height,

@@ -90,7 +90,7 @@ func (p *Player) Draw() {
 
 func (p *Player) TakeDamage(damage int32, eObj system.Object) {
 	if !p.isInvincible(invencibilityDuration) {
-		p.Object.UpdateAnimation(100, []int{0, 1}, []int{3, 3})
+		p.updatePlayerAnimation(100, []int{0, 1}, []int{2, 2})
 		p.Health -= damage
 		p.LastDamageTaken = time.Now()
 
@@ -126,4 +126,11 @@ func (p *Player) adjustKnockbackToScreenBounds() {
 
 func (p *Player) isInvincible(duration int) bool {
 	return time.Since(p.LastDamageTaken).Milliseconds() <= int64(duration)
+}
+
+func (p *Player) updatePlayerAnimation(animationDelay int, framesX, framesY []int){
+	p.Object.UpdateAnimation(animationDelay, framesX, framesY)
+	if p.Weapon != nil {
+		p.Weapon.Object.UpdateAnimation(animationDelay, framesX, framesY)
+	}
 }

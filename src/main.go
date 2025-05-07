@@ -14,7 +14,6 @@ import (
 	"otaviocosta2110/vincitorrado/src/weapon"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
-	"slices"
 )
 
 const (
@@ -102,35 +101,41 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 
 	p.CheckMovement(*screen)
 
-	for _, box := range boxes {
-		p.CheckKick(box)
-		box.Update([]system.Object{p.GetObject()}, screen, em)
+	// for _, box := range boxes {
+	// 	p.CheckKick(box)
+	// 	box.Update([]system.Object{p.GetObject()}, screen, em)
+	// }
+
+	for i := range *weapons {
+		weapon := (*weapons)[i]
+		if weapon.IsDropped {
+			weapon.DrawAnimated()
+			dropWidth := int32(32 * weapon.Object.Scale)
+			dropHeight := int32(32 * weapon.Object.Scale)
+			dropY := weapon.Object.Y - 20
+
+			dropBox := system.Object{
+				X:      weapon.Object.X,
+				Y:      dropY,
+				Width:  dropWidth / 2,
+				Height: dropHeight / 2,
+			}
+
+			playerObj := p.GetObject()
+			if physics.CheckCollision(playerObj, dropBox) {
+				weapon.IsDropped = false
+				weapon.IsEquipped = true
+				p.PickUp(*weapon)
+			}
+		}
 	}
 
-    for i := 0; i < len(*weapons); i++ {
-        weapon := (*weapons)[i]
-        if weapon.IsDropped {
-            dropWidth := int32(32 * weapon.Object.Scale)
-            dropHeight := int32(32 * weapon.Object.Scale)
-            dropY := weapon.Object.Y - 20
-
-            dropBox := system.Object{
-                X:      weapon.Object.X,
-                Y:      dropY,
-                Width:  dropWidth / 2,
-                Height: dropHeight / 2,
-            }
-
-            playerObj := p.GetObject()
-            if physics.CheckCollision(playerObj, dropBox) {
-                p.PickUp(*weapon)
-                *weapons = slices.Delete(*weapons, i, i+1)
-                i-- 
-            }
-        }
-    }
-
 	for _, e := range em.Enemies {
+		if e.Weapon != nil && e.Weapon.IsDropped{
+			weapon := e.Weapon.Clone()
+			*weapons = append(*weapons, weapon)
+			e.Weapon = nil
+		}
 		if e.Object.Destroyed && e.Drop != nil && !e.DropCollected {
 			dropWidth := int32(32 * e.Object.Scale)
 			dropHeight := int32(32 * e.Object.Scale)
