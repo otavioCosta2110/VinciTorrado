@@ -131,6 +131,8 @@ func (p *Player) CheckKick(boxes []*objects.Box, trashCans []*objects.TrashCan, 
 		for _, trash := range trashCans {
 			if !trash.Kicked && physics.CheckCollision(kickHitbox, trash.Object) {
 				trash.Kicked = true
+				trash.Object.Sprite.Texture = trash.KickedTexture
+
 				item := *trash.LootTable[rand.Intn(len(trash.LootTable))]
 				item.Object.X = trash.Object.X
 				item.Object.Y = trash.Object.Y

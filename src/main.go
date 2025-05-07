@@ -86,10 +86,6 @@ func main() {
 	for !rl.WindowShouldClose() {
 		menu.Update()
 
-		for _, trash := range trashCans {
-			trash.Update(player.GetObject(), &items)
-		}
-
 		if !menu.IsVisible {
 			update(player, enemyManager, screen, boxes, trashCans, items)
 		}

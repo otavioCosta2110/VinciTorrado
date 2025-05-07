@@ -1,9 +1,7 @@
 package objects
 
 import (
-	"math/rand"
 	"otaviocosta2110/vincitorrado/src/equipment"
-	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/sprites"
 	"otaviocosta2110/vincitorrado/src/system"
 
@@ -12,11 +10,17 @@ import (
 
 type TrashCan struct {
 	system.Object
-	LootTable []*equipment.Equipment
-	Kicked    bool
+	LootTable     []*equipment.Equipment
+	Kicked        bool
+	NormalTexture rl.Texture2D
+	KickedTexture rl.Texture2D
+	HitboxOffset  float32
 }
 
 func NewTrashCan(x, y, scale int32, loot []*equipment.Equipment) *TrashCan {
+	normalTex := rl.LoadTexture("assets/props/Lixo.png")
+	kickedTex := rl.LoadTexture("assets/props/Lixeira_Tombada.png")
+
 	return &TrashCan{
 		Object: system.Object{
 			X:      x,
@@ -25,29 +29,14 @@ func NewTrashCan(x, y, scale int32, loot []*equipment.Equipment) *TrashCan {
 			Height: 32 * scale,
 			Scale:  scale,
 			Sprite: sprites.Sprite{
-				Texture:      rl.LoadTexture("assets/props/Lixo.png"),
+				Texture:      normalTex,
 				SpriteWidth:  32,
 				SpriteHeight: 32,
 			},
 		},
-		LootTable: loot,
-	}
-}
-
-func (t *TrashCan) Update(player system.Object, items *[]*equipment.Equipment) {
-	if !t.Kicked && physics.CheckCollision(player, t.Object) && player.IsKicking {
-		t.Kicked = true
-		t.spawnLoot(items)
-	}
-}
-
-func (t *TrashCan) spawnLoot(items *[]*equipment.Equipment) {
-	if len(t.LootTable) > 0 {
-		item := *t.LootTable[rand.Intn(len(t.LootTable))]
-		item.Object.X = t.X
-		item.Object.Y = t.Y
-		item.IsDropped = true
-		*items = append(*items, &item)
+		LootTable:     loot,
+		NormalTexture: normalTex,
+		KickedTexture: kickedTex,
 	}
 }
 
@@ -65,4 +54,9 @@ func (t *TrashCan) Draw() {
 		0,
 		rl.White,
 	)
+}
+
+func (t *TrashCan) Unload() {
+	rl.UnloadTexture(t.NormalTexture)
+	rl.UnloadTexture(t.KickedTexture)
 }
