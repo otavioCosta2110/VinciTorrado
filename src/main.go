@@ -59,7 +59,7 @@ func main() {
 
 	trashLoot := []*equipment.Equipment{
 		equipment.NewConsumable("Hamburgão", "assets/items/hamburgao.png", equipment.Stats{Heal: 3}),
-		equipment.NewConsumable("Saunduiche", "assets/items/sounduiche.png", equipment.Stats{Heal: 2}),
+		equipment.NewConsumable("Saunduiche", "assets/items/saunduiche.png", equipment.Stats{Heal: 2}),
 	}
 
 	trashCans := []*objects.TrashCan{
@@ -87,15 +87,14 @@ func main() {
 		menu.Update()
 
 		if !menu.IsVisible {
-			update(player, enemyManager, screen, boxes, trashCans, items)
+			update(player, enemyManager, screen, boxes, trashCans, &items)
 		}
 		draw(player, enemyManager, *screen, chao, buildings, boxes, items, trashCans, *menu)
 	}
 }
 
-func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, boxes []*objects.Box, trashCans []*objects.TrashCan, items []*equipment.Equipment) {
-
-	if p.CheckKick([]*objects.Box{boxes[0]}, trashCans, &items) {
+func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, boxes []*objects.Box, trashCans []*objects.TrashCan, items *[]*equipment.Equipment) {
+	if p.CheckKick([]*objects.Box{boxes[0]}, trashCans, items) {
 		// som chute
 	}
 
@@ -106,7 +105,7 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 	p.CheckMovement(*screen)
 
 	for _, box := range boxes {
-		p.CheckKick([]*objects.Box{box}, trashCans, &items)
+		p.CheckKick([]*objects.Box{box}, trashCans, items)
 		box.Update([]system.Object{p.GetObject()}, screen, em)
 	}
 
@@ -135,7 +134,7 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 		}
 	}
 
-	for _, item := range items {
+	for _, item := range *items {
 		if item.IsDropped {
 			itemBox := system.Object{
 				X:      item.Object.X,
