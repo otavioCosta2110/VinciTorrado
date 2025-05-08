@@ -1,6 +1,8 @@
 package equipment
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"math"
 	"otaviocosta2110/vincitorrado/src/sprites"
 	"otaviocosta2110/vincitorrado/src/system"
@@ -87,4 +89,36 @@ func NewConsumable(name, spritePath string, stats Stats) *Equipment {
 			},
 		},
 	}
+}
+
+func LoadItemsFromJSON(path string) ([]*Equipment, error) {
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var jsonItems []struct {
+		Name   string `json:"name"`
+		Sprite string `json:"sprite"`
+		Type   string `json:"type"`
+		Stats  Stats  `json:"stats"`
+		Scale  int32  `json:"scale"`
+	}
+
+	if err := json.Unmarshal(data, &jsonItems); err != nil {
+		return nil, err
+	}
+
+	var items []*Equipment
+	for _, item := range jsonItems {
+		equip := NewConsumable(
+			item.Name,
+			item.Sprite,
+			item.Stats,
+		)
+		equip.Object.Scale = item.Scale
+		items = append(items, equip)
+	}
+
+	return items, nil
 }

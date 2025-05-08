@@ -57,23 +57,19 @@ func main() {
 		objects.NewBox(200, screen.Height-100, 50, 50),
 	}
 
-	trashLoot := []*equipment.Equipment{
-		equipment.NewConsumable("Hamburgão", "assets/items/hamburgao.png", equipment.Stats{Heal: 3}),
-		equipment.NewConsumable("Saunduiche", "assets/items/saunduiche.png", equipment.Stats{Heal: 2}),
-	}
-
-	trashCans := []*objects.TrashCan{
-		objects.NewTrashCan(1000, 500, playerScale, trashLoot),
-	}
-
 	enemies, err := enemy.LoadEnemiesFromJSON(
 		"assets/enemies/enemyInfo/1_00 enemyInfo.json",
 		playerScale,
 	)
 
-	items, err := enemy.LoadItemsFromJSON("assets/items/items.json", playerScale)
+	items, err := equipment.LoadItemsFromJSON("assets/items/items.json")
 	if err != nil {
 		panic("Failed to load items: " + err.Error())
+	}
+
+	trashCans, err := objects.LoadTrashCansFromJSON("assets/props/props.json", items)
+	if err != nil {
+		panic("Failed to load trash cans: " + err.Error())
 	}
 
 	enemyManager := &enemy.EnemyManager{}

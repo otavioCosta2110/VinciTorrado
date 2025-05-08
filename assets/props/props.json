@@ -1,0 +1,27 @@
+[
+    {
+      "X": 1000,
+      "Y": 500,
+      "width": 128,
+      "height": 128,
+      "scale": 4,
+      "normal_texture": "assets/props/Lixo.png",
+      "kicked_texture": "assets/props/Lixeira_Tombada.png",
+      "loot": [
+        "Hamburgão",
+        "Saunduiche"
+      ]
+    },
+    {
+      "X": 1500,
+      "Y": 300,
+      "width": 128,
+      "height": 128,
+      "scale": 4,
+      "normal_texture": "assets/props/Lixo.png",
+      "kicked_texture": "assets/props/Lixeira_Tombada.png",
+      "loot": [
+        "Saunduiche"
+      ]
+    }
+  ]
