@@ -1,6 +1,8 @@
 package objects
 
 import (
+	"otaviocosta2110/vincitorrado/src/enemy"
+	"otaviocosta2110/vincitorrado/src/equipment"
 	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/system"
@@ -34,6 +36,25 @@ func NewBox(x, y, width, height int32) *Box {
 	}
 }
 
+func (b *Box) HandleKick(
+	kickHitbox system.Object,
+	_ *[]*equipment.Equipment,
+	isFlipped bool,
+	kickPower int32,
+) bool {
+	if physics.CheckCollision(kickHitbox, b.Object) {
+		knockbackMultiplier := int32(3)
+		if isFlipped {
+			b.Object.KnockbackX = -kickPower * knockbackMultiplier
+		} else {
+			b.Object.KnockbackX = kickPower * knockbackMultiplier
+		}
+		b.Object.KnockbackY = 0
+		return true
+	}
+	return false
+}
+
 func (b *Box) Draw() {
 	rl.DrawTexturePro(
 		b.Texture,
@@ -50,7 +71,7 @@ func (b *Box) Draw() {
 	)
 }
 
-func (b *Box) Update(colliders []system.Object, s *screen.Screen, handler BoxCollisionHandler) {
+func (b *Box) Update(colliders []system.Object, s *screen.Screen, em *enemy.EnemyManager, handler BoxCollisionHandler) {
 	b.Object.X += b.Object.KnockbackX
 	b.Object.Y += b.Object.KnockbackY
 
@@ -95,6 +116,13 @@ func (b *Box) Update(colliders []system.Object, s *screen.Screen, handler BoxCol
 	if handler != nil {
 		handler.CheckBoxCollisions(b.Object)
 	}
+	if em != nil && (abs(b.Object.KnockbackX) > 5 || abs(b.Object.KnockbackY) > 5) {
+		for _, e := range em.ActiveEnemies {
+			if physics.CheckCollision(b.Object, e.Object) {
+				e.TakeDamageFromBox(b.Object)
+			}
+		}
+	}
 }
 
 func abs(x int32) int32 {
@@ -102,4 +130,8 @@ func abs(x int32) int32 {
 		return -x
 	}
 	return x
+}
+
+func (b *Box) GetObject() system.Object {
+	return b.Object
 }

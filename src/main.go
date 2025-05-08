@@ -53,23 +53,34 @@ func main() {
 	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 2, playerScale, playerSprite, screen)
 	menu := ui.NewMenu(player, &playerSprite)
 
-	boxes := []*objects.Box{
-		objects.NewBox(200, screen.Height-100, 50, 50),
+	items, err := equipment.LoadItemsFromJSON("assets/items/items.json")
+	if err != nil {
+		panic("Failed to load items: " + err.Error())
 	}
 
 	enemies, err := enemy.LoadEnemiesFromJSON(
 		"assets/enemies/enemyInfo/1_00 enemyInfo.json",
 		playerScale,
 	)
-
-	items, err := equipment.LoadItemsFromJSON("assets/items/items.json")
 	if err != nil {
-		panic("Failed to load items: " + err.Error())
+		panic("Failed to load enemies: " + err.Error())
 	}
 
 	trashCans, err := objects.LoadTrashCansFromJSON("assets/props/props.json", items)
 	if err != nil {
 		panic("Failed to load trash cans: " + err.Error())
+	}
+
+	boxes := []*objects.Box{
+		objects.NewBox(200, screen.Height-100, 50, 50),
+	}
+
+	var kickables []physics.Kickable
+	for _, box := range boxes {
+		kickables = append(kickables, box)
+	}
+	for _, trash := range trashCans {
+		kickables = append(kickables, trash)
 	}
 
 	enemyManager := &enemy.EnemyManager{}
@@ -83,15 +94,16 @@ func main() {
 		menu.Update()
 
 		if !menu.IsVisible {
-			update(player, enemyManager, screen, boxes, trashCans, &items)
+			update(player, enemyManager, screen, kickables, &items)
 		}
 		draw(player, enemyManager, *screen, chao, buildings, boxes, items, trashCans, *menu)
 	}
 }
 
-func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, boxes []*objects.Box, trashCans []*objects.TrashCan, items *[]*equipment.Equipment) {
-	if p.CheckKick([]*objects.Box{boxes[0]}, trashCans, items) {
-		// som chute
+func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, kickables []physics.Kickable, items *[]*equipment.Equipment) {
+	if kicked := p.CheckKick(kickables, items); kicked {
+		// som de chute
+		audio.PlayKick()
 	}
 
 	if system.GameOverFlag {
@@ -100,9 +112,10 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, box
 
 	p.CheckMovement(*screen)
 
-	for _, box := range boxes {
-		p.CheckKick([]*objects.Box{box}, trashCans, items)
-		box.Update([]system.Object{p.GetObject()}, screen, em)
+	for _, obj := range kickables {
+		if box, ok := obj.(*objects.Box); ok {
+			box.Update([]system.Object{p.GetObject()}, screen, em, nil)
+		}
 	}
 
 	for _, e := range em.Enemies {

@@ -3,7 +3,9 @@ package objects
 import (
 	"encoding/json"
 	"io/ioutil"
+	"math/rand"
 	"otaviocosta2110/vincitorrado/src/equipment"
+	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/sprites"
 	"otaviocosta2110/vincitorrado/src/system"
 
@@ -106,4 +108,38 @@ func (t *TrashCan) Draw() {
 		0,
 		rl.White,
 	)
+}
+
+func (t *TrashCan) HandleKick(kickHitbox system.Object, items *[]*equipment.Equipment, isFlipped bool, kickPower int32) bool {
+	if !t.Kicked && physics.CheckCollision(kickHitbox, t.Object) {
+		t.Kicked = true
+		t.Object.Sprite.Texture = t.KickedTexture
+
+		proto := t.LootTable[rand.Intn(len(t.LootTable))]
+		item := &equipment.Equipment{
+			Name:      proto.Name,
+			Type:      proto.Type,
+			Stats:     proto.Stats,
+			IsDropped: true,
+			Object: system.Object{
+				X:      t.Object.X,
+				Y:      t.Object.Y,
+				Width:  proto.Object.Width,
+				Height: proto.Object.Height,
+				Scale:  proto.Object.Scale,
+				Sprite: sprites.Sprite{
+					Texture:      proto.Object.Sprite.Texture,
+					SpriteWidth:  proto.Object.Sprite.SpriteWidth,
+					SpriteHeight: proto.Object.Sprite.SpriteHeight,
+				},
+			},
+		}
+		*items = append(*items, item)
+		return true
+	}
+	return false
+}
+
+func (t *TrashCan) GetObject() system.Object {
+	return t.Object
 }

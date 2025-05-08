@@ -1,10 +1,8 @@
 package player
 
 import (
-	"math/rand"
 	"otaviocosta2110/vincitorrado/src/audio"
 	"otaviocosta2110/vincitorrado/src/equipment"
-	"otaviocosta2110/vincitorrado/src/objects"
 	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/system"
@@ -88,7 +86,7 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 	return false
 }
 
-func (p *Player) CheckKick(boxes []*objects.Box, trashCans []*objects.TrashCan, items *[]*equipment.Equipment) bool {
+func (p *Player) CheckKick(kickables []physics.Kickable, items *[]*equipment.Equipment) bool {
 	kickedSomething := false
 
 	if rl.IsKeyPressed(rl.KeyX) && time.Since(p.LastKickTime) > p.KickCooldown {
@@ -114,30 +112,13 @@ func (p *Player) CheckKick(boxes []*objects.Box, trashCans []*objects.TrashCan, 
 			Height: kickHeight,
 		}
 
-		for _, box := range boxes {
-			if physics.CheckCollision(kickHitbox, box.Object) {
-				knockbackMultiplier := int32(3)
-				if p.Flipped {
-					box.Object.KnockbackX = -p.KickPower * knockbackMultiplier
-				} else {
-					box.Object.KnockbackX = p.KickPower * knockbackMultiplier
-				}
-				box.Object.KnockbackY = 0
-				audio.PlayKick()
-				kickedSomething = true
-			}
-		}
-
-		for _, trash := range trashCans {
-			if !trash.Kicked && physics.CheckCollision(kickHitbox, trash.Object) {
-				trash.Kicked = true
-				trash.Object.Sprite.Texture = trash.KickedTexture
-
-				item := *trash.LootTable[rand.Intn(len(trash.LootTable))]
-				item.Object.X = trash.Object.X
-				item.Object.Y = trash.Object.Y
-				item.IsDropped = true
-				*items = append(*items, &item)
+		for _, obj := range kickables {
+			if obj.HandleKick(
+				kickHitbox,
+				items,
+				p.Flipped,
+				p.KickPower,
+			) {
 				audio.PlayKick()
 				kickedSomething = true
 			}
