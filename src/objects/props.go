@@ -23,7 +23,7 @@ type TrashConfig struct {
 	Loot          []string `json:"loot"`
 }
 
-type TrashCan struct {
+type Prop struct {
 	system.Object
 	LootTable     []*equipment.Equipment
 	Kicked        bool
@@ -32,7 +32,7 @@ type TrashCan struct {
 	HitboxOffset  float32
 }
 
-func LoadTrashCansFromJSON(path string, items []*equipment.Equipment) ([]*TrashCan, error) {
+func LoadTrashCansFromJSON(path string, items []*equipment.Equipment) ([]*Prop, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ func LoadTrashCansFromJSON(path string, items []*equipment.Equipment) ([]*TrashC
 		return nil, err
 	}
 
-	var trashCans []*TrashCan
+	var trashCans []*Prop
 	for _, cfg := range configs {
 		var loot []*equipment.Equipment
 		for _, itemName := range cfg.Loot {
@@ -71,11 +71,11 @@ func LoadTrashCansFromJSON(path string, items []*equipment.Equipment) ([]*TrashC
 	return trashCans, nil
 }
 
-func NewTrashCan(x, y, scale, width, height int32, normalTexPath, kickedTexPath string, loot []*equipment.Equipment) *TrashCan {
+func NewTrashCan(x, y, scale, width, height int32, normalTexPath, kickedTexPath string, loot []*equipment.Equipment) *Prop {
 	normalTex := rl.LoadTexture(normalTexPath)
 	kickedTex := rl.LoadTexture(kickedTexPath)
 
-	return &TrashCan{
+	return &Prop{
 		Object: system.Object{
 			X:      x,
 			Y:      y,
@@ -94,7 +94,7 @@ func NewTrashCan(x, y, scale, width, height int32, normalTexPath, kickedTexPath 
 	}
 }
 
-func (t *TrashCan) Draw() {
+func (t *Prop) Draw() {
 	rl.DrawTexturePro(
 		t.Sprite.Texture,
 		rl.NewRectangle(0, 0, 32, 32),
@@ -110,8 +110,15 @@ func (t *TrashCan) Draw() {
 	)
 }
 
-func (t *TrashCan) HandleKick(kickHitbox system.Object, items *[]*equipment.Equipment, isFlipped bool, kickPower int32) bool {
-	if !t.Kicked && physics.CheckCollision(kickHitbox, t.Object) {
+func (t *Prop) HandleKick(kickHitbox system.Object, items *[]*equipment.Equipment, isFlipped bool, kickPower int32) bool {
+	hitboxObj := system.Object{
+		X: t.GetObject().X,
+		Y: t.GetObject().Y,
+		Width: t.GetObject().Width/2,
+		Height: t.GetObject().Width,
+	}
+
+	if !t.Kicked && physics.CheckCollision(kickHitbox, hitboxObj) {
 		t.Kicked = true
 		t.Object.Sprite.Texture = t.KickedTexture
 
@@ -140,6 +147,6 @@ func (t *TrashCan) HandleKick(kickHitbox system.Object, items *[]*equipment.Equi
 	return false
 }
 
-func (t *TrashCan) GetObject() system.Object {
+func (t *Prop) GetObject() system.Object {
 	return t.Object
 }

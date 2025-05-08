@@ -169,7 +169,7 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, kic
 	return
 }
 
-func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Texture2D, buildings rl.Texture2D, boxes []*objects.Box, items []*equipment.Equipment, trashCans []*objects.TrashCan, menu ui.Menu) {
+func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Texture2D, buildings rl.Texture2D, boxes []*objects.Box, items []*equipment.Equipment, trashCans []*objects.Prop, menu ui.Menu) {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.RayWhite)
 
