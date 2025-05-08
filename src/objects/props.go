@@ -2,8 +2,8 @@ package objects
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"math/rand"
+	"os"
 	"otaviocosta2110/vincitorrado/src/equipment"
 	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/sprites"
@@ -33,7 +33,7 @@ type TrashCan struct {
 }
 
 func LoadTrashCansFromJSON(path string, items []*equipment.Equipment) ([]*TrashCan, error) {
-	data, err := ioutil.ReadFile(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
@@ -101,8 +101,8 @@ func (t *TrashCan) Draw() {
 		rl.NewRectangle(
 			float32(t.X),
 			float32(t.Y),
-			float32(t.Width),
-			float32(t.Height),
+			float32(t.Width) * float32(t.Scale),
+			float32(t.Height) * float32(t.Scale),
 		),
 		rl.Vector2{},
 		0,
@@ -122,7 +122,7 @@ func (t *TrashCan) HandleKick(kickHitbox system.Object, items *[]*equipment.Equi
 			Stats:     proto.Stats,
 			IsDropped: true,
 			Object: system.Object{
-				X:      t.Object.X,
+				X:      t.Object.X + (t.Object.Width * t.Object.Scale)/2,
 				Y:      t.Object.Y,
 				Width:  proto.Object.Width,
 				Height: proto.Object.Height,

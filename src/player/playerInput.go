@@ -92,9 +92,11 @@ func (p *Player) CheckKick(kickables []physics.Kickable, items *[]*equipment.Equ
 	if rl.IsKeyPressed(rl.KeyX) && time.Since(p.LastKickTime) > p.KickCooldown {
 		p.IsKicking = true
 		p.LastKickTime = time.Now()
+		p.Object.FrameY = 2
+		p.Object.FrameX = 0
 		p.Object.UpdateAnimation(50, []int{0}, []int{2})
 
-		kickWidth := p.Object.Width * 2
+		kickWidth := p.Object.Width
 		kickHeight := p.Object.Height
 		kickX := p.Object.X
 		kickY := p.Object.Y - p.Object.Height/4
