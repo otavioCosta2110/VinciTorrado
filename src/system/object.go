@@ -18,6 +18,8 @@ type Object struct {
 	Sprite         sprites.Sprite
 	Scale          int32
 	Destroyed      bool
+	IsKicking      bool
+	Flipped         bool
 }
 
 func (obj *Object) UpdateAnimation(animationDelay int, framesX, framesY []int) {

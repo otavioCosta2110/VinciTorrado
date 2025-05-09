@@ -1,0 +1,144 @@
+package props
+
+import (
+	"encoding/json"
+	"math/rand"
+	"os"
+	"otaviocosta2110/vincitorrado/src/equipment"
+	"otaviocosta2110/vincitorrado/src/sprites"
+	"otaviocosta2110/vincitorrado/src/system"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
+)
+
+type PropConfig struct {
+	X             int32    `json:"X"`
+	Y             int32    `json:"Y"`
+	Width         int32    `json:"width"`
+	Height        int32    `json:"height"`
+	Scale         int32    `json:"scale"`
+	NormalTexture string   `json:"normal_texture"`
+	KickedTexture string   `json:"kicked_texture"`
+	Loot          []string `json:"loot"`
+}
+
+type Prop struct {
+	system.Object
+	LootTable     []*equipment.Equipment
+	Kicked        bool
+	NormalTexture rl.Texture2D
+	KickedTexture rl.Texture2D
+	HitboxOffset  float32
+}
+
+func LoadPropsFromJSON(path string, items []*equipment.Equipment) ([]*Prop, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var configs []PropConfig
+	if err := json.Unmarshal(data, &configs); err != nil {
+		return nil, err
+	}
+
+	var props []*Prop
+	for _, cfg := range configs {
+		var loot []*equipment.Equipment
+		for _, itemName := range cfg.Loot {
+			for _, item := range items {
+				if item.Name == itemName {
+					loot = append(loot, item)
+					break
+				}
+			}
+		}
+
+		prop := NewProp(
+			cfg.X,
+			cfg.Y,
+			cfg.Scale,
+			cfg.Width,
+			cfg.Height,
+			cfg.NormalTexture,
+			cfg.KickedTexture,
+			loot,
+		)
+		props = append(props, prop)
+	}
+
+	return props, nil
+}
+
+func NewProp(x, y, scale, width, height int32, normalTexPath, kickedTexPath string, loot []*equipment.Equipment) *Prop {
+	normalTex := rl.LoadTexture(normalTexPath)
+	kickedTex := rl.LoadTexture(kickedTexPath)
+
+	return &Prop{
+		Object: system.Object{
+			X:      x,
+			Y:      y,
+			Width:  width,
+			Height: height,
+			Scale:  scale,
+			Sprite: sprites.Sprite{
+				Texture:      normalTex,
+				SpriteWidth:  width / scale,
+				SpriteHeight: height / scale,
+			},
+		},
+		LootTable:     loot,
+		NormalTexture: normalTex,
+		KickedTexture: kickedTex,
+	}
+}
+
+func (t *Prop) Draw() {
+	rl.DrawTexturePro(
+		t.Sprite.Texture,
+		rl.NewRectangle(0, 0, 32, 32),
+		rl.NewRectangle(
+			float32(t.X),
+			float32(t.Y),
+			float32(t.Width)*float32(t.Scale),
+			float32(t.Height)*float32(t.Scale),
+		),
+		rl.Vector2{},
+		0,
+		rl.White,
+	)
+}
+
+func (t *Prop) IsKicked() bool {
+	return t.Kicked
+}
+
+func (t *Prop) HandleKick(items *[]*equipment.Equipment, _ system.Object) {
+	t.Kicked = true
+	t.Object.Sprite.Texture = t.KickedTexture
+
+	proto := t.LootTable[rand.Intn(len(t.LootTable))]
+	item := &equipment.Equipment{
+		Name:      proto.Name,
+		Type:      proto.Type,
+		Stats:     proto.Stats,
+		IsDropped: true,
+		Object: system.Object{
+			X:      t.Object.X + (t.Object.Width*t.Object.Scale)/2,
+			Y:      t.Object.Y,
+			Width:  proto.Object.Width/2,
+			Height: proto.Object.Height,
+			Scale:  proto.Object.Scale,
+			Sprite: sprites.Sprite{
+				Texture:      proto.Object.Sprite.Texture,
+				SpriteWidth:  proto.Object.Sprite.SpriteWidth,
+				SpriteHeight: proto.Object.Sprite.SpriteHeight,
+			},
+		},
+	}
+	*items = append(*items, item)
+}
+
+func (t *Prop) GetObject() system.Object {
+	return t.Object
+}

@@ -1,7 +1,10 @@
 package equipment
 
 import (
+	"encoding/json"
+	"os"
 	"math"
+	"otaviocosta2110/vincitorrado/src/objects"
 	"otaviocosta2110/vincitorrado/src/sprites"
 	"otaviocosta2110/vincitorrado/src/system"
 
@@ -13,13 +16,13 @@ type Equipment struct {
 	IsEquipped bool
 	IsDropped  bool
 	Type       string
-	Stats      Stats
+	Stats      objects.Stats
 	OffsetX    int32
 	OffsetY    int32
 	Object     system.Object
 }
 
-func New(name string, texturePath string, stats Stats) *Equipment {
+func New(name string, texturePath string, stats objects.Stats) *Equipment {
 	spritesheet := sprites.Sprite{
 		SpriteWidth:  32,
 		SpriteHeight: 32,
@@ -69,4 +72,54 @@ func (e *Equipment) DrawAnimated(obj *system.Object) {
 		0,
 		rl.White,
 	)
+}
+
+func NewConsumable(name, spritePath string, stats objects.Stats) *Equipment {
+	return &Equipment{
+		Name:  name,
+		Type:  "consumable",
+		Stats: stats,
+		Object: system.Object{
+			Width:  32,
+			Height: 32,
+			Scale:  4,
+			Sprite: sprites.Sprite{
+				Texture:      rl.LoadTexture(spritePath),
+				SpriteWidth:  32,
+				SpriteHeight: 32,
+			},
+		},
+	}
+}
+
+func LoadItemsFromJSON(path string) ([]*Equipment, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var jsonItems []struct {
+		Name   string `json:"name"`
+		Sprite string `json:"sprite"`
+		Type   string `json:"type"`
+		Stats  objects.Stats  `json:"stats"`
+		Scale  int32  `json:"scale"`
+	}
+
+	if err := json.Unmarshal(data, &jsonItems); err != nil {
+		return nil, err
+	}
+
+	var items []*Equipment
+	for _, item := range jsonItems {
+		equip := NewConsumable(
+			item.Name,
+			item.Sprite,
+			item.Stats,
+		)
+		equip.Object.Scale = item.Scale
+		items = append(items, equip)
+	}
+
+	return items, nil
 }

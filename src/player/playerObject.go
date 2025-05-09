@@ -5,9 +5,11 @@ import (
 	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/sprites"
 	"otaviocosta2110/vincitorrado/src/system"
+	"otaviocosta2110/vincitorrado/src/weapon"
 	"time"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
+	"slices"
 )
 
 type Player struct {
@@ -21,6 +23,7 @@ type Player struct {
 	Consumables  []*equipment.Equipment
 	HatSprite    sprites.Sprite
 	Screen       *screen.Screen
+	Weapon       *weapon.Weapon
 }
 
 func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite, s *screen.Screen) *Player {
@@ -39,9 +42,9 @@ func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite, s
 				LastFrameTime: time.Now(),
 				Sprite:        sprite,
 				Scale:         scale,
+				Flipped:       false,
 			},
 			Speed:           speed,
-			Flipped:         false,
 			MaxHealth:       5,
 			Health:          5,
 			LastDamageTaken: time.Now(),
@@ -51,7 +54,7 @@ func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite, s
 		LastKickTime: time.Now(),
 		KickCooldown: 500 * time.Millisecond,
 		KickPower:    15,
-		Screen: s,
+		Screen:       s,
 	}
 }
 
@@ -103,12 +106,36 @@ func (p *Player) UseConsumable(index int) {
 	if index >= 0 && index < len(p.Equipment) {
 		item := p.Equipment[index]
 		if item.Type == "consumable" {
-			p.Health = p.Health + item.Stats.Heal
-			if p.Health > p.MaxHealth {
-				p.Health = p.MaxHealth
-			}
+			p.Health = min(p.Health+item.Stats.Heal, p.MaxHealth)
 
-			p.Equipment = append(p.Equipment[:index], p.Equipment[index+1:]...)
+			p.Equipment = slices.Delete(p.Equipment, index, index+1)
 		}
+	}
+}
+
+func (p *Player) PickUp(w weapon.Weapon) {
+	if p.Weapon != nil {
+		p.DropWeapon()
+	}
+
+	p.Weapon = &w
+	p.Weapon.IsDropped = false
+	p.Weapon.IsEquipped = true
+	menu_select_sound := rl.LoadSound("assets/sounds/collect_item.mp3")
+	rl.PlaySound(menu_select_sound)
+
+	p.Damage += w.Stats.Damage
+}
+
+func (p *Player) DropWeapon() {
+	if p.Weapon != nil {
+		p.Damage -= p.Weapon.Stats.Damage
+
+		p.Weapon.Object.X = p.Object.X
+		p.Weapon.Object.Y = p.Object.Y
+		p.Weapon.IsDropped = true
+		p.Weapon.IsEquipped = false
+
+		p.Weapon = nil
 	}
 }

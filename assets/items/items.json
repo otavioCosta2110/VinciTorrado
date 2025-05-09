@@ -1,34 +1,30 @@
 [
-    {
-      "name": "Hamburgão",
-      "sprite": "assets/items/hamburgao.png",
-      "X": 3600,
-      "Y": 600,
-      "width": 32,
-      "height": 32,
-      "scale": 4,
-      "type": "consumable",
-      "stats": {
-        "heal": 3,
-        "life": 0,
-        "damage": 0,
-        "speed": 0
-      }
-    },
-    {
-      "name": "Saunduiche",
-      "sprite": "assets/items/saunduiche.png",
-      "X": 2500,
-      "Y": 450,
-      "width": 32,
-      "height": 32,
-      "scale": 4,
-      "type": "consumable",
-      "stats": {
-        "heal": 2,
-        "life": 0,
-        "damage": 0,
-        "speed": 0
-      }
+  {
+    "name": "Hamburgão",
+    "sprite": "assets/items/hamburgao.png",
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "type": "consumable",
+    "stats": {
+      "heal": 3,
+      "life": 0,
+      "damage": 0,
+      "speed": 0
     }
-  ]
+  },
+  {
+    "name": "Saunduiche",
+    "sprite": "assets/items/saunduiche.png",
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "type": "consumable",
+    "stats": {
+      "heal": 2,
+      "life": 0,
+      "damage": 0,
+      "speed": 0
+    }
+  }
+]

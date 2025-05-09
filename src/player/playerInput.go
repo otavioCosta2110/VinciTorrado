@@ -2,7 +2,7 @@ package player
 
 import (
 	"otaviocosta2110/vincitorrado/src/audio"
-	"otaviocosta2110/vincitorrado/src/objects"
+	"otaviocosta2110/vincitorrado/src/equipment"
 	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/system"
@@ -21,40 +21,45 @@ var (
 )
 
 func (player *Player) CheckMovement(screen screen.Screen) {
-	if player.Object.FrameY == 1 || player.Object.FrameY == 2 {
+	if player.Object.FrameY == 1 || player.Object.FrameY == 2 || player.Object.FrameY == 3 {
 		return
 	}
 
-	if rl.IsKeyDown(rl.KeyLeft) && float32(player.Object.X) > screen.Camera.Target.X - float32(player.Screen.Width)/2 + float32(player.Object.Width/2) {
+	if rl.IsKeyDown(rl.KeyLeft) && float32(player.Object.X) > screen.Camera.Target.X-float32(player.Screen.Width)/2+float32(player.Object.Width/2) {
 		player.Object.X -= player.Speed
-		player.Flipped = true
-		player.Object.UpdateAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
+		player.Object.Flipped = true
+		player.updatePlayerAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
 
 	} else if rl.IsKeyDown(rl.KeyRight) && float32(player.Object.X) < screen.Camera.Target.X+float32(screen.Width)/2.0-float32(player.Object.Width/2.0) {
 		player.Object.X += player.Speed
-		player.Flipped = false
-		player.Object.UpdateAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
+		player.Object.Flipped = false
+		player.updatePlayerAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
 	}
 
 	if rl.IsKeyDown(rl.KeyUp) && player.Object.Y > player.Object.Height-player.Object.Y+(screen.ScenaryHeight+player.Object.Height) {
 		player.Object.Y -= player.Speed
-		player.Object.UpdateAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
+		player.updatePlayerAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
 
 	} else if rl.IsKeyDown(rl.KeyDown) && player.Object.Y < screen.Height-(player.Object.Height)/2 {
 		player.Object.Y += player.Speed
-		player.Object.UpdateAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
+		player.updatePlayerAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
 	}
 }
 
 func (player *Player) CheckAtk(enemyObj system.Object) bool {
 	var isAttacking = false
-	punchWidth := float32(player.Object.Width)
-	punchHeight := player.Object.Height / 2
+	punchWidth := int32(float32(player.Object.Width))
+	punchHeight := float32(player.Object.Height / 2)
+
+	if player.Weapon != nil {
+		punchWidth = int32(float32(player.Object.Width) + float32(player.Weapon.HitboxX))
+		punchHeight = float32(player.Object.Height/2) + float32(player.Weapon.HitboxY)
+	}
 
 	punchX := player.Object.X - player.Object.Width*2
 	punchY := player.Object.Y - player.Object.Height/4
 
-	if player.Flipped {
+	if player.Object.Flipped {
 		punchX = (player.Object.X - player.Object.Width/2)
 	} else {
 		punchX = (player.Object.X + player.Object.Width/2)
@@ -63,72 +68,71 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 	if rl.IsKeyPressed(rl.KeyZ) {
 		isAttacking = true
 
-		player.Object.UpdateAnimation(50, []int{0, 1}, []int{1, 1})
+		player.updatePlayerAnimation(50, []int{0, 1}, []int{1, 1})
 
 		punchObj := system.Object{
 			X:      punchX,
 			Y:      punchY,
 			Width:  int32(punchWidth),
-			Height: punchHeight,
+			Height: int32(punchHeight),
 		}
 
 		if physics.CheckCollision(punchObj, enemyObj) {
-			if !enemyObj.Destroyed{
+			if !enemyObj.Destroyed {
 				audio.PlayPunch()
+			}
+
+			if player.Weapon != nil {
+				player.Weapon.Health -= 1
+				if player.Weapon.Health <= 0 {
+					audio.PlayWeaponBreaking()
+					player.DropWeapon()
+				}
 			}
 
 			return true
 		}
 	}
 	if !isAttacking {
-		player.Object.UpdateAnimation(int(animationDelay), []int{0}, []int{0})
+		player.updatePlayerAnimation(int(animationDelay), []int{0}, []int{0})
 	}
 	return false
 }
 
-func (player *Player) CheckKick(box *objects.Box) bool {
-	if rl.IsKeyPressed(rl.KeyX) && time.Since(player.LastKickTime) > player.KickCooldown {
-		player.IsKicking = true
-		player.LastKickTime = time.Now()
-		player.Object.UpdateAnimation(50, []int{0}, []int{2})
+func (p *Player) CheckKick(kickables []physics.Kickable, items *[]*equipment.Equipment) bool {
+	kickedSomething := false
+	if rl.IsKeyPressed(rl.KeyX) && time.Since(p.LastKickTime) > p.KickCooldown {
+		p.IsKicking = true
+		p.LastKickTime = time.Now()
+		p.Object.FrameY = 3
+		p.Object.FrameX = 0
+		p.Object.UpdateAnimation(50, []int{0}, []int{3})
 
-		box.OriginalY = box.Object.Y
+		kickWidth := p.Object.Width
+		kickHeight := p.Object.Height
+		kickX := p.Object.X - p.Object.Width
+		kickY := p.Object.Y - p.Object.Height/4
 
-		kickWidth := player.Object.Width * 2
-		kickHeight := int32(float32(player.Object.Height) * 1.5)
-
-		kickX := player.Object.X
-		kickY := player.Object.Y - player.Object.Height/4
-
-		if player.Flipped {
+		if p.Object.Flipped {
 			kickX -= kickWidth
 		} else {
-			kickX += player.Object.Width
+			kickX += p.Object.Width
 		}
 
-		rl.DrawRectangle(kickX, kickY, kickWidth, kickHeight, rl.NewColor(0, 0, 255, 128))
-
-		kickObj := system.Object{
+		kickHitbox := system.Object{
 			X:      kickX,
 			Y:      kickY,
 			Width:  kickWidth,
 			Height: kickHeight,
 		}
 
-		if physics.CheckCollision(kickObj, box.Object) {
-			knockbackMultiplier := int32(3)
-
-			if player.Flipped {
-				box.Object.KnockbackX = -player.KickPower * knockbackMultiplier
-			} else {
-				box.Object.KnockbackX = player.KickPower * knockbackMultiplier
+		for _, obj := range kickables {
+			if !obj.IsKicked() && physics.CheckCollision(kickHitbox, obj.GetObject()) {
+				obj.HandleKick(items, p.Object)
+				audio.PlayKick()
+				kickedSomething = true
 			}
-
-			box.Object.KnockbackY = 0
-			audio.PlayKick()
-			return true
 		}
 	}
-	player.IsKicking = false
-	return false
+	return kickedSomething
 }
