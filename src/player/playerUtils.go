@@ -39,15 +39,15 @@ func (p *Player) Draw() {
 		}
 	}
 
-	var width float32 = float32(p.Object.Sprite.SpriteWidth)
-	if p.Flipped {
-		width = -width
+	var playerWidth float32 = float32(p.Object.Sprite.SpriteWidth)
+	if p.Object.Flipped {
+		playerWidth = -playerWidth
 	}
 
 	sourceRec := rl.NewRectangle(
 		float32(p.Object.FrameX)*float32(p.Object.Sprite.SpriteWidth),
 		float32(p.Object.FrameY)*float32(p.Object.Sprite.SpriteHeight),
-		width,
+		playerWidth,
 		float32(p.Object.Sprite.SpriteHeight),
 	)
 
@@ -82,11 +82,15 @@ func (p *Player) Draw() {
 			color,
 		)
 	}
+
+	if p.Weapon != nil {
+		p.Weapon.DrawEquipped(&p.Object)
+	}
 }
 
 func (p *Player) TakeDamage(damage int32, eObj system.Object) {
 	if !p.isInvincible(invencibilityDuration) {
-		p.Object.UpdateAnimation(100, []int{0, 1}, []int{3, 3})
+		p.updatePlayerAnimation(100, []int{0, 1}, []int{2, 2})
 		p.Health -= damage
 		p.LastDamageTaken = time.Now()
 
@@ -122,4 +126,11 @@ func (p *Player) adjustKnockbackToScreenBounds() {
 
 func (p *Player) isInvincible(duration int) bool {
 	return time.Since(p.LastDamageTaken).Milliseconds() <= int64(duration)
+}
+
+func (p *Player) updatePlayerAnimation(animationDelay int, framesX, framesY []int){
+	p.Object.UpdateAnimation(animationDelay, framesX, framesY)
+	if p.Weapon != nil {
+		p.Weapon.Object.UpdateAnimation(animationDelay, framesX, framesY)
+	}
 }

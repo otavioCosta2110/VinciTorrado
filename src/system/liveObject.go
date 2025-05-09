@@ -11,7 +11,6 @@ type LiveObject struct {
 	MaxHealth       int32
 	Damage          int32
 	LastDamageTaken time.Time
-	Flipped         bool
 }
 
 type Live interface {

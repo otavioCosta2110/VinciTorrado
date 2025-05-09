@@ -4,13 +4,14 @@ import (
 	"otaviocosta2110/vincitorrado/src/audio"
 	"otaviocosta2110/vincitorrado/src/enemy"
 	"otaviocosta2110/vincitorrado/src/equipment"
-	"otaviocosta2110/vincitorrado/src/objects"
 	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/player"
+	"otaviocosta2110/vincitorrado/src/props"
 	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/sprites"
 	"otaviocosta2110/vincitorrado/src/system"
 	"otaviocosta2110/vincitorrado/src/ui"
+	"otaviocosta2110/vincitorrado/src/weapon"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -62,23 +63,34 @@ func main() {
 		"assets/enemies/enemyInfo/1_00 enemyInfo.json",
 		playerScale,
 	)
+
+	weapons := []*weapon.Weapon{} 
+	weaponsPtr := &weapons 
+
+	loadedWeapons, err := weapon.LoadWeaponsFromJSON("assets/weapons/1_00 weapon.json")
+	if err != nil {
+		panic("Failed to load weapons: " + err.Error())
+	}
+	*weaponsPtr = loadedWeapons 
+
+	items, err = enemy.LoadItemsFromJSON("assets/items/items.json", playerScale)
 	if err != nil {
 		panic("Failed to load enemies: " + err.Error())
 	}
 
-	trashCans, err := objects.LoadPropsFromJSON("assets/props/props.json", items)
+	trashCans, err := props.LoadPropsFromJSON("assets/props/props.json", items)
 	if err != nil {
 		panic("Failed to load trash cans: " + err.Error())
 	}
 
-	boxes := []*objects.Box{
-		objects.NewBox(200, screen.Height-100, 50, 50),
+	boxes := []*props.Box{
+		props.NewBox(200, screen.Height-100, 50, 50),
 	}
 
 	var kickables []physics.Kickable
-	for _, box := range boxes {
-		kickables = append(kickables, box)
-	}
+	// for _, box := range boxes {
+	// 	kickables = append(kickables, box)
+	// }
 	for _, trash := range trashCans {
 		kickables = append(kickables, trash)
 	}
@@ -94,32 +106,64 @@ func main() {
 		menu.Update()
 
 		if !menu.IsVisible {
-			update(player, enemyManager, screen, kickables, &items)
+			update(player, enemyManager, screen, kickables, &items, weaponsPtr)
 		}
-		draw(player, enemyManager, *screen, chao, buildings, boxes, items, trashCans, *menu)
+		draw(player, enemyManager, *screen, chao, buildings, boxes, items, trashCans, *weaponsPtr, *menu)
 	}
 }
 
-func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, kickables []physics.Kickable, items *[]*equipment.Equipment) {
+func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, kickables []physics.Kickable, items *[]*equipment.Equipment, weapons *[]*weapon.Weapon) {
+	if system.GameOverFlag {
+		return
+	}
 	if kicked := p.CheckKick(kickables, items); kicked {
 		// som de chute
 		audio.PlayKick()
 	}
 
-	if system.GameOverFlag {
-		return
-	}
-
 	p.CheckMovement(*screen)
 
 	for _, obj := range kickables {
-		if box, ok := obj.(*objects.Box); ok {
+		if box, ok := obj.(*props.Box); ok {
 			box.Update([]system.Object{p.GetObject()}, screen, em)
+		}
+	}
+	// for _, box := range boxes {
+	// 	p.CheckKick(box)
+	// 	box.Update([]system.Object{p.GetObject()}, screen, em)
+	// }
+
+	for i := range *weapons {
+		weapon := (*weapons)[i]
+		if weapon.IsDropped {
+			weapon.DrawAnimated()
+			dropWidth := int32(32 * weapon.Object.Scale)
+			dropHeight := int32(32 * weapon.Object.Scale)
+			dropY := weapon.Object.Y - 20
+
+			dropBox := system.Object{
+				X:      weapon.Object.X,
+				Y:      dropY,
+				Width:  dropWidth / 2,
+				Height: dropHeight / 2,
+			}
+
+			playerObj := p.GetObject()
+			if physics.CheckCollision(playerObj, dropBox) {
+				weapon.IsDropped = false
+				weapon.IsEquipped = true
+				p.PickUp(*weapon)
+			}
 		}
 	}
 	p.CheckKick(kickables, items)
 
 	for _, e := range em.Enemies {
+		if e.Weapon != nil && e.Weapon.IsDropped{
+			weapon := e.Weapon.Clone()
+			*weapons = append(*weapons, weapon)
+			e.Weapon = nil
+		}
 		if e.Object.Destroyed && e.Drop != nil && !e.DropCollected {
 			dropWidth := int32(32 * e.Object.Scale)
 			dropHeight := int32(32 * e.Object.Scale)
@@ -170,7 +214,7 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, kic
 	return
 }
 
-func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Texture2D, buildings rl.Texture2D, boxes []*objects.Box, items []*equipment.Equipment, trashCans []*objects.Prop, menu ui.Menu) {
+func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Texture2D, buildings rl.Texture2D, boxes []*props.Box, items []*equipment.Equipment, trashCans []*props.Prop, weapons []*weapon.Weapon, menu ui.Menu) {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.RayWhite)
 
@@ -181,6 +225,12 @@ func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Tex
 	for _, item := range items {
 		if item.IsDropped {
 			item.DrawAnimated(&item.Object)
+		}
+	}
+
+	for _, weapon := range weapons {
+		if weapon.IsDropped {
+			weapon.DrawAnimated()
 		}
 	}
 

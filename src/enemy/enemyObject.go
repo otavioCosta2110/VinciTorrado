@@ -8,6 +8,7 @@ import (
 	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/sprites"
 	"otaviocosta2110/vincitorrado/src/system"
+	"otaviocosta2110/vincitorrado/src/weapon"
 	"time"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -34,6 +35,7 @@ type Enemy struct {
 	EnemyType      string
 	Drop           *equipment.Equipment
 	DropCollected  bool
+	Weapon         *weapon.Weapon
 }
 
 func (e *Enemy) GetObject() system.Object {
@@ -44,7 +46,7 @@ func (e *Enemy) SetObject(obj system.Object) {
 	e.Object = obj
 }
 
-func NewEnemy(x, y, aX, aY, speed, width, height, scale int32, sprite sprites.Sprite, windUpTime int64, enemyType string, drops *equipment.Equipment) *Enemy {
+func NewEnemy(x, y, aX, aY, speed, width, height, scale int32, sprite sprites.Sprite, windUpTime int64, enemyType string, drops *equipment.Equipment, weapon *weapon.Weapon) *Enemy {
 	return &Enemy{
 		LiveObject: system.LiveObject{
 			Object: system.Object{
@@ -65,32 +67,38 @@ func NewEnemy(x, y, aX, aY, speed, width, height, scale int32, sprite sprites.Sp
 				},
 				Scale:     scale,
 				Destroyed: false,
+				Flipped:   false,
 			},
 			MaxHealth: 5,
 			Health:    5,
 			Speed:     speed,
-			Flipped:   false,
 		},
 		Activate_pos_X: aX,
 		Activate_pos_Y: aY,
-		IsActive:   false,
-		Layer:      0,
-		CanMove:    true,
-		WindUpTime: windUpTime,
-		isSpawning: true,
-		EnemyType:  enemyType,
-		Drop:       drops,
+		IsActive:       false,
+		Layer:          0,
+		CanMove:        true,
+		WindUpTime:     windUpTime,
+		isSpawning:     true,
+		EnemyType:      enemyType,
+		Drop:           drops,
+		Weapon:         weapon,
 	}
 }
 
 func (e *Enemy) Draw() {
-	var width float32 = float32(e.Object.Sprite.SpriteWidth)
-	if e.Flipped {
-		width = -float32(width)
+	if e.Object.Destroyed {
+		if e.Drop != nil && !e.DropCollected {
+			e.Drop.DrawAnimated(&e.Object)
+		}
+		if e.Weapon != nil && e.Weapon.IsDropped {
+			e.Weapon.DrawAnimated()
+		}
 	}
 
-	if e.Object.Destroyed && e.Drop != nil && !e.DropCollected {
-		e.Drop.DrawAnimated(&e.Object)
+	var width float32 = float32(e.Object.Sprite.SpriteWidth)
+	if e.Object.Flipped {
+		width = -float32(width)
 	}
 
 	sourceRec := rl.NewRectangle(
@@ -116,6 +124,9 @@ func (e *Enemy) Draw() {
 	if e.Object.Destroyed && e.Drop != nil {
 		e.Drop.DrawAnimated(&e.Object)
 	}
+	if e.Weapon != nil && !e.Weapon.IsDropped {
+		e.Weapon.DrawEquipped(&e.Object)
+	}
 }
 
 func (e *Enemy) CheckAtk(player system.Object) bool {
@@ -125,7 +136,7 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 	punchWidth := e.Object.Width / 2
 	punchHeight := e.Object.Height / 2
 
-	if e.Flipped {
+	if e.Object.Flipped {
 		punchX -= (punchWidth + punchWidth) - 35
 	} else {
 		punchX += punchWidth
@@ -154,14 +165,13 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 
 			framex := rand.Intn(2)
 			e.Object.FrameX = int32(framex)
-			e.Object.UpdateAnimation(50, []int{framex}, []int{1})
-
+			e.updateEnemyAnimation(50, []int{framex}, []int{1})
 			audio.PlayPunch()
 			return true
 		}
 	}
 
-	e.Object.UpdateAnimation(300, []int{0, 1}, []int{0, 0})
+	e.updateEnemyAnimation(300, []int{0, 1}, []int{0, 0})
 	return false
 }
 
@@ -172,6 +182,7 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen) {
 	if e.Object.Destroyed {
 		e.Object.FrameX = 0
 		e.Object.FrameY = 3
+		e.DropWeapon()
 		return
 	}
 
@@ -223,13 +234,13 @@ func (e *Enemy) TakeDamage(damage int32, pX int32, pY int32) {
 	e.HitCount++
 
 	if e.HitCount >= 3 {
-		e.Object.UpdateAnimation(100, []int{1, 1}, []int{2, 2})
+		e.updateEnemyAnimation(100, []int{1, 1}, []int{2, 2})
 		e.setKnockback(pX)
 		e.HitCount = 0
 		e.IsStunned = true
 		e.StunEndTime = time.Now().Add(700 * time.Millisecond)
 	} else {
-		e.Object.UpdateAnimation(100, []int{0, 0}, []int{2, 2})
+		e.updateEnemyAnimation(100, []int{0, 0}, []int{2, 2})
 	}
 
 	e.LastDamageTaken = time.Now()
@@ -246,4 +257,23 @@ func (e *Enemy) TakeDamageFromBox(box system.Object) {
 		e.Object.KnockbackX = knockbackStrength
 	}
 	e.Object.KnockbackY = -knockbackStrength / 2
+}
+
+func (e *Enemy) updateEnemyAnimation(animationDelay int, framesX, framesY []int) {
+	e.Object.UpdateAnimation(animationDelay, framesX, framesY)
+	if e.Weapon != nil {
+		e.Weapon.Object.UpdateAnimation(animationDelay, framesX, framesY)
+	}
+}
+
+func (e *Enemy) DropWeapon() {
+	if e.Weapon != nil {
+
+		e.Weapon.Object.X = e.Object.X + 20
+		e.Weapon.Object.Y = e.Object.Y - 20
+		e.Weapon.IsDropped = true
+		e.Weapon.IsEquipped = false
+		e.Weapon.Object.FrameX = 0
+		e.Weapon.Object.FrameY = 0
+	}
 }

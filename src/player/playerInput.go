@@ -27,34 +27,39 @@ func (player *Player) CheckMovement(screen screen.Screen) {
 
 	if rl.IsKeyDown(rl.KeyLeft) && float32(player.Object.X) > screen.Camera.Target.X-float32(player.Screen.Width)/2+float32(player.Object.Width/2) {
 		player.Object.X -= player.Speed
-		player.Flipped = true
-		player.Object.UpdateAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
+		player.Object.Flipped = true
+		player.updatePlayerAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
 
 	} else if rl.IsKeyDown(rl.KeyRight) && float32(player.Object.X) < screen.Camera.Target.X+float32(screen.Width)/2.0-float32(player.Object.Width/2.0) {
 		player.Object.X += player.Speed
-		player.Flipped = false
-		player.Object.UpdateAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
+		player.Object.Flipped = false
+		player.updatePlayerAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
 	}
 
 	if rl.IsKeyDown(rl.KeyUp) && player.Object.Y > player.Object.Height-player.Object.Y+(screen.ScenaryHeight+player.Object.Height) {
 		player.Object.Y -= player.Speed
-		player.Object.UpdateAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
+		player.updatePlayerAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
 
 	} else if rl.IsKeyDown(rl.KeyDown) && player.Object.Y < screen.Height-(player.Object.Height)/2 {
 		player.Object.Y += player.Speed
-		player.Object.UpdateAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
+		player.updatePlayerAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
 	}
 }
 
 func (player *Player) CheckAtk(enemyObj system.Object) bool {
 	var isAttacking = false
-	punchWidth := float32(player.Object.Width)
-	punchHeight := player.Object.Height / 2
+	punchWidth := int32(float32(player.Object.Width))
+	punchHeight := float32(player.Object.Height / 2)
+
+	if player.Weapon != nil {
+		punchWidth = int32(float32(player.Object.Width) + float32(player.Weapon.HitboxX))
+		punchHeight = float32(player.Object.Height/2) + float32(player.Weapon.HitboxY)
+	}
 
 	punchX := player.Object.X - player.Object.Width*2
 	punchY := player.Object.Y - player.Object.Height/4
 
-	if player.Flipped {
+	if player.Object.Flipped {
 		punchX = (player.Object.X - player.Object.Width/2)
 	} else {
 		punchX = (player.Object.X + player.Object.Width/2)
@@ -63,13 +68,13 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 	if rl.IsKeyPressed(rl.KeyZ) {
 		isAttacking = true
 
-		player.Object.UpdateAnimation(50, []int{0, 1}, []int{1, 1})
+		player.updatePlayerAnimation(50, []int{0, 1}, []int{1, 1})
 
 		punchObj := system.Object{
 			X:      punchX,
 			Y:      punchY,
 			Width:  int32(punchWidth),
-			Height: punchHeight,
+			Height: int32(punchHeight),
 		}
 
 		if physics.CheckCollision(punchObj, enemyObj) {
@@ -77,32 +82,38 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 				audio.PlayPunch()
 			}
 
+			if player.Weapon != nil {
+				player.Weapon.Health -= 1
+				if player.Weapon.Health <= 0 {
+					// todo: adicionar som de arma quebando
+					player.DropWeapon()
+				}
+			}
+
 			return true
 		}
 	}
 	if !isAttacking {
-		player.Object.UpdateAnimation(int(animationDelay), []int{0}, []int{0})
+		player.updatePlayerAnimation(int(animationDelay), []int{0}, []int{0})
 	}
 	return false
 }
 
 func (p *Player) CheckKick(kickables []physics.Kickable, items *[]*equipment.Equipment) bool {
 	kickedSomething := false
-
 	if rl.IsKeyPressed(rl.KeyX) && time.Since(p.LastKickTime) > p.KickCooldown {
 		p.IsKicking = true
 		p.LastKickTime = time.Now()
-		p.Object.FrameY = 2
+		p.Object.FrameY = 3
 		p.Object.FrameX = 0
-		p.Object.UpdateAnimation(50, []int{0}, []int{2})
+		p.Object.UpdateAnimation(50, []int{0}, []int{3})
 
 		kickWidth := p.Object.Width
 		kickHeight := p.Object.Height
 		kickX := p.Object.X - p.Object.Width
-		kickY := p.Object.Y - p.Object.Height/4 
+		kickY := p.Object.Y - p.Object.Height/4
 
-
-		if p.Flipped {
+		if p.Object.Flipped {
 			kickX -= kickWidth
 		} else {
 			kickX += p.Object.Width
@@ -137,8 +148,8 @@ func (p *Player) CheckKick(kickables []physics.Kickable, items *[]*equipment.Equ
 				kickedSomething = true
 			}
 		}
-	}
 
-	p.IsKicking = false
+		p.IsKicking = false
+	}
 	return kickedSomething
 }

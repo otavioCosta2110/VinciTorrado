@@ -1,4 +1,4 @@
-package objects
+package props
 
 import (
 	"otaviocosta2110/vincitorrado/src/enemy"

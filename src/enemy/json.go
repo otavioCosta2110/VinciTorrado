@@ -6,7 +6,10 @@ import (
 	"os"
 
 	"otaviocosta2110/vincitorrado/src/equipment"
+	"otaviocosta2110/vincitorrado/src/objects"
 	"otaviocosta2110/vincitorrado/src/sprites"
+	"otaviocosta2110/vincitorrado/src/system"
+	"otaviocosta2110/vincitorrado/src/weapon"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -27,20 +30,34 @@ type Drops struct {
 	Equipment []Drop `json:"equipment"`
 }
 
+type WeaponDrop struct {
+	Sprite  string    `json:"sprite"`
+	HitboxX int32     `json:"hitbox_X"`
+	HitboxY int32     `json:"hitbox_Y"`
+	OffsetX int32     `json:"offset_X"`
+	OffsetY int32     `json:"offset_Y"`
+	Width   int32     `json:"width"`
+	Height  int32     `json:"height"`
+	Stats   DropStats `json:"stats"`
+	Health  int32     `json:"health"`
+	Scale   int32     `json:"scale"`
+}
+
 type EnemyConfig struct {
-	Sprite         string `json:"sprite"`
-	X              int32  `json:"X"`
-	Y              int32  `json:"Y"`
-	Activate_pos_X *int32  `json:"activate_pos_X"`
-	Activate_pos_Y *int32  `json:"activate_pos_Y"`
-	Width          int32  `json:"width"`
-	Height         int32  `json:"height"`
-	Health         int32  `json:"health"`
-	Damage         int32  `json:"damage"`
-	Speed          int32  `json:"speed"`
-	WindUpTime     int64  `json:"windUpTime"`
-	Scale          int32  `json:"scale"`
-	Drops          *Drop  `json:"drops"`
+	Sprite         string      `json:"sprite"`
+	X              int32       `json:"X"`
+	Y              int32       `json:"Y"`
+	Activate_pos_X *int32      `json:"activate_pos_X"`
+	Activate_pos_Y *int32      `json:"activate_pos_Y"`
+	Width          int32       `json:"width"`
+	Height         int32       `json:"height"`
+	Health         int32       `json:"health"`
+	Damage         int32       `json:"damage"`
+	Speed          int32       `json:"speed"`
+	WindUpTime     int64       `json:"windUpTime"`
+	Scale          int32       `json:"scale"`
+	Drops          *Drop       `json:"drops"`
+	Weapon         *WeaponDrop `json:"weapon"`
 }
 
 func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
@@ -67,10 +84,37 @@ func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
 			dropSprite := config.Drops.Sprite
 			dropName := config.Drops.Name
 			dropStatsJson := config.Drops.Stats
-			dropStats := equipment.Stats{Life: dropStatsJson.Health, Damage: dropStatsJson.Damage, Speed: dropStatsJson.Speed}
+			dropStats := objects.Stats{Life: dropStatsJson.Health, Damage: dropStatsJson.Damage, Speed: dropStatsJson.Speed}
 			drop = equipment.New(dropName, dropSprite, dropStats)
 		} else {
 			drop = nil
+		}
+
+		var weaponFromJson *weapon.Weapon
+		if config.Weapon != nil {
+			weaponSprite := sprites.Sprite{
+				SpriteWidth:  config.Weapon.Width,
+				SpriteHeight: config.Weapon.Height,
+				Texture:      rl.LoadTexture(config.Weapon.Sprite),
+			}
+			weaponStatsJson := config.Weapon.Stats
+			weaponStats := objects.Stats{Life: weaponStatsJson.Health, Damage: weaponStatsJson.Damage, Speed: weaponStatsJson.Speed}
+			weaponFromJson = weapon.New(
+				&system.Object{
+					Sprite: weaponSprite,
+					Scale: config.Scale,
+					Width: config.Weapon.Width * config.Weapon.Scale,
+					Height: config.Weapon.Height * config.Weapon.Scale,
+				},
+				config.Weapon.OffsetX,
+				config.Weapon.OffsetY,
+				config.Weapon.HitboxX,
+				config.Weapon.HitboxY,
+				weaponStats,
+				config.Weapon.Health,
+				true,
+				false,
+			)
 		}
 
 		if config.Activate_pos_X == nil {
@@ -93,6 +137,7 @@ func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
 			config.WindUpTime,
 			"normal",
 			drop,
+			weaponFromJson,
 		)
 
 		enemy.Health = config.Health

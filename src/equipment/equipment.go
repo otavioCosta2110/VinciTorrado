@@ -2,8 +2,9 @@ package equipment
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 	"math"
+	"otaviocosta2110/vincitorrado/src/objects"
 	"otaviocosta2110/vincitorrado/src/sprites"
 	"otaviocosta2110/vincitorrado/src/system"
 
@@ -15,13 +16,13 @@ type Equipment struct {
 	IsEquipped bool
 	IsDropped  bool
 	Type       string
-	Stats      Stats
+	Stats      objects.Stats
 	OffsetX    int32
 	OffsetY    int32
 	Object     system.Object
 }
 
-func New(name string, texturePath string, stats Stats) *Equipment {
+func New(name string, texturePath string, stats objects.Stats) *Equipment {
 	spritesheet := sprites.Sprite{
 		SpriteWidth:  32,
 		SpriteHeight: 32,
@@ -73,7 +74,7 @@ func (e *Equipment) DrawAnimated(obj *system.Object) {
 	)
 }
 
-func NewConsumable(name, spritePath string, stats Stats) *Equipment {
+func NewConsumable(name, spritePath string, stats objects.Stats) *Equipment {
 	return &Equipment{
 		Name:  name,
 		Type:  "consumable",
@@ -92,7 +93,7 @@ func NewConsumable(name, spritePath string, stats Stats) *Equipment {
 }
 
 func LoadItemsFromJSON(path string) ([]*Equipment, error) {
-	data, err := ioutil.ReadFile(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +102,7 @@ func LoadItemsFromJSON(path string) ([]*Equipment, error) {
 		Name   string `json:"name"`
 		Sprite string `json:"sprite"`
 		Type   string `json:"type"`
-		Stats  Stats  `json:"stats"`
+		Stats  objects.Stats  `json:"stats"`
 		Scale  int32  `json:"scale"`
 	}
 

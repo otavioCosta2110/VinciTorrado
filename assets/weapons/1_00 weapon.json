@@ -1,0 +1,16 @@
+[
+  {
+    "sprite": "assets/weapons/knife.png",
+    "X": 800,
+    "Y": 360,
+    "hitbox_X": 30,
+    "hitbox_Y": 0,
+    "offset_X": 9,
+    "offset_Y": 0,
+    "width": 32,
+    "height": 32,
+    "damage": 1,
+    "health": 8,
+    "scale": 4
+  }
+]

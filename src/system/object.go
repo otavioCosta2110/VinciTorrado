@@ -19,6 +19,7 @@ type Object struct {
 	Scale          int32
 	Destroyed      bool
 	IsKicking      bool
+	Flipped         bool
 }
 
 func (obj *Object) UpdateAnimation(animationDelay int, framesX, framesY []int) {

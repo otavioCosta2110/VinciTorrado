@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"otaviocosta2110/vincitorrado/src/equipment"
+	"otaviocosta2110/vincitorrado/src/objects"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -19,7 +20,7 @@ type ItemConfig struct {
 	Height int32           `json:"height"`
 	Scale  int32           `json:"scale"`
 	Type   string          `json:"type"`
-	Stats  equipment.Stats `json:"stats"`
+	Stats  objects.Stats `json:"stats"`
 }
 
 func LoadItemsFromJSON(filename string, playerScale int32) ([]*equipment.Equipment, error) {

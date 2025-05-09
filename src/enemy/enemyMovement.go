@@ -42,9 +42,9 @@ func MoveEnemyTowardPlayer(p system.Player, e Enemy, s screen.Screen) Enemy {
 		e.Object.Y += int32((distY * float64(e.Speed)) * 1.5)
 
 		if distX > 0 {
-			e.Flipped = false
+			e.Object.Flipped = false
 		} else if distX < 0 {
-			e.Flipped = true
+			e.Object.Flipped = true
 		}
 	}
 
