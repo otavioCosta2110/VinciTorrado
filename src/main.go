@@ -38,6 +38,7 @@ func main() {
 
 	rl.InitAudioDevice()
 	audio.LoadSounds()
+	audio.PlayMissionMusic()
 	defer rl.CloseAudioDevice()
 	defer audio.UnloadSounds()
 
@@ -96,6 +97,7 @@ func main() {
 	screen.InitCamera(player.Object.X, player.Object.Y)
 
 	for !rl.WindowShouldClose() {
+		audio.UpdateMusic()
 		menu.Update()
 
 		if !menu.IsVisible {
