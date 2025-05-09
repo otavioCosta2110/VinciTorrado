@@ -98,14 +98,23 @@ func (p *Player) CheckKick(kickables []physics.Kickable, items *[]*equipment.Equ
 
 		kickWidth := p.Object.Width
 		kickHeight := p.Object.Height
-		kickX := p.Object.X
-		kickY := p.Object.Y - p.Object.Height/4
+		kickX := p.Object.X - p.Object.Width
+		kickY := p.Object.Y - p.Object.Height/4 
+
 
 		if p.Flipped {
 			kickX -= kickWidth
 		} else {
 			kickX += p.Object.Width
 		}
+
+		rl.DrawRectangle(
+			(kickX),
+			(kickY),
+			(kickWidth),
+			(kickHeight),
+			rl.Red,
+		)
 
 		kickHitbox := system.Object{
 			X:      kickX,
