@@ -9,7 +9,7 @@ var (
 
 func LoadSounds() {
 	PunchSound = rl.LoadSound("assets/sounds/sound_punch.mp3")
-	KickSound = rl.LoadSound("assets/sounds/kick_box.mp3")
+	KickSound = rl.LoadSound("assets/sounds/kick_Trash.mp3")
 
 }
 
