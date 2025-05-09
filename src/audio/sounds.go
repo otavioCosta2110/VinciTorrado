@@ -13,7 +13,7 @@ func LoadSounds() {
 	PunchSound = rl.LoadSound("assets/sounds/sound_punch.mp3")
 	KickSound = rl.LoadSound("assets/sounds/Kick_Trash.mp3")
 	WeaponBreakingSound = rl.LoadSound("assets/sounds/weapon_breaking.mp3")
-	Mission1Music = rl.LoadMusicStream("assets/sounds/mission.mp3")
+	Mission1Music = rl.LoadMusicStream("assets/sounds/mission1.mp3")
 }
 
 func UnloadSounds() {

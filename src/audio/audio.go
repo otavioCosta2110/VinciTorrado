@@ -12,7 +12,7 @@ func PlayKick() {
 
 func PlayMissionMusic() {
 	rl.PlayMusicStream(Mission1Music)
-	rl.SetMusicVolume(Mission1Music, 0.02)
+	rl.SetMusicVolume(Mission1Music, 0.5)
 }
 
 func UpdateMusic() {
