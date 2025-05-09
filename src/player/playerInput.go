@@ -21,7 +21,7 @@ var (
 )
 
 func (player *Player) CheckMovement(screen screen.Screen) {
-	if player.Object.FrameY == 1 || player.Object.FrameY == 2 {
+	if player.Object.FrameY == 1 || player.Object.FrameY == 2 || player.Object.FrameY == 3 {
 		return
 	}
 
@@ -85,7 +85,7 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 			if player.Weapon != nil {
 				player.Weapon.Health -= 1
 				if player.Weapon.Health <= 0 {
-					// todo: adicionar som de arma quebando
+					audio.PlayWeaponBreaking()
 					player.DropWeapon()
 				}
 			}
@@ -133,8 +133,6 @@ func (p *Player) CheckKick(kickables []physics.Kickable, items *[]*equipment.Equ
 				kickedSomething = true
 			}
 		}
-
-		p.IsKicking = false
 	}
 	return kickedSomething
 }

@@ -111,7 +111,6 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, kic
 	}
 	if kicked := p.CheckKick(kickables, items); kicked {
 		// som de chute
-		audio.PlayKick()
 	}
 
 	p.CheckMovement(*screen)
