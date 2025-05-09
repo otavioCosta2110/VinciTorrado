@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"os"
 	"otaviocosta2110/vincitorrado/src/equipment"
-	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/sprites"
 	"otaviocosta2110/vincitorrado/src/system"
 
@@ -32,7 +31,7 @@ type Prop struct {
 	HitboxOffset  float32
 }
 
-func LoadTrashCansFromJSON(path string, items []*equipment.Equipment) ([]*Prop, error) {
+func LoadPropsFromJSON(path string, items []*equipment.Equipment) ([]*Prop, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -43,7 +42,7 @@ func LoadTrashCansFromJSON(path string, items []*equipment.Equipment) ([]*Prop, 
 		return nil, err
 	}
 
-	var trashCans []*Prop
+	var props []*Prop
 	for _, cfg := range configs {
 		var loot []*equipment.Equipment
 		for _, itemName := range cfg.Loot {
@@ -55,7 +54,7 @@ func LoadTrashCansFromJSON(path string, items []*equipment.Equipment) ([]*Prop, 
 			}
 		}
 
-		trash := NewTrashCan(
+		prop := NewProp(
 			cfg.X,
 			cfg.Y,
 			cfg.Scale,
@@ -65,13 +64,13 @@ func LoadTrashCansFromJSON(path string, items []*equipment.Equipment) ([]*Prop, 
 			cfg.KickedTexture,
 			loot,
 		)
-		trashCans = append(trashCans, trash)
+		props = append(props, prop)
 	}
 
-	return trashCans, nil
+	return props, nil
 }
 
-func NewTrashCan(x, y, scale, width, height int32, normalTexPath, kickedTexPath string, loot []*equipment.Equipment) *Prop {
+func NewProp(x, y, scale, width, height int32, normalTexPath, kickedTexPath string, loot []*equipment.Equipment) *Prop {
 	normalTex := rl.LoadTexture(normalTexPath)
 	kickedTex := rl.LoadTexture(kickedTexPath)
 
@@ -101,8 +100,8 @@ func (t *Prop) Draw() {
 		rl.NewRectangle(
 			float32(t.X),
 			float32(t.Y),
-			float32(t.Width) * float32(t.Scale),
-			float32(t.Height) * float32(t.Scale),
+			float32(t.Width)*float32(t.Scale),
+			float32(t.Height)*float32(t.Scale),
 		),
 		rl.Vector2{},
 		0,
@@ -110,41 +109,34 @@ func (t *Prop) Draw() {
 	)
 }
 
-func (t *Prop) HandleKick(kickHitbox system.Object, items *[]*equipment.Equipment, isFlipped bool, kickPower int32) bool {
-	hitboxObj := system.Object{
-		X: t.GetObject().X,
-		Y: t.GetObject().Y,
-		Width: t.GetObject().Width/2,
-		Height: t.GetObject().Width,
-	}
+func (t *Prop) IsKicked() bool {
+	return t.Kicked
+}
 
-	if !t.Kicked && physics.CheckCollision(kickHitbox, hitboxObj) {
-		t.Kicked = true
-		t.Object.Sprite.Texture = t.KickedTexture
+func (t *Prop) HandleKick(items *[]*equipment.Equipment, _ system.Object) {
+	t.Kicked = true
+	t.Object.Sprite.Texture = t.KickedTexture
 
-		proto := t.LootTable[rand.Intn(len(t.LootTable))]
-		item := &equipment.Equipment{
-			Name:      proto.Name,
-			Type:      proto.Type,
-			Stats:     proto.Stats,
-			IsDropped: true,
-			Object: system.Object{
-				X:      t.Object.X + (t.Object.Width * t.Object.Scale)/2,
-				Y:      t.Object.Y,
-				Width:  proto.Object.Width,
-				Height: proto.Object.Height,
-				Scale:  proto.Object.Scale,
-				Sprite: sprites.Sprite{
-					Texture:      proto.Object.Sprite.Texture,
-					SpriteWidth:  proto.Object.Sprite.SpriteWidth,
-					SpriteHeight: proto.Object.Sprite.SpriteHeight,
-				},
+	proto := t.LootTable[rand.Intn(len(t.LootTable))]
+	item := &equipment.Equipment{
+		Name:      proto.Name,
+		Type:      proto.Type,
+		Stats:     proto.Stats,
+		IsDropped: true,
+		Object: system.Object{
+			X:      t.Object.X + (t.Object.Width*t.Object.Scale)/2,
+			Y:      t.Object.Y,
+			Width:  proto.Object.Width,
+			Height: proto.Object.Height,
+			Scale:  proto.Object.Scale,
+			Sprite: sprites.Sprite{
+				Texture:      proto.Object.Sprite.Texture,
+				SpriteWidth:  proto.Object.Sprite.SpriteWidth,
+				SpriteHeight: proto.Object.Sprite.SpriteHeight,
 			},
-		}
-		*items = append(*items, item)
-		return true
+		},
 	}
-	return false
+	*items = append(*items, item)
 }
 
 func (t *Prop) GetObject() system.Object {

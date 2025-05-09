@@ -6,11 +6,7 @@ import (
 )
 
 type Kickable interface {
-	HandleKick(
-		kickHitbox system.Object,
-		items *[]*equipment.Equipment,
-		isFlipped bool,
-		kickPower int32,
-	) bool
+	IsKicked() bool
+	HandleKick(items *[]*equipment.Equipment, playerObject system.Object)
 	GetObject() system.Object
 }

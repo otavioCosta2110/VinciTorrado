@@ -10,10 +10,6 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-type BoxCollisionHandler interface {
-	CheckBoxCollisions(box system.Object)
-}
-
 type Box struct {
 	Object    system.Object
 	Texture   rl.Texture2D
@@ -36,23 +32,20 @@ func NewBox(x, y, width, height int32) *Box {
 	}
 }
 
-func (b *Box) HandleKick(
-	kickHitbox system.Object,
-	_ *[]*equipment.Equipment,
-	isFlipped bool,
-	kickPower int32,
-) bool {
-	if physics.CheckCollision(kickHitbox, b.Object) {
-		knockbackMultiplier := int32(3)
-		if isFlipped {
-			b.Object.KnockbackX = -kickPower * knockbackMultiplier
-		} else {
-			b.Object.KnockbackX = kickPower * knockbackMultiplier
-		}
-		b.Object.KnockbackY = 0
-		return true
-	}
+func (b *Box) IsKicked() bool{
 	return false
+}
+
+func (b *Box) HandleKick(_ *[]*equipment.Equipment, playerObj system.Object) {
+		// knockbackMultiplier := int32(3)
+		// b.Object.KnockbackX = 150 * knockbackMultiplier
+		knockbackMultiplier := int32(10)
+    b.Object.KnockbackX = 10 * knockbackMultiplier
+    // b.Object.KnockbackY = -50 * knockbackMultiplier
+		// } else {
+		// 	b.Object.KnockbackX = kickPower * knockbackMultiplier
+		// }
+		// b.Object.KnockbackY = 0
 }
 
 func (b *Box) Draw() {
@@ -71,7 +64,7 @@ func (b *Box) Draw() {
 	)
 }
 
-func (b *Box) Update(colliders []system.Object, s *screen.Screen, em *enemy.EnemyManager, handler BoxCollisionHandler) {
+func (b *Box) Update(colliders []system.Object, s *screen.Screen, em *enemy.EnemyManager) {
 	b.Object.X += b.Object.KnockbackX
 	b.Object.Y += b.Object.KnockbackY
 
@@ -113,9 +106,6 @@ func (b *Box) Update(colliders []system.Object, s *screen.Screen, em *enemy.Enem
 		}
 	}
 
-	if handler != nil {
-		handler.CheckBoxCollisions(b.Object)
-	}
 	if em != nil && (abs(b.Object.KnockbackX) > 5 || abs(b.Object.KnockbackY) > 5) {
 		for _, e := range em.ActiveEnemies {
 			if physics.CheckCollision(b.Object, e.Object) {

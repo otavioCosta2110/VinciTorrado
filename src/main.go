@@ -66,7 +66,7 @@ func main() {
 		panic("Failed to load enemies: " + err.Error())
 	}
 
-	trashCans, err := objects.LoadTrashCansFromJSON("assets/props/props.json", items)
+	trashCans, err := objects.LoadPropsFromJSON("assets/props/props.json", items)
 	if err != nil {
 		panic("Failed to load trash cans: " + err.Error())
 	}
@@ -114,9 +114,10 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, kic
 
 	for _, obj := range kickables {
 		if box, ok := obj.(*objects.Box); ok {
-			box.Update([]system.Object{p.GetObject()}, screen, em, nil)
+			box.Update([]system.Object{p.GetObject()}, screen, em)
 		}
 	}
+	p.CheckKick(kickables, items)
 
 	for _, e := range em.Enemies {
 		if e.Object.Destroyed && e.Drop != nil && !e.DropCollected {

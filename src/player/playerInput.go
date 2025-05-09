@@ -115,12 +115,15 @@ func (p *Player) CheckKick(kickables []physics.Kickable, items *[]*equipment.Equ
 		}
 
 		for _, obj := range kickables {
-			if obj.HandleKick(
-				kickHitbox,
-				items,
-				p.Flipped,
-				p.KickPower,
-			) {
+			// hitboxObj := system.Object{
+			// 	X: t.GetObject().X,
+			// 	Y: t.GetObject().Y,
+			// 	Width: t.GetObject().Width/2,
+			// 	Height: t.GetObject().Width,
+			// }
+
+			if !obj.IsKicked() && physics.CheckCollision(kickHitbox, obj.GetObject()) {
+				obj.HandleKick(items, p.Object)
 				audio.PlayKick()
 				kickedSomething = true
 			}
