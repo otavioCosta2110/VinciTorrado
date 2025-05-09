@@ -277,3 +277,17 @@ func (e *Enemy) DropWeapon() {
 		e.Weapon.Object.FrameY = 0
 	}
 }
+func (e *Enemy) GetDropCollisionBox() system.Object {
+	if e.Drop == nil {
+		return system.Object{} 
+	}
+	dropWidth := int32(32 * e.Object.Scale)
+	dropHeight := int32(32 * e.Object.Scale)
+	dropY := e.Object.Y - 20
+	return system.Object{
+		X:      e.Object.X,
+		Y:      dropY,
+		Width:  dropWidth / 2,
+		Height: dropHeight / 2,
+	}
+}

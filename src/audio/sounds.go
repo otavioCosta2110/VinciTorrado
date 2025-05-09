@@ -7,17 +7,20 @@ var (
 	KickSound           rl.Sound
 	WeaponBreakingSound rl.Sound
 	Mission1Music       rl.Music
+	CollectItemSound    rl.Sound
 )
 
 func LoadSounds() {
 	PunchSound = rl.LoadSound("assets/sounds/sound_punch.mp3")
 	KickSound = rl.LoadSound("assets/sounds/Kick_Trash.mp3")
 	WeaponBreakingSound = rl.LoadSound("assets/sounds/weapon_breaking.mp3")
+	CollectItemSound = rl.LoadSound("assets/sounds/collect_item.mp3")
 	Mission1Music = rl.LoadMusicStream("assets/sounds/mission1.mp3")
 }
 
 func UnloadSounds() {
 	rl.UnloadSound(PunchSound)
 	rl.UnloadSound(KickSound)
+	rl.UnloadSound(CollectItemSound)
 	rl.UnloadMusicStream(Mission1Music)
 }

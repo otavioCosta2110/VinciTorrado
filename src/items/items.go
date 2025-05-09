@@ -1,4 +1,4 @@
-package enemy
+package items
 
 import (
 	"encoding/json"

@@ -123,3 +123,6 @@ func LoadItemsFromJSON(path string) ([]*Equipment, error) {
 
 	return items, nil
 }
+func (e *Equipment) GetObject() *system.Object {
+	return &e.Object
+}

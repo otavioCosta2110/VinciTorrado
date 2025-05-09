@@ -12,16 +12,22 @@ import (
 )
 
 const (
-	animationDelay int32 = 300
+	animationDelay  int32 = 300
+	attackAnimSpeed       = 50
+	kickAnimSpeed         = 50
 )
 
 var (
 	framesWalkingX = []int{0, 1}
 	framesWalkingY = []int{0, 0}
+	framesAttackX  = []int{0, 1}
+	framesAttackY  = []int{1, 1}
+	frameKickX     = []int{0}
+	frameKickY     = []int{3}
 )
 
 func (player *Player) CheckMovement(screen screen.Screen) {
-	if player.Object.FrameY == 1 || player.Object.FrameY == 2 || player.Object.FrameY == 3 {
+	if player.Object.FrameY != 0 {
 		return
 	}
 
@@ -80,15 +86,15 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 		if physics.CheckCollision(punchObj, enemyObj) {
 			if !enemyObj.Destroyed {
 				audio.PlayPunch()
-			}
-
-			if player.Weapon != nil {
-				player.Weapon.Health -= 1
-				if player.Weapon.Health <= 0 {
-					audio.PlayWeaponBreaking()
-					player.DropWeapon()
+				if player.Weapon != nil {
+					player.Weapon.Health -= 1
+					if player.Weapon.Health <= 0 {
+						audio.PlayWeaponBreaking()
+						player.DropWeapon()
+					}
 				}
 			}
+
 
 			return true
 		}

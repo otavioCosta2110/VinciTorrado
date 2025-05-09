@@ -146,3 +146,15 @@ func (w *Weapon) Clone() *Weapon {
 		Health:     w.Health,
 	}
 }
+func (w *Weapon) GetDropCollisionBox() system.Object {
+	dropWidth := int32(32 * w.Object.Scale)
+	dropHeight := int32(32 * w.Object.Scale)
+	dropY := w.Object.Y - 20
+	return system.Object{
+		X:      w.Object.X - dropWidth/4,
+		Y:      dropY,
+		Width:  dropWidth / 4,
+		Height: dropHeight / 4,
+	}
+}
+

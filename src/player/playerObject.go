@@ -121,8 +121,6 @@ func (p *Player) PickUp(w weapon.Weapon) {
 	p.Weapon = &w
 	p.Weapon.IsDropped = false
 	p.Weapon.IsEquipped = true
-	menu_select_sound := rl.LoadSound("assets/sounds/collect_item.mp3")
-	rl.PlaySound(menu_select_sound)
 
 	p.Damage += w.Stats.Damage
 }

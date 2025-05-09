@@ -14,6 +14,7 @@ import (
 	"otaviocosta2110/vincitorrado/src/weapon"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
+	"slices"
 )
 
 const (
@@ -23,36 +24,51 @@ const (
 	playerScale  int32  = 4
 	playerSizeX  int32  = 32
 	playerSizeY  int32  = 32
+
+	// feature flags
+	oneHealthEnemies bool = true
+	enableMusic      bool = false
+	enableSoundFxs   bool = false
 )
+
+type GameState struct {
+	Player       *player.Player
+	EnemyManager *enemy.EnemyManager
+	Screen       *screen.Screen
+	Kickables    []physics.Kickable
+	Items        []*equipment.Equipment
+	Props        []*props.Prop
+	Weapons      []*weapon.Weapon
+	Menu         ui.Menu
+}
 
 func main() {
 	rl.InitWindow(windowWidth, windowHeight, windowTitle)
-
-	buildings := rl.LoadTexture("assets/scenes/predio.png")
-	buildings.Width *= playerScale
-	buildings.Height *= playerScale
-
-	chao := rl.LoadTexture("assets/scenes/chao.png")
-	chao.Width *= playerScale
-	chao.Height *= playerScale
-
-	rl.InitAudioDevice()
-	audio.LoadSounds()
-	audio.PlayMissionMusic()
-	defer rl.CloseAudioDevice()
-	defer audio.UnloadSounds()
-
-	screen := screen.NewScreen(windowWidth, windowHeight, buildings.Width, buildings.Height, windowTitle)
 	defer rl.CloseWindow()
 	rl.SetTargetFPS(60)
 	rl.SetExitKey(0)
+	rl.InitAudioDevice()
+	defer rl.CloseAudioDevice()
+
+	if enableSoundFxs {
+		audio.LoadSounds()
+	}
+	if enableMusic {
+		audio.PlayMissionMusic()
+	}
+	defer audio.UnloadSounds()
+
+	buildings := loadScaledTexture("assets/scenes/predio.png", playerScale)
+	chao := loadScaledTexture("assets/scenes/chao.png", playerScale)
+
+	screen := screen.NewScreen(windowWidth, windowHeight, buildings.Width, buildings.Height, windowTitle)
 
 	playerSprite := sprites.Sprite{
 		SpriteWidth:  playerSizeX,
 		SpriteHeight: playerSizeY,
 		Texture:      rl.LoadTexture("assets/player/player.png"),
 	}
-	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 2, playerScale, playerSprite, screen)
+	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 4, playerScale, playerSprite, screen)
 	menu := ui.NewMenu(player, &playerSprite)
 
 	items, err := equipment.LoadItemsFromJSON("assets/items/items.json")
@@ -64,19 +80,21 @@ func main() {
 		"assets/enemies/enemyInfo/1_00 enemyInfo.json",
 		playerScale,
 	)
-
-	weapons := []*weapon.Weapon{}
-	weaponsPtr := &weapons
-
-	loadedWeapons, err := weapon.LoadWeaponsFromJSON("assets/weapons/1_00 weapon.json")
-	if err != nil {
-		panic("Failed to load weapons: " + err.Error())
-	}
-	*weaponsPtr = loadedWeapons
-
-	items, err = enemy.LoadItemsFromJSON("assets/items/items.json", playerScale)
 	if err != nil {
 		panic("Failed to load enemies: " + err.Error())
+	}
+
+	enemyManager := &enemy.EnemyManager{}
+	for _, e := range enemies {
+		if oneHealthEnemies {
+			e.Health = 0
+		}
+		enemyManager.AddEnemy(e)
+	}
+
+	weapons, err := weapon.LoadWeaponsFromJSON("assets/weapons/1_00 weapon.json")
+	if err != nil {
+		panic("Failed to load weapons: " + err.Error())
 	}
 
 	props, err := props.LoadPropsFromJSON("assets/props/props.json", items)
@@ -89,137 +107,112 @@ func main() {
 		kickables = append(kickables, prop)
 	}
 
-	enemyManager := &enemy.EnemyManager{}
-	for _, e := range enemies {
-		enemyManager.AddEnemy(e)
-	}
-
 	screen.InitCamera(player.Object.X, player.Object.Y)
 
+	gameState := GameState{
+		Player:       player,
+		EnemyManager: enemyManager,
+		Screen:       screen,
+		Kickables:    kickables,
+		Items:        items,
+		Props:        props,
+		Weapons:      weapons,
+		Menu:         *menu,
+	}
+
+	gameLoop(&gameState, chao, buildings)
+}
+
+func gameLoop(gs *GameState, chao rl.Texture2D, buildings rl.Texture2D) {
 	for !rl.WindowShouldClose() {
 		audio.UpdateMusic()
-		menu.Update()
+		gs.Menu.Update()
 
-		if !menu.IsVisible {
-			update(player, enemyManager, screen, kickables, &items, weaponsPtr)
+		if !gs.Menu.IsVisible {
+			update(gs)
 		}
-		draw(player, enemyManager, *screen, chao, buildings, items, props, *weaponsPtr, *menu)
+		draw(gs, chao, buildings)
 	}
 }
 
-func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, kickables []physics.Kickable, items *[]*equipment.Equipment, weapons *[]*weapon.Weapon) {
+func update(gs *GameState) {
 	if system.GameOverFlag {
 		return
 	}
-	if kicked := p.CheckKick(kickables, items); kicked {
-		// som de chute
-	}
-
-	p.CheckMovement(*screen)
-
-	for i := range *weapons {
-		weapon := (*weapons)[i]
+	for i := range gs.Weapons {
+		weapon := gs.Weapons[i]
 		if weapon.IsDropped {
 			weapon.DrawAnimated()
-			dropWidth := int32(32 * weapon.Object.Scale)
-			dropHeight := int32(32 * weapon.Object.Scale)
-			dropY := weapon.Object.Y - 20
-
-			dropBox := system.Object{
-				X:      weapon.Object.X - dropWidth/4,
-				Y:      dropY,
-				Width:  dropWidth / 4,
-				Height: dropHeight / 4,
-			}
-
-			playerObj := p.GetObject()
-			if physics.CheckCollision(playerObj, dropBox) {
+			dropBox := weapon.GetDropCollisionBox()
+			if physics.CheckCollision(gs.Player.GetObject(), dropBox) {
 				weapon.IsDropped = false
 				weapon.IsEquipped = true
-				p.PickUp(*weapon)
+				gs.Player.PickUp(*weapon)
 			}
 		}
 	}
-	p.CheckKick(kickables, items)
+	gs.Player.CheckKick(gs.Kickables, &gs.Items)
 
-	for _, e := range em.Enemies {
+	for _, e := range gs.EnemyManager.Enemies {
 		if e.Weapon != nil && e.Weapon.IsDropped {
 			weapon := e.Weapon.Clone()
-			*weapons = append(*weapons, weapon)
+			gs.Weapons = append(gs.Weapons, weapon)
 			e.Weapon = nil
 		}
 		if e.Object.Destroyed && e.Drop != nil && !e.DropCollected {
-			dropWidth := int32(32 * e.Object.Scale)
-			dropHeight := int32(32 * e.Object.Scale)
-			dropY := e.Object.Y - 20
-
-			dropBox := system.Object{
-				X:      e.Object.X,
-				Y:      dropY,
-				Width:  dropWidth / 2,
-				Height: dropHeight / 2,
-			}
+			dropBox := e.GetDropCollisionBox()
 			e.Drop.IsDropped = true
-
-			playerObj := p.GetObject()
-			if physics.CheckCollision(playerObj, dropBox) {
-				menu_select_sound := rl.LoadSound("assets/sounds/collect_item.mp3")
-				rl.PlaySound(menu_select_sound)
-				p.AddToInventory(e.Drop)
+			if physics.CheckCollision(gs.Player.GetObject(), dropBox) {
+				rl.PlaySound(audio.CollectItemSound)
+				gs.Player.AddToInventory(e.Drop)
 				e.DropCollected = true
 				e.Drop.IsDropped = false
 			}
 		}
 	}
 
-	for _, item := range *items {
+	for i := range gs.Items {
+		item := gs.Items[i]
 		if item.IsDropped {
-			itemBox := system.Object{
-				X:      item.Object.X,
-				Y:      item.Object.Y,
-				Width:  item.Object.Width / 2,
-				Height: item.Object.Height / 2,
-			}
-
-			if physics.CheckCollision(p.GetObject(), itemBox) {
-				p.AddToInventory(item)
+			itemBox := item.GetObject()
+			if physics.CheckCollision(gs.Player.GetObject(), *itemBox) {
+				gs.Player.AddToInventory(item)
 				item.IsDropped = false
-				collectSound := rl.LoadSound("assets/sounds/collect_item.mp3")
-				rl.PlaySound(collectSound)
+				rl.PlaySound(audio.CollectItemSound)
+				gs.Items = slices.Delete(gs.Items, i, i+1)
+				break
 			}
 		}
 	}
 
-	em.Update(p, *screen)
-	p.Update(em, *screen)
-	canAdvance := len(em.ActiveEnemies) <= 0
-	screen.UpdateCamera(p.Object.X, p.Object.Y, canAdvance)
-
-	return
+	gs.EnemyManager.Update(gs.Player, *gs.Screen)
+	gs.Player.Update(gs.EnemyManager, *gs.Screen)
+	canAdvance := len(gs.EnemyManager.ActiveEnemies) <= 0
+	gs.Screen.UpdateCamera(gs.Player.Object.X, gs.Player.Object.Y, canAdvance)
 }
 
-func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Texture2D, buildings rl.Texture2D, items []*equipment.Equipment, props []*props.Prop, weapons []*weapon.Weapon, menu ui.Menu) {
+func draw(gs *GameState, chao rl.Texture2D, buildings rl.Texture2D) {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.RayWhite)
 
-	rl.BeginMode2D(s.Camera)
-	drawTiledBackground(chao, s.Camera, s.Width, s.Height)
+	rl.BeginMode2D(gs.Screen.Camera)
+	drawTiledBackground(chao, gs.Screen.Camera, gs.Screen.Width, gs.Screen.Height)
 	drawBuildings(buildings)
 
-	for _, prop := range props {
+	for _, prop := range gs.Props {
 		prop.Draw()
 	}
 
-	em.Draw()
-	p.Draw()
+	gs.EnemyManager.Draw()
+	gs.Player.Draw()
 
-	for _, item := range items {
+	for _, item := range gs.Items {
 		if item.IsDropped {
 			item.DrawAnimated(&item.Object)
 		}
 	}
 
-	for _, weapon := range weapons {
+	for _, weapon := range gs.Weapons {
 		if weapon.IsDropped {
 			weapon.DrawAnimated()
 		}
@@ -228,13 +221,20 @@ func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Tex
 	rl.EndMode2D()
 
 	if system.GameOverFlag {
-		system.GameOver(&s)
+		system.GameOver(gs.Screen)
 	}
 
-	ui.DrawLife(s, p)
-	menu.Draw()
+	ui.DrawLife(*gs.Screen, gs.Player)
+	gs.Menu.Draw()
 
 	rl.EndDrawing()
+}
+
+func loadScaledTexture(path string, scale int32) rl.Texture2D {
+	texture := rl.LoadTexture(path)
+	texture.Width *= scale
+	texture.Height *= scale
+	return texture
 }
 
 func drawTiledBackground(texture rl.Texture2D, camera rl.Camera2D, screenWidth, screenHeight int32) {

@@ -6,6 +6,10 @@ func PlayPunch() {
 	rl.PlaySound(PunchSound)
 }
 
+func PlayCollectItemSound() {
+	rl.PlaySound(CollectItemSound)
+}
+
 func PlayKick() {
 	rl.PlaySound(KickSound)
 }
