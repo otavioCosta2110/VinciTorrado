@@ -35,36 +35,67 @@ func New(obj *system.Object, offsetX, offsetY int32, hitboxX, hitboxY int32, sta
 }
 
 func (w *Weapon) DrawAnimated() {
-	frameWidth := float32(w.Object.Sprite.SpriteWidth)
-	frameHeight := float32(w.Object.Sprite.SpriteHeight)
+    frameWidth := float32(w.Object.Sprite.SpriteWidth)
+    frameHeight := float32(w.Object.Sprite.SpriteHeight)
 
-	currentTime := float32(rl.GetTime())
-	floatOffset := float32(math.Sin(float64(currentTime*2)) * 5)
+    currentTime := float32(rl.GetTime())
+    floatOffset := float32(math.Sin(float64(currentTime*2)) * 5)
 
-	source := rl.NewRectangle(
-		float32(w.Object.FrameX)*frameWidth,
-		float32(w.Object.FrameY)*frameHeight,
-		frameWidth,
-		frameHeight,
-	)
+    source := rl.NewRectangle(
+        float32(w.Object.FrameX)*frameWidth,
+        float32(w.Object.FrameY)*frameHeight,
+        frameWidth,
+        frameHeight,
+    )
 
-	dest := rl.NewRectangle(
-		float32(w.Object.X)+float32(w.OffsetX),
-		float32(w.Object.Y)+float32(w.OffsetY)+floatOffset-20,
-		frameWidth*float32(w.Object.Scale),
-		frameHeight*float32(w.Object.Scale),
-	)
+    dest := rl.NewRectangle(
+        float32(w.Object.X)+float32(w.OffsetX),
+        float32(w.Object.Y)+float32(w.OffsetY)+floatOffset-20,
+        frameWidth*float32(w.Object.Scale),
+        frameHeight*float32(w.Object.Scale),
+    )
 
-	rl.DrawTexturePro(
-		w.Object.Sprite.Texture,
-		source,
-		dest,
-		rl.NewVector2(dest.Width/2, dest.Height/2),
-		0,
-		rl.White,
-	)
+    origin := rl.NewVector2(dest.Width/2, dest.Height/2)
+
+    outlineSize := float32(4.0)
+
+    directions := []rl.Vector2{
+        {X: -outlineSize, Y: -outlineSize},
+        {X: 0, Y: -outlineSize},           
+        {X: outlineSize, Y: -outlineSize}, 
+        {X: -outlineSize, Y: 0},           
+        {X: outlineSize, Y: 0},            
+        {X: -outlineSize, Y: outlineSize}, 
+        {X: 0, Y: outlineSize},            
+        {X: outlineSize, Y: outlineSize},  
+    }
+
+    for _, dir := range directions {
+        outlineDest := rl.NewRectangle(
+            dest.X + dir.X,
+            dest.Y + dir.Y,
+            dest.Width,
+            dest.Height,
+        )
+        rl.DrawTexturePro(
+            w.Object.Sprite.Texture,
+            source,
+            outlineDest,
+            origin,
+            0,
+						rl.Blue,
+        )
+    }
+
+    rl.DrawTexturePro(
+        w.Object.Sprite.Texture,
+        source,
+        dest,
+        origin,
+        0,
+        rl.White,
+    )
 }
-
 func (w *Weapon) DrawEquipped(obj *system.Object) {
 	frameWidth := float32(w.Object.Sprite.SpriteWidth)
 	if obj.Flipped {

@@ -11,7 +11,7 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-type TrashConfig struct {
+type PropConfig struct {
 	X             int32    `json:"X"`
 	Y             int32    `json:"Y"`
 	Width         int32    `json:"width"`
@@ -37,7 +37,7 @@ func LoadPropsFromJSON(path string, items []*equipment.Equipment) ([]*Prop, erro
 		return nil, err
 	}
 
-	var configs []TrashConfig
+	var configs []PropConfig
 	if err := json.Unmarshal(data, &configs); err != nil {
 		return nil, err
 	}
@@ -126,7 +126,7 @@ func (t *Prop) HandleKick(items *[]*equipment.Equipment, _ system.Object) {
 		Object: system.Object{
 			X:      t.Object.X + (t.Object.Width*t.Object.Scale)/2,
 			Y:      t.Object.Y,
-			Width:  proto.Object.Width,
+			Width:  proto.Object.Width/2,
 			Height: proto.Object.Height,
 			Scale:  proto.Object.Scale,
 			Sprite: sprites.Sprite{

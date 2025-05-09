@@ -64,35 +64,28 @@ func main() {
 		playerScale,
 	)
 
-	weapons := []*weapon.Weapon{} 
-	weaponsPtr := &weapons 
+	weapons := []*weapon.Weapon{}
+	weaponsPtr := &weapons
 
 	loadedWeapons, err := weapon.LoadWeaponsFromJSON("assets/weapons/1_00 weapon.json")
 	if err != nil {
 		panic("Failed to load weapons: " + err.Error())
 	}
-	*weaponsPtr = loadedWeapons 
+	*weaponsPtr = loadedWeapons
 
 	items, err = enemy.LoadItemsFromJSON("assets/items/items.json", playerScale)
 	if err != nil {
 		panic("Failed to load enemies: " + err.Error())
 	}
 
-	trashCans, err := props.LoadPropsFromJSON("assets/props/props.json", items)
+	props, err := props.LoadPropsFromJSON("assets/props/props.json", items)
 	if err != nil {
-		panic("Failed to load trash cans: " + err.Error())
-	}
-
-	boxes := []*props.Box{
-		props.NewBox(200, screen.Height-100, 50, 50),
+		panic("Failed to load prop cans: " + err.Error())
 	}
 
 	var kickables []physics.Kickable
-	// for _, box := range boxes {
-	// 	kickables = append(kickables, box)
-	// }
-	for _, trash := range trashCans {
-		kickables = append(kickables, trash)
+	for _, prop := range props {
+		kickables = append(kickables, prop)
 	}
 
 	enemyManager := &enemy.EnemyManager{}
@@ -108,7 +101,7 @@ func main() {
 		if !menu.IsVisible {
 			update(player, enemyManager, screen, kickables, &items, weaponsPtr)
 		}
-		draw(player, enemyManager, *screen, chao, buildings, boxes, items, trashCans, *weaponsPtr, *menu)
+		draw(player, enemyManager, *screen, chao, buildings, items, props, *weaponsPtr, *menu)
 	}
 }
 
@@ -123,16 +116,6 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, kic
 
 	p.CheckMovement(*screen)
 
-	for _, obj := range kickables {
-		if box, ok := obj.(*props.Box); ok {
-			box.Update([]system.Object{p.GetObject()}, screen, em)
-		}
-	}
-	// for _, box := range boxes {
-	// 	p.CheckKick(box)
-	// 	box.Update([]system.Object{p.GetObject()}, screen, em)
-	// }
-
 	for i := range *weapons {
 		weapon := (*weapons)[i]
 		if weapon.IsDropped {
@@ -142,10 +125,10 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, kic
 			dropY := weapon.Object.Y - 20
 
 			dropBox := system.Object{
-				X:      weapon.Object.X,
+				X:      weapon.Object.X - dropWidth/4,
 				Y:      dropY,
-				Width:  dropWidth / 2,
-				Height: dropHeight / 2,
+				Width:  dropWidth / 4,
+				Height: dropHeight / 4,
 			}
 
 			playerObj := p.GetObject()
@@ -159,7 +142,7 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, kic
 	p.CheckKick(kickables, items)
 
 	for _, e := range em.Enemies {
-		if e.Weapon != nil && e.Weapon.IsDropped{
+		if e.Weapon != nil && e.Weapon.IsDropped {
 			weapon := e.Weapon.Clone()
 			*weapons = append(*weapons, weapon)
 			e.Weapon = nil
@@ -214,13 +197,20 @@ func update(p *player.Player, em *enemy.EnemyManager, screen *screen.Screen, kic
 	return
 }
 
-func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Texture2D, buildings rl.Texture2D, boxes []*props.Box, items []*equipment.Equipment, trashCans []*props.Prop, weapons []*weapon.Weapon, menu ui.Menu) {
+func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Texture2D, buildings rl.Texture2D, items []*equipment.Equipment, props []*props.Prop, weapons []*weapon.Weapon, menu ui.Menu) {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.RayWhite)
 
 	rl.BeginMode2D(s.Camera)
 	drawTiledBackground(chao, s.Camera, s.Width, s.Height)
 	drawBuildings(buildings)
+
+	for _, prop := range props {
+		prop.Draw()
+	}
+
+	em.Draw()
+	p.Draw()
 
 	for _, item := range items {
 		if item.IsDropped {
@@ -233,17 +223,6 @@ func draw(p *player.Player, em *enemy.EnemyManager, s screen.Screen, chao rl.Tex
 			weapon.DrawAnimated()
 		}
 	}
-
-	for _, box := range boxes {
-		box.Draw()
-	}
-
-	for _, trash := range trashCans {
-		trash.Draw()
-	}
-
-	em.Draw()
-	p.Draw()
 
 	rl.EndMode2D()
 

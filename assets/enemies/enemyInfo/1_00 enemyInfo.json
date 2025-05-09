@@ -18,8 +18,7 @@
       "offset_Y": 0,
       "width": 32,
       "height": 32,
-      "stats":
-      {
+      "stats": {
         "health": 0,
         "speed": 0,
         "damage": 1
@@ -50,7 +49,23 @@
     "damage": 1,
     "speed": 2,
     "windUpTime": 20,
-    "scale": 4
+    "scale": 4,
+    "weapon": {
+      "sprite": "assets/weapons/pipe.png",
+      "hitbox_X": 30,
+      "hitbox_Y": 0,
+      "offset_X": 9,
+      "offset_Y": 0,
+      "width": 32,
+      "height": 32,
+      "stats": {
+        "health": 0,
+        "speed": 0,
+        "damage": 1
+      },
+      "health": 8,
+      "scale": 4
+    }
   },
   {
     "sprite": "assets/enemies/bald_woman_red.png",

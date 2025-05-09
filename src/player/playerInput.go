@@ -119,14 +119,6 @@ func (p *Player) CheckKick(kickables []physics.Kickable, items *[]*equipment.Equ
 			kickX += p.Object.Width
 		}
 
-		rl.DrawRectangle(
-			(kickX),
-			(kickY),
-			(kickWidth),
-			(kickHeight),
-			rl.Red,
-		)
-
 		kickHitbox := system.Object{
 			X:      kickX,
 			Y:      kickY,
@@ -135,13 +127,6 @@ func (p *Player) CheckKick(kickables []physics.Kickable, items *[]*equipment.Equ
 		}
 
 		for _, obj := range kickables {
-			// hitboxObj := system.Object{
-			// 	X: t.GetObject().X,
-			// 	Y: t.GetObject().Y,
-			// 	Width: t.GetObject().Width/2,
-			// 	Height: t.GetObject().Width,
-			// }
-
 			if !obj.IsKicked() && physics.CheckCollision(kickHitbox, obj.GetObject()) {
 				obj.HandleKick(items, p.Object)
 				audio.PlayKick()
