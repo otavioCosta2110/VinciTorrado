@@ -26,9 +26,9 @@ const (
 	playerSizeY  int32  = 32
 
 	// feature flags
-	oneHealthEnemies bool = true
-	enableMusic      bool = false
-	enableSoundFxs   bool = false
+	oneHealthEnemies bool = false
+	enableMusic      bool = true
+	enableSoundFxs   bool = true
 )
 
 type GameState struct {
