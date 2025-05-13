@@ -144,7 +144,7 @@
   },
   {
     "sprite": "assets/enemies/full_belly.png",
-    "X": 5000,
+    "X": 50,
     "Y": 500,
     "width": 32,
     "height": 32,

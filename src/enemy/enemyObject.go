@@ -136,7 +136,6 @@ func (e *Enemy) Draw() {
 func (e *Enemy) CheckAtk(player system.Object) bool {
 	currentTime := time.Now()
 	timeSinceLastAttack := time.Since(e.Object.LastAttackTime).Milliseconds()
-	println(timeSinceLastAttack)
 
 	if timeSinceLastAttack < e.AttackCooldown {
 		e.CanMove = false
@@ -217,7 +216,11 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen) {
 	if e.Object.Destroyed {
 		e.Object.FrameX = 0
 		e.Object.FrameY = 3
-		e.DropWeapon()
+		if e.EnemyType != "full_belly" {
+			e.DropWeapon()
+		} else {
+			e.Weapon = nil
+		}
 		return
 	}
 

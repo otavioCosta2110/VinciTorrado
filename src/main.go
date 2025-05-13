@@ -26,7 +26,7 @@ const (
 	playerSizeY  int32  = 32
 
 	// feature flags
-	oneHealthEnemies bool = false
+	oneHealthEnemies bool = true
 	enableMusic      bool = false
 	enableSoundFxs   bool = false
 )
