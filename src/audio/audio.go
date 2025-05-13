@@ -35,8 +35,18 @@ func PlayWeaponBreaking() {
 	rl.PlaySound(WeaponBreakingSound)
 }
 
+func PlayFullBellyAttack() {
+	rl.PlaySound(FullBellyAttack)
+}
+
+func PlayFullBellyPrepare() {
+	rl.PlaySound(FullBellyPrepare)
+}
+
 func SetVolume(volume float32) {
 	rl.SetSoundVolume(PunchSound, volume)
 	rl.SetSoundVolume(KickSound, volume)
 	rl.SetSoundVolume(WeaponBreakingSound, volume)
+	rl.SetSoundVolume(FullBellyAttack, volume)
+	rl.SetSoundVolume(FullBellyPrepare, volume)
 }

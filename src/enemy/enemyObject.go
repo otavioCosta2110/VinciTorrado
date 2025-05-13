@@ -174,6 +174,7 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 		if physics.CheckCollision(punchObject, *playerObj_margin) {
 			if !e.IsCharging && timeSinceLastAttack >= e.AttackCooldown {
 				e.IsCharging = true
+				audio.PlayFullBellyPrepare()
 				e.CanMove = false
 				e.updateEnemyAnimation(0, []int{0}, []int{1}) 
 				e.Object.LastAttackTime = currentTime
@@ -184,7 +185,7 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 				e.IsCharging = false
 				e.updateEnemyAnimation(0, []int{1}, []int{1}) 
 				e.Object.LastAttackTime = currentTime
-				audio.PlayPunch()
+				audio.PlayFullBellyAttack()
 				return true
 			}
 		} else {
