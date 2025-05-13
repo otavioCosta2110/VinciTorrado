@@ -27,8 +27,8 @@ const (
 
 	// feature flags
 	oneHealthEnemies bool = false
-	enableMusic      bool = true
-	enableSoundFxs   bool = true
+	enableMusic      bool = false
+	enableSoundFxs   bool = false
 )
 
 type GameState struct {
