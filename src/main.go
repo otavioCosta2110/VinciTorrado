@@ -27,7 +27,7 @@ const (
 
 	// feature flags
 	oneHealthEnemies bool = true
-	enableMusic      bool = false
+	enableMusic      bool = true
 	enableSoundFxs   bool = true
 )
 
@@ -40,6 +40,7 @@ type GameState struct {
 	Props        []*props.Prop
 	Weapons      []*weapon.Weapon
 	Menu         ui.Menu
+	Music        *string
 }
 
 func main() {
@@ -109,6 +110,7 @@ func main() {
 
 	screen.InitCamera(player.Object.X, player.Object.Y)
 
+	music := "mission1"
 	gameState := GameState{
 		Player:       player,
 		EnemyManager: enemyManager,
@@ -118,6 +120,7 @@ func main() {
 		Props:        props,
 		Weapons:      weapons,
 		Menu:         *menu,
+		Music:        &music,
 	}
 
 	gameLoop(&gameState, chao, buildings)
@@ -125,7 +128,7 @@ func main() {
 
 func gameLoop(gs *GameState, chao rl.Texture2D, buildings rl.Texture2D) {
 	for !rl.WindowShouldClose() {
-		audio.UpdateMusic()
+		audio.UpdateMusic(*gs.Music)
 		gs.Menu.Update()
 
 		if !gs.Menu.IsVisible {
@@ -185,7 +188,7 @@ func update(gs *GameState) {
 		}
 	}
 
-	gs.EnemyManager.Update(gs.Player, *gs.Screen)
+	gs.EnemyManager.Update(gs.Player, *gs.Screen, gs.Music)
 	gs.Player.Update(gs.EnemyManager, *gs.Screen)
 	canAdvance := len(gs.EnemyManager.ActiveEnemies) <= 0
 	gs.Screen.UpdateCamera(gs.Player.Object.X, gs.Player.Object.Y, canAdvance)
