@@ -141,5 +141,37 @@
     "speed": 2,
     "windUpTime": 20,
     "scale": 4
+  },
+  {
+    "sprite": "assets/enemies/full_belly.png",
+    "X": 5000,
+    "Y": 500,
+    "activate_pos_X": 4850,
+    "activate_pos_Y": 350,
+    "width": 32,
+    "height": 32,
+    "health": 20,
+    "damage": 3,
+    "speed": 2,
+    "windUpTime": 300,
+    "attackCooldown": 1000,
+    "scale": 4,
+    "type": "full_belly",
+    "weapon": {
+      "sprite": "assets/weapons/T_hammer.png",
+      "hitbox_X": 30,
+      "hitbox_Y": 0,
+      "offset_X": 0,
+      "offset_Y": 0,
+      "width": 32,
+      "height": 32,
+      "stats": {
+        "health": 0,
+        "speed": 0,
+        "damage": 1
+      },
+      "health": 8,
+      "scale": 4
+    }
   }
 ]

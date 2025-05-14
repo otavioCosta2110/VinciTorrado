@@ -58,6 +58,8 @@ type EnemyConfig struct {
 	Scale          int32       `json:"scale"`
 	Drops          *Drop       `json:"drops"`
 	Weapon         *WeaponDrop `json:"weapon"`
+	EnemyType      string      `json:"type"`
+	AttackCooldown int64      `json:"attackCooldown"`
 }
 
 func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
@@ -102,8 +104,8 @@ func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
 			weaponFromJson = weapon.New(
 				&system.Object{
 					Sprite: weaponSprite,
-					Scale: config.Scale,
-					Width: config.Weapon.Width * config.Weapon.Scale,
+					Scale:  config.Scale,
+					Width:  config.Weapon.Width * config.Weapon.Scale,
 					Height: config.Weapon.Height * config.Weapon.Scale,
 				},
 				config.Weapon.OffsetX,
@@ -124,6 +126,14 @@ func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
 			config.Activate_pos_Y = &config.Y
 		}
 
+		if config.EnemyType == "" {
+			config.EnemyType = "normal"
+		}
+
+		if config.AttackCooldown == 0 {
+			config.AttackCooldown = 500
+		}
+
 		enemy := NewEnemy(
 			config.X,
 			config.Y,
@@ -135,7 +145,8 @@ func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
 			playerScale,
 			sprite,
 			config.WindUpTime,
-			"normal",
+			config.EnemyType,
+			config.AttackCooldown,
 			drop,
 			weaponFromJson,
 		)

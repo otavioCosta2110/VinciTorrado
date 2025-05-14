@@ -36,6 +36,8 @@ type Enemy struct {
 	Drop           *equipment.Equipment
 	DropCollected  bool
 	Weapon         *weapon.Weapon
+	AttackCooldown int64
+	IsCharging     bool
 }
 
 func (e *Enemy) GetObject() system.Object {
@@ -46,7 +48,7 @@ func (e *Enemy) SetObject(obj system.Object) {
 	e.Object = obj
 }
 
-func NewEnemy(x, y, aX, aY, speed, width, height, scale int32, sprite sprites.Sprite, windUpTime int64, enemyType string, drops *equipment.Equipment, weapon *weapon.Weapon) *Enemy {
+func NewEnemy(x, y, aX, aY, speed, width, height, scale int32, sprite sprites.Sprite, windUpTime int64, enemyType string, attackCooldown int64, drops *equipment.Equipment, weapon *weapon.Weapon) *Enemy {
 	return &Enemy{
 		LiveObject: system.LiveObject{
 			Object: system.Object{
@@ -83,6 +85,8 @@ func NewEnemy(x, y, aX, aY, speed, width, height, scale int32, sprite sprites.Sp
 		EnemyType:      enemyType,
 		Drop:           drops,
 		Weapon:         weapon,
+		AttackCooldown: attackCooldown,
+		IsCharging:     false,
 	}
 }
 
@@ -130,9 +134,17 @@ func (e *Enemy) Draw() {
 }
 
 func (e *Enemy) CheckAtk(player system.Object) bool {
+	currentTime := time.Now()
+	timeSinceLastAttack := time.Since(e.Object.LastAttackTime).Milliseconds()
+
+	if timeSinceLastAttack < e.AttackCooldown {
+		e.CanMove = false
+		return false
+	}
+	e.CanMove = true
+
 	punchX := e.Object.X
 	punchY := e.Object.Y - e.Object.Height/3
-
 	punchWidth := e.Object.Width / 2
 	punchHeight := e.Object.Height / 2
 
@@ -149,32 +161,55 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 		Height: punchHeight,
 	}
 
-	attackCooldown := int64(2000)
-	timeSinceLastAttack := time.Since(e.Object.LastAttackTime).Milliseconds()
+	if e.EnemyType == "full_belly" {
+		playerObj_margin := &system.Object{
+			X:              player.X,
+			Y:              player.Y,
+			Width:          player.Width + e.Weapon.HitboxX,
+			Height:         player.Height + e.Weapon.HitboxY,
+			LastFrameTime:  player.LastFrameTime,
+			LastAttackTime: player.LastAttackTime,
+			Scale:          4,
+		}
+		if physics.CheckCollision(punchObject, *playerObj_margin) {
+			if !e.IsCharging && timeSinceLastAttack >= e.AttackCooldown {
+				e.IsCharging = true
+				audio.PlayFullBellyPrepare()
+				e.CanMove = false
+				e.updateEnemyAnimation(0, []int{0}, []int{1}) 
+				e.Object.LastAttackTime = currentTime
+				return false
+			}
 
-	if timeSinceLastAttack < e.WindUpTime && !e.isSpawning {
-		e.CanMove = false
-		return false
-	}
-
-	e.CanMove = true
-
-	if physics.CheckCollision(punchObject, player) {
-		if timeSinceLastAttack >= attackCooldown {
-			e.Object.LastAttackTime = time.Now()
-
-			framex := rand.Intn(2)
-			e.Object.FrameX = int32(framex)
-			e.updateEnemyAnimation(50, []int{framex}, []int{1})
-			audio.PlayPunch()
-			return true
+			if e.IsCharging && timeSinceLastAttack >= e.WindUpTime {
+				e.IsCharging = false
+				e.updateEnemyAnimation(0, []int{1}, []int{1}) 
+				e.Object.LastAttackTime = currentTime
+				audio.PlayFullBellyAttack()
+				return true
+			}
+		} else {
+			e.IsCharging = false
+			e.CanMove = true
 		}
 	}
 
-	e.updateEnemyAnimation(300, []int{0, 1}, []int{0, 0})
+	if physics.CheckCollision(punchObject, player) && timeSinceLastAttack >= e.AttackCooldown {
+		framex := rand.Intn(2)
+		e.Object.FrameX = int32(framex)
+		e.updateEnemyAnimation(50, []int{framex}, []int{1})
+		e.Object.LastAttackTime = time.Now()
+		audio.PlayPunch()
+		return true
+	}
+
+	if e.EnemyType == "full_belly" && e.IsCharging {
+		e.updateEnemyAnimation(300, []int{0}, []int{1}) 
+	} else {
+		e.updateEnemyAnimation(300, []int{0, 1}, []int{0, 0}) 
+	}
 	return false
 }
-
 func (e *Enemy) Update(p system.Player, screen screen.Screen) {
 	if e.isSpawning {
 		e.isSpawning = false
@@ -182,7 +217,11 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen) {
 	if e.Object.Destroyed {
 		e.Object.FrameX = 0
 		e.Object.FrameY = 3
-		e.DropWeapon()
+		if e.EnemyType != "full_belly" {
+			e.DropWeapon()
+		} else {
+			e.Weapon = nil
+		}
 		return
 	}
 
@@ -198,7 +237,7 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen) {
 			return
 		}
 
-		if e.Object.KnockbackX == 0 || e.Object.KnockbackY == 0 {
+		if (e.Object.KnockbackX == 0 || e.Object.KnockbackY == 0) && !e.IsCharging {
 			*e = MoveEnemyTowardPlayer(p, *e, screen)
 		}
 	}
@@ -233,14 +272,16 @@ func (e *Enemy) TakeDamage(damage int32, pX int32, pY int32) {
 	e.LastHitTime = time.Now()
 	e.HitCount++
 
-	if e.HitCount >= 3 {
-		e.updateEnemyAnimation(100, []int{1, 1}, []int{2, 2})
-		e.setKnockback(pX)
-		e.HitCount = 0
-		e.IsStunned = true
-		e.StunEndTime = time.Now().Add(700 * time.Millisecond)
-	} else {
-		e.updateEnemyAnimation(100, []int{0, 0}, []int{2, 2})
+	if e.EnemyType != "full_belly" {
+		if e.HitCount >= 3 {
+			e.updateEnemyAnimation(100, []int{1, 1}, []int{2, 2})
+			e.setKnockback(pX)
+			e.HitCount = 0
+			e.IsStunned = true
+			e.StunEndTime = time.Now().Add(700 * time.Millisecond)
+		} else {
+			e.updateEnemyAnimation(100, []int{0, 0}, []int{2, 2})
+		}
 	}
 
 	e.LastDamageTaken = time.Now()
@@ -279,7 +320,7 @@ func (e *Enemy) DropWeapon() {
 }
 func (e *Enemy) GetDropCollisionBox() system.Object {
 	if e.Drop == nil {
-		return system.Object{} 
+		return system.Object{}
 	}
 	dropWidth := int32(32 * e.Object.Scale)
 	dropHeight := int32(32 * e.Object.Scale)
