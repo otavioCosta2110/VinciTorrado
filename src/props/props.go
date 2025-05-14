@@ -11,6 +11,13 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
+type PropType string
+
+const (
+	PropTypeTrash PropType = "trash"
+	PropTypeDoor  PropType = "door"
+)
+
 type PropConfig struct {
 	X             int32    `json:"X"`
 	Y             int32    `json:"Y"`
@@ -20,6 +27,8 @@ type PropConfig struct {
 	NormalTexture string   `json:"normal_texture"`
 	KickedTexture string   `json:"kicked_texture"`
 	Loot          []string `json:"loot"`
+	Type          PropType `json:"type"`
+	NextMap       string   `json:"next_map,omitempty"`
 }
 
 type Prop struct {
@@ -31,43 +40,57 @@ type Prop struct {
 	HitboxOffset  float32
 }
 
-func LoadPropsFromJSON(path string, items []*equipment.Equipment) ([]*Prop, error) {
+func LoadPropsFromJSON(path string, items []*equipment.Equipment) ([]*Prop, []*Door, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	var configs []PropConfig
 	if err := json.Unmarshal(data, &configs); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	var props []*Prop
+	var doors []*Door
+
 	for _, cfg := range configs {
-		var loot []*equipment.Equipment
-		for _, itemName := range cfg.Loot {
-			for _, item := range items {
-				if item.Name == itemName {
-					loot = append(loot, item)
-					break
+		if cfg.Type == PropTypeDoor {
+			door := NewDoor(
+				cfg.X,
+				cfg.Y,
+				cfg.Width,
+				cfg.Height,
+				cfg.Scale,
+				cfg.NormalTexture,
+				cfg.NextMap,
+			)
+			doors = append(doors, door)
+		} else {
+			var loot []*equipment.Equipment
+			for _, itemName := range cfg.Loot {
+				for _, item := range items {
+					if item.Name == itemName {
+						loot = append(loot, item)
+						break
+					}
 				}
 			}
+
+			prop := NewProp(
+				cfg.X,
+				cfg.Y,
+				cfg.Scale,
+				cfg.Width,
+				cfg.Height,
+				cfg.NormalTexture,
+				cfg.KickedTexture,
+				loot,
+			)
+			props = append(props, prop)
 		}
-
-		prop := NewProp(
-			cfg.X,
-			cfg.Y,
-			cfg.Scale,
-			cfg.Width,
-			cfg.Height,
-			cfg.NormalTexture,
-			cfg.KickedTexture,
-			loot,
-		)
-		props = append(props, prop)
 	}
-
-	return props, nil
+	return props, doors, nil
 }
 
 func NewProp(x, y, scale, width, height int32, normalTexPath, kickedTexPath string, loot []*equipment.Equipment) *Prop {
@@ -126,7 +149,7 @@ func (t *Prop) HandleKick(items *[]*equipment.Equipment, _ system.Object) {
 		Object: system.Object{
 			X:      t.Object.X + (t.Object.Width*t.Object.Scale)/2,
 			Y:      t.Object.Y,
-			Width:  proto.Object.Width/2,
+			Width:  proto.Object.Width / 2,
 			Height: proto.Object.Height,
 			Scale:  proto.Object.Scale,
 			Sprite: sprites.Sprite{

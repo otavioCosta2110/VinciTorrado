@@ -27,8 +27,8 @@ func NewScreen(width, height, scenaryWidth, scenaryHeight int32, title string) *
 	}
 }
 
-func (s *Screen) InitCamera(targetX, targetY int32){
-		s.Camera.Target = rl.NewVector2(float32(targetX), float32(s.Height)/2)
+func (s *Screen) InitCamera(targetX, targetY int32) {
+	s.Camera.Target = rl.NewVector2(float32(targetX), float32(s.Height)/2)
 }
 func (s *Screen) UpdateCamera(targetX, targetY int32, canAdvance bool) {
 	if canAdvance {
@@ -47,6 +47,11 @@ func (s *Screen) UpdateCamera(targetX, targetY int32, canAdvance bool) {
 		}
 
 		currentX := s.Camera.Target.X
-		s.Camera.Target.X = currentX + (camX - currentX) * lerpFactor
+		s.Camera.Target.X = currentX + (camX-currentX)*lerpFactor
 	}
+}
+
+func (s *Screen) ResetCamera() {
+	s.Camera.Target = rl.NewVector2(float32(s.Width/2), float32(s.Height/2))
+	s.Camera.Offset = rl.NewVector2(float32(s.Width/2), float32(s.Height/2))
 }
