@@ -13,8 +13,9 @@ import (
 	"otaviocosta2110/vincitorrado/src/ui"
 	"otaviocosta2110/vincitorrado/src/weapon"
 
-	rl "github.com/gen2brain/raylib-go/raylib"
 	"slices"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 const (
@@ -59,8 +60,8 @@ func main() {
 	}
 	defer audio.UnloadSounds()
 
-	buildings := loadScaledTexture("assets/scenes/predio.png", playerScale)
-	chao := loadScaledTexture("assets/scenes/chao.png", playerScale)
+	buildings := loadScaledTexture("assets/scenes/continuacao_bar.jpg", playerScale)
+	chao := loadScaledTexture("assets/scenes/chao_bar.png", playerScale)
 
 	screen := screen.NewScreen(windowWidth, windowHeight, buildings.Width, buildings.Height, windowTitle)
 
