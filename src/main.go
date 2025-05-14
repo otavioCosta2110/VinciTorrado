@@ -12,6 +12,7 @@ import (
 	"otaviocosta2110/vincitorrado/src/system"
 	"otaviocosta2110/vincitorrado/src/ui"
 	"otaviocosta2110/vincitorrado/src/weapon"
+	"time"
 
 	"slices"
 
@@ -162,6 +163,11 @@ func update(gs *GameState) {
 	if system.GameOverFlag {
 		return
 	}
+	if gs.Player.IsKicking && time.Since(gs.Player.LastKickTime) > 200*time.Millisecond {
+		gs.Player.IsKicking = false
+		gs.Player.Object.FrameY = 0
+		gs.Player.Object.FrameX = 0
+	}
 	for i := range gs.Weapons {
 		weapon := gs.Weapons[i]
 		if weapon.IsDropped {
@@ -295,6 +301,11 @@ func transitionMap(gs *GameState, mapName string) {
 	rl.UnloadTexture(gs.Buildings)
 	rl.UnloadTexture(gs.Chao)
 
+	gs.Player.Object.FrameX = 0
+	gs.Player.Object.FrameY = 0
+	gs.Player.IsKicking = false
+	gs.Player.LastKickTime = time.Now().Add(-time.Hour)
+
 	newMap := gs.MapManager.Maps[mapName]
 
 	gs.Buildings = loadScaledTexture(newMap.Buildings, playerScale)
@@ -313,4 +324,9 @@ func transitionMap(gs *GameState, mapName string) {
 	gs.Player.Object.X = newMap.PlayerStartX
 	gs.Player.Object.Y = newMap.PlayerStartY
 	gs.Screen.ResetCamera()
+
+	gs.Kickables = nil
+	for _, prop := range gs.Props {
+		gs.Kickables = append(gs.Kickables, prop)
+	}
 }

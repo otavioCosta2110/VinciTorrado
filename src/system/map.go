@@ -5,7 +5,6 @@ type GameMap struct {
 	Floor        string
 	EnemiesPath  string
 	PropsPath    string
-	NextMap      string
 	PlayerStartX int32
 	PlayerStartY int32
 }

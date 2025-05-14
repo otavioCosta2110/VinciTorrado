@@ -95,7 +95,6 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 				}
 			}
 
-
 			return true
 		}
 	}

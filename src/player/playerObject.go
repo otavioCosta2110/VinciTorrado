@@ -8,8 +8,9 @@ import (
 	"otaviocosta2110/vincitorrado/src/weapon"
 	"time"
 
-	rl "github.com/gen2brain/raylib-go/raylib"
 	"slices"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 type Player struct {
