@@ -168,6 +168,11 @@ func update(gs *GameState) {
 		gs.Player.Object.FrameY = 0
 		gs.Player.Object.FrameX = 0
 	}
+	if gs.Player.IsAttacking && time.Since(gs.Player.LastAttackTime) > 200*time.Millisecond {
+		gs.Player.IsAttacking = false
+		gs.Player.Object.FrameX = 0
+		gs.Player.Object.FrameY = 0
+	}
 	for i := range gs.Weapons {
 		weapon := gs.Weapons[i]
 		if weapon.IsDropped {

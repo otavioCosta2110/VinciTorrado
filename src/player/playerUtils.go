@@ -21,9 +21,10 @@ func (p *Player) Update(em *enemy.EnemyManager, screen screen.Screen) {
 		p.CheckMovement(screen)
 	}
 
+	p.HandleAttackInput() // ataca mesmo sem inimigo
+
 	for _, enemy := range em.Enemies {
 		enemyObject := enemy.GetObject()
-
 		if p.CheckAtk(enemyObject) {
 			enemy.TakeDamage(p.Damage, p.Object.X, p.Object.Y)
 		}
@@ -128,7 +129,7 @@ func (p *Player) isInvincible(duration int) bool {
 	return time.Since(p.LastDamageTaken).Milliseconds() <= int64(duration)
 }
 
-func (p *Player) updatePlayerAnimation(animationDelay int, framesX, framesY []int){
+func (p *Player) updatePlayerAnimation(animationDelay int, framesX, framesY []int) {
 	p.Object.UpdateAnimation(animationDelay, framesX, framesY)
 	if p.Weapon != nil {
 		p.Weapon.Object.UpdateAnimation(animationDelay, framesX, framesY)

@@ -141,3 +141,11 @@ func (p *Player) CheckKick(kickables []physics.Kickable, items *[]*equipment.Equ
 	}
 	return kickedSomething
 }
+
+func (player *Player) HandleAttackInput() { // ataca até sem inimigo
+	if rl.IsKeyPressed(rl.KeyZ) {
+		player.IsAttacking = true
+		player.LastAttackTime = time.Now()
+		player.updatePlayerAnimation(50, []int{0, 1}, []int{1, 1})
+	}
+}
