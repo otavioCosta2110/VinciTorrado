@@ -65,8 +65,8 @@ func main() {
 	mapManager.Maps["bar"] = &system.GameMap{
 		Buildings:    "assets/scenes/continuacao_bar.jpg",
 		Floor:        "assets/scenes/chao_bar.png",
-		EnemiesPath:  "assets/enemies/bar_enemies.json", //novo json ou só algo q diga q ele é do bar
-		PropsPath:    "assets/props/bar_props.json",     //tbm
+		EnemiesPath:  "assets/enemies/enemyInfo/1_00 enemyInfo.json", //novo json ou só algo q diga q ele é do bar
+		PropsPath:    "assets/props/bar_props.json",                  //tbm
 		PlayerStartX: 100,
 		PlayerStartY: 100,
 	}
@@ -168,7 +168,7 @@ func update(gs *GameState) {
 		gs.Player.Object.FrameY = 0
 		gs.Player.Object.FrameX = 0
 	}
-	if gs.Player.IsAttacking && time.Since(gs.Player.LastAttackTime) > 200*time.Millisecond {
+	if gs.Player.IsAttacking && time.Since(gs.Player.LastAttackTime) > 400*time.Millisecond {
 		gs.Player.IsAttacking = false
 		gs.Player.Object.FrameX = 0
 		gs.Player.Object.FrameY = 0
