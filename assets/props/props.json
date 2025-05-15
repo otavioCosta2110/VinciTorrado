@@ -25,11 +25,11 @@
     ]
   },
 {
-  "X": 3000,
-  "Y": 300,
-  "width": 64,
-  "height": 128,
-  "scale": 1,
+  "X": 4915,
+  "Y": 252,
+  "width": 32,
+  "height": 32,
+  "scale": 4,
   "type": "door",
   "normal_texture": "assets/props/door.png",
   "next_map": "bar"
