@@ -27,14 +27,13 @@ func New(sprite sprites.Sprite, x, y int32, scale int32) *Girlfriend {
 			X:      x,
 			Y:      y,
 			Scale:  scale,
+			Flipped: true,
 		},
 		active: true,
 	}
 }
 
-func (g *Girlfriend) Update() {
-
-}
+func (g *Girlfriend) Update() { }
 
 func (g *Girlfriend) Draw() {
 	var gfWidth float32 = float32(g.Object.Sprite.SpriteWidth)
@@ -75,6 +74,9 @@ func (g *Girlfriend) UpdateAnimation(animationName string) {
 	switch animationName {
 	case "walk":
 		g.runAnimation(300, []int{0, 1}, []int{0, 0})
+	case "invisible":
+		g.runAnimation(0, []int{0}, []int{1})
+
 	}
 }
 

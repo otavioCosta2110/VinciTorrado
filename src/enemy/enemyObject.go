@@ -26,7 +26,7 @@ type Enemy struct {
 	HitCount       int32
 	LastHitTime    time.Time
 	IsStunned      bool
-	IsActive       bool
+	Active         bool
 	StunEndTime    time.Time
 	Layer          int
 	CanMove        bool
@@ -77,7 +77,7 @@ func NewEnemy(x, y, aX, aY, speed, width, height, scale int32, sprite sprites.Sp
 		},
 		Activate_pos_X: aX,
 		Activate_pos_Y: aY,
-		IsActive:       false,
+		Active:         false,
 		Layer:          0,
 		CanMove:        true,
 		WindUpTime:     windUpTime,
@@ -176,14 +176,14 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 				e.IsCharging = true
 				audio.PlayFullBellyPrepare()
 				e.CanMove = false
-				e.UpdateAnimation("charge") 
+				e.UpdateAnimation("charge")
 				e.Object.LastAttackTime = currentTime
 				return false
 			}
 
 			if e.IsCharging && timeSinceLastAttack >= e.WindUpTime {
 				e.IsCharging = false
-				e.UpdateAnimation("fb_attack") 
+				e.UpdateAnimation("fb_attack")
 				e.Object.LastAttackTime = currentTime
 				audio.PlayFullBellyAttack()
 				return true
@@ -204,9 +204,9 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 	}
 
 	if e.EnemyType == "full_belly" && e.IsCharging {
-		e.UpdateAnimation("charge") 
+		e.UpdateAnimation("charge")
 	} else {
-		e.UpdateAnimation("walk") 
+		e.UpdateAnimation("walk")
 	}
 	return false
 }
@@ -301,7 +301,7 @@ func (e *Enemy) TakeDamageFromBox(box system.Object) {
 }
 
 func (e *Enemy) UpdateAnimation(animationName string) {
-	switch (animationName) {
+	switch animationName {
 	case "walk":
 		e.runAnimation(300, []int{0, 1}, []int{0, 0})
 	case "punch":
@@ -323,7 +323,7 @@ func (e *Enemy) UpdateAnimation(animationName string) {
 	}
 }
 
-func (e *Enemy) runAnimation(animationDelay int, framesX, framesY []int){
+func (e *Enemy) runAnimation(animationDelay int, framesX, framesY []int) {
 	e.Object.UpdateAnimation(animationDelay, framesX, framesY)
 	if e.Weapon != nil {
 		e.Weapon.Object.UpdateAnimation(animationDelay, framesX, framesY)
@@ -355,3 +355,7 @@ func (e *Enemy) GetDropCollisionBox() system.Object {
 		Height: dropHeight / 2,
 	}
 }
+func (e *Enemy) IsActive() bool {
+	return e.Active
+}
+func (p *Enemy) SetActive(bool) {}

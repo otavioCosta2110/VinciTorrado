@@ -6,6 +6,7 @@ import (
 	"otaviocosta2110/vincitorrado/src/enemy"
 	"otaviocosta2110/vincitorrado/src/equipment"
 	"otaviocosta2110/vincitorrado/src/girlfriend"
+	"otaviocosta2110/vincitorrado/src/objects"
 	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/player"
 	"otaviocosta2110/vincitorrado/src/props"
@@ -75,7 +76,35 @@ func main() {
 		Texture:      rl.LoadTexture("assets/player/player.png"),
 	}
 
-	player := player.NewPlayer(100, screen.Height/2+50, playerSizeX, playerSizeY, 4, playerScale, playerSprite, screen)
+	player := player.NewPlayer(-100, screen.Height/2+50, playerSizeX, playerSizeY, 4, playerScale, playerSprite, screen)
+	weaponSprite := sprites.Sprite{
+		SpriteWidth:  playerSizeX,
+		SpriteHeight: playerSizeY,
+		Texture:      rl.LoadTexture("assets/weapons/flowers.png"),
+	}
+
+	stats := objects.Stats{
+		Damage: 2,
+	}
+
+	playerWeapon := &weapon.Weapon{
+		Object: &system.Object{
+			X:      player.Object.X,
+			Y:      player.Object.Y,
+			Width:  32 * playerScale,
+			Height: 32 * playerScale,
+			Scale:  playerScale,
+			Sprite: weaponSprite,
+		},
+		IsDropped: true,
+		Stats:     stats,
+		HitboxX:   30,
+		HitboxY:   0,
+		OffsetX:   9,
+		OffsetY:   0,
+		Health:    3,
+	}
+	player.Weapon = playerWeapon
 	menu := ui.NewMenu(player, &playerSprite)
 
 	items, err := equipment.LoadItemsFromJSON("assets/items/items.json")
@@ -123,7 +152,7 @@ func main() {
 		SpriteHeight: playerSizeY,
 		Texture:      rl.LoadTexture("assets/player/girlfriend.png"),
 	}
-	g := girlfriend.New(gSprite, 500, 500, 4)
+	g := girlfriend.New(gSprite, 1000, player.Object.Y, 4)
 
 	gameState := GameState{
 		Player:       player,
@@ -143,7 +172,7 @@ func main() {
 
 func gameLoop(gs *GameState, chao rl.Texture2D, buildings rl.Texture2D) {
 	introCutscene := cutscene.NewCutscene()
-	introCutscene.IntroCutscenes(gs.Girlfriend, gs.EnemyManager)
+	introCutscene.IntroCutscenes(gs.Player, gs.Girlfriend, gs.EnemyManager)
 	introCutscene.Start()
 	gs.Cutscene = introCutscene
 
@@ -228,12 +257,12 @@ func draw(gs *GameState, chao rl.Texture2D, buildings rl.Texture2D) {
 		prop.Draw()
 	}
 
+	if gs.Girlfriend.IsActive() {
+		gs.Girlfriend.Draw()
+	}
 	gs.EnemyManager.Draw()
 	gs.Player.Draw()
 
-	if gs.Girlfriend.IsActive(){
-		gs.Girlfriend.Draw()
-	}
 
 	for _, item := range gs.Items {
 		if item.IsDropped {
