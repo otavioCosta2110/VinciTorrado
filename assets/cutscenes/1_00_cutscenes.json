@@ -1,3 +1,6 @@
 {
-
+  "who": "player",
+  "targetX": 200,
+  "targetY": 200,
+  "animation": "walk"
 }

@@ -131,8 +131,7 @@ func main() {
 
 func gameLoop(gs *GameState, chao rl.Texture2D, buildings rl.Texture2D) {
 	introCutscene := cutscene.NewCutscene()
-
-	introCutscene.AddAction(cutscene.NewObjectMoveAction(gs.Player, 200, float32(gs.Player.Object.Y), float32(gs.Player.Speed)))
+	introCutscene.IntroCutscenes(gs.Player, gs.EnemyManager)
 	introCutscene.Start()
 	gs.Cutscene = introCutscene
 

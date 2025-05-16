@@ -8,7 +8,7 @@ import (
 )
 
 type CutsceneAction interface {
-	Update() bool 
+	Update() bool
 }
 
 type Cutscene struct {
@@ -33,17 +33,28 @@ func (c *Cutscene) Start() {
 	c.playing = true
 	c.current = 0
 }
+func (c *Cutscene) Stop() {
+	c.playing = false
+}
 
 func (c *Cutscene) Update() bool {
 	if !c.playing || c.current >= len(c.actions) {
-		return true 
+		return true
+	}
+
+	if c.current >= len(c.actions) {
+		c.Stop()
+		return true
 	}
 
 	if c.actions[c.current].Update() {
 		c.current++
-		c.playing = false
-	}
 
+		if c.current >= len(c.actions) {
+			c.Stop()
+			return true
+		}
+	}
 	return false
 }
 
@@ -122,7 +133,7 @@ func (a *PlayerMoveAction) Update() bool {
 	dy := a.targetY - float32(a.object.GetObject().Y)
 	distance := float32(math.Sqrt(float64(dx*dx + dy*dy)))
 
-	if distance < 5 { 
+	if distance < 5 {
 		a.completed = true
 		return true
 	}
@@ -152,6 +163,25 @@ func (a *PlayerMoveAction) Update() bool {
 	if math.Abs(float64(dx)) > math.Abs(float64(dy)) {
 		a.object.UpdateAnimation("walk")
 		if dx > 0 {
+			a.object.SetObject(
+				system.Object{
+					X:              a.object.GetObject().X + int32(dx),
+					Y:              a.object.GetObject().Y + int32(dy),
+					Width:          a.object.GetObject().Width,
+					Height:         a.object.GetObject().Height,
+					KnockbackX:     a.object.GetObject().KnockbackX,
+					KnockbackY:     a.object.GetObject().KnockbackY,
+					FrameX:         a.object.GetObject().FrameX,
+					FrameY:         a.object.GetObject().FrameY,
+					LastFrameTime:  a.object.GetObject().LastFrameTime,
+					LastAttackTime: a.object.GetObject().LastAttackTime,
+					Sprite:         a.object.GetObject().Sprite,
+					Scale:          a.object.GetObject().Scale,
+					Destroyed:      a.object.GetObject().Destroyed,
+					IsKicking:      a.object.GetObject().IsKicking,
+					Flipped:        false,
+				},
+			)
 		} else {
 			a.object.SetObject(
 				system.Object{
@@ -175,4 +205,16 @@ func (a *PlayerMoveAction) Update() bool {
 		}
 	}
 	return false
+}
+type CallbackAction struct {
+    callback func()
+}
+
+func NewCallbackAction(callback func()) *CallbackAction {
+    return &CallbackAction{callback: callback}
+}
+
+func (a *CallbackAction) Update() bool {
+    a.callback()
+    return true 
 }
