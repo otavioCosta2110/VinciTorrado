@@ -15,7 +15,8 @@ type LiveObject struct {
 
 type Live interface {
 	Draw()
-	TakeDamage(damage int32, eX, eY int32)
+	TakeDamage(damage int32, obj Object)
+	UpdateAnimation(animationName string)
 	GetObject() Object
 	SetObject(Object)
 }

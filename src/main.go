@@ -29,8 +29,8 @@ const (
 
 	// feature flags
 	oneHealthEnemies bool = true
-	enableMusic      bool = true
-	enableSoundFxs   bool = true
+	enableMusic      bool = false
+	enableSoundFxs   bool = false
 )
 
 type GameState struct {
@@ -131,11 +131,8 @@ func main() {
 
 func gameLoop(gs *GameState, chao rl.Texture2D, buildings rl.Texture2D) {
 	introCutscene := cutscene.NewCutscene()
-	introCutscene.AddAction(cutscene.NewDialogueAction("Welcome to Vinci Torrado!", 3, windowWidth, windowHeight))
-	
 
-	introCutscene.AddAction(cutscene.NewWaitAction(1))
-	introCutscene.AddAction(cutscene.NewDialogueAction("The city needs your help!", 3, windowWidth, windowHeight))
+	introCutscene.AddAction(cutscene.NewObjectMoveAction(gs.Player, 200, float32(gs.Player.Object.Y), float32(gs.Player.Speed)))
 	introCutscene.Start()
 	gs.Cutscene = introCutscene
 
@@ -163,7 +160,7 @@ func gameLoop(gs *GameState, chao rl.Texture2D, buildings rl.Texture2D) {
 }
 
 func update(gs *GameState) {
-	if system.GameOverFlag || gs.Cutscene.IsPlaying() { // Add cutscene check
+	if system.GameOverFlag || gs.Cutscene.IsPlaying() {
 		return
 	}
 	for i := range gs.Weapons {
@@ -215,14 +212,6 @@ func update(gs *GameState) {
 	gs.EnemyManager.Update(gs.Player, *gs.Screen, gs.Music)
 	gs.Player.Update(gs.EnemyManager, *gs.Screen)
 	canAdvance := len(gs.EnemyManager.ActiveEnemies) <= 0
-	if canAdvance && !gs.Cutscene.IsPlaying() {
-		victoryCutscene := cutscene.NewCutscene()
-		victoryCutscene.AddAction(cutscene.NewDialogueAction("Well done!", 2, windowWidth, windowHeight))
-		victoryCutscene.AddAction(cutscene.NewWaitAction(1))
-		victoryCutscene.AddAction(cutscene.NewDialogueAction("But more challenges await...", 3, windowWidth, windowHeight))
-		victoryCutscene.Start()
-		gs.Cutscene = victoryCutscene
-	}
 	gs.Screen.UpdateCamera(gs.Player.Object.X, gs.Player.Object.Y, canAdvance)
 }
 
@@ -261,10 +250,6 @@ func draw(gs *GameState, chao rl.Texture2D, buildings rl.Texture2D) {
 
 	ui.DrawLife(*gs.Screen, gs.Player)
 	gs.Menu.Draw()
-
-	if gs.Cutscene.IsPlaying() {
-		gs.Cutscene.Draw()
-	}
 
 	rl.EndDrawing()
 }

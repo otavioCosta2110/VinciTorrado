@@ -34,21 +34,21 @@ func (player *Player) CheckMovement(screen screen.Screen) {
 	if rl.IsKeyDown(rl.KeyLeft) && float32(player.Object.X) > screen.Camera.Target.X-float32(player.Screen.Width)/2+float32(player.Object.Width/2) {
 		player.Object.X -= player.Speed
 		player.Object.Flipped = true
-		player.UpdatePlayerAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
+		player.UpdateAnimation("walk")
 
 	} else if rl.IsKeyDown(rl.KeyRight) && float32(player.Object.X) < screen.Camera.Target.X+float32(screen.Width)/2.0-float32(player.Object.Width/2.0) {
 		player.Object.X += player.Speed
 		player.Object.Flipped = false
-		player.UpdatePlayerAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
+		player.UpdateAnimation("walk")
 	}
 
 	if rl.IsKeyDown(rl.KeyUp) && player.Object.Y > player.Object.Height-player.Object.Y+(screen.ScenaryHeight+player.Object.Height) {
 		player.Object.Y -= player.Speed
-		player.UpdatePlayerAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
+		player.UpdateAnimation("walk")
 
 	} else if rl.IsKeyDown(rl.KeyDown) && player.Object.Y < screen.Height-(player.Object.Height)/2 {
 		player.Object.Y += player.Speed
-		player.UpdatePlayerAnimation(int(animationDelay), framesWalkingX, framesWalkingY)
+		player.UpdateAnimation("walk")
 	}
 }
 
@@ -74,7 +74,7 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 	if rl.IsKeyPressed(rl.KeyZ) {
 		isAttacking = true
 
-		player.updatePlayerAnimation(50, []int{0, 1}, []int{1, 1})
+		player.UpdateAnimation("punch")
 
 		punchObj := system.Object{
 			X:      punchX,
@@ -100,7 +100,7 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 		}
 	}
 	if !isAttacking {
-		player.updatePlayerAnimation(int(animationDelay), []int{0}, []int{0})
+		player.UpdateAnimation("default")
 	}
 	return false
 }
