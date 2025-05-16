@@ -63,7 +63,7 @@ func main() {
 
 	mapManager := system.NewMapManager()
 	mapManager.Maps["bar"] = &system.GameMap{
-		Buildings:    "assets/scenes/continuacao_bar.jpg",
+		Buildings:    "assets/scenes/bar.png",
 		Floor:        "assets/scenes/chao_bar.png",
 		EnemiesPath:  "assets/enemies/enemyInfo/2_00 enemyInfo.json", //novo json ou só algo q diga q ele é do bar
 		PropsPath:    "assets/props/bar_props.json",                  //tbm
