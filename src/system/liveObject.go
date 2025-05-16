@@ -19,6 +19,8 @@ type Live interface {
 	UpdateAnimation(animationName string)
 	GetObject() Object
 	SetObject(Object)
+	IsActive() bool
+	SetActive(active bool) 
 }
 
 type Player interface {

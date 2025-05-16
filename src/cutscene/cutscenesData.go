@@ -8,16 +8,21 @@ import (
 func (c *Cutscene) IntroCutscenes(player system.Live, enemyManager *enemy.EnemyManager) {
 	fullBelly:=enemyManager.Enemies[len(enemyManager.Enemies)-1]
 
-	posXPanca := fullBelly.Object.X
-	posYPanca := fullBelly.Object.Y
-	fullBelly.Object.X = 1300
-	fullBelly.Object.Y = 400
+	posXBelly := fullBelly.Object.X
+	posYBelly := fullBelly.Object.Y
+	weaponBelly := fullBelly.Weapon
 
-	c.AddAction(NewObjectMoveAction(fullBelly, 500, float32(fullBelly.GetObject().Y), 4))
-	c.AddAction(NewObjectMoveAction(player, 200, float32(player.GetObject().Y), 4))
+	fullBelly.Object.X = 1400
+	fullBelly.Object.Y = 400
+	fullBelly.Weapon = nil
+
+	// c.AddAction(NewObjectMoveAction(fullBelly, 500, float32(fullBelly.GetObject().Y), 2, "fb_walk_with_girl"))
+	c.AddAction(NewObjectMoveAction(player, 200, float32(player.GetObject().Y), 1, "walk"))
+	player.IsActive()
 
 	c.AddAction(NewCallbackAction(func() {
-		fullBelly.Object.X = posXPanca
-		fullBelly.Object.Y = posYPanca
+		fullBelly.Object.X = posXBelly
+		fullBelly.Object.Y = posYBelly
+		fullBelly.Weapon = weaponBelly
 	}))
 }

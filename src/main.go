@@ -5,6 +5,7 @@ import (
 	"otaviocosta2110/vincitorrado/src/cutscene"
 	"otaviocosta2110/vincitorrado/src/enemy"
 	"otaviocosta2110/vincitorrado/src/equipment"
+	"otaviocosta2110/vincitorrado/src/girlfriend"
 	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/player"
 	"otaviocosta2110/vincitorrado/src/props"
@@ -44,6 +45,7 @@ type GameState struct {
 	Menu         ui.Menu
 	Music        *string
 	Cutscene     *cutscene.Cutscene
+	Girlfriend   *girlfriend.Girlfriend
 }
 
 func main() {
@@ -72,7 +74,8 @@ func main() {
 		SpriteHeight: playerSizeY,
 		Texture:      rl.LoadTexture("assets/player/player.png"),
 	}
-	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 4, playerScale, playerSprite, screen)
+
+	player := player.NewPlayer(100, screen.Height/2+50, playerSizeX, playerSizeY, 4, playerScale, playerSprite, screen)
 	menu := ui.NewMenu(player, &playerSprite)
 
 	items, err := equipment.LoadItemsFromJSON("assets/items/items.json")
@@ -114,6 +117,14 @@ func main() {
 	screen.InitCamera(player.Object.X, player.Object.Y)
 
 	music := "mission1"
+
+	gSprite := sprites.Sprite{
+		SpriteWidth:  playerSizeX,
+		SpriteHeight: playerSizeY,
+		Texture:      rl.LoadTexture("assets/player/girlfriend.png"),
+	}
+	g := girlfriend.New(gSprite, 500, 500, 4)
+
 	gameState := GameState{
 		Player:       player,
 		EnemyManager: enemyManager,
@@ -124,6 +135,7 @@ func main() {
 		Weapons:      weapons,
 		Menu:         *menu,
 		Music:        &music,
+		Girlfriend:   g,
 	}
 
 	gameLoop(&gameState, chao, buildings)
@@ -131,7 +143,7 @@ func main() {
 
 func gameLoop(gs *GameState, chao rl.Texture2D, buildings rl.Texture2D) {
 	introCutscene := cutscene.NewCutscene()
-	introCutscene.IntroCutscenes(gs.Player, gs.EnemyManager)
+	introCutscene.IntroCutscenes(gs.Girlfriend, gs.EnemyManager)
 	introCutscene.Start()
 	gs.Cutscene = introCutscene
 
@@ -142,16 +154,6 @@ func gameLoop(gs *GameState, chao rl.Texture2D, buildings rl.Texture2D) {
 		if gs.Cutscene.IsPlaying() {
 			gs.Cutscene.Update()
 		} else if !gs.Menu.IsVisible {
-			update(gs)
-		}
-		draw(gs, chao, buildings)
-	}
-
-	for !rl.WindowShouldClose() {
-		audio.UpdateMusic(*gs.Music)
-		gs.Menu.Update()
-
-		if !gs.Menu.IsVisible {
 			update(gs)
 		}
 		draw(gs, chao, buildings)
@@ -228,6 +230,10 @@ func draw(gs *GameState, chao rl.Texture2D, buildings rl.Texture2D) {
 
 	gs.EnemyManager.Draw()
 	gs.Player.Draw()
+
+	if gs.Girlfriend.IsActive(){
+		gs.Girlfriend.Draw()
+	}
 
 	for _, item := range gs.Items {
 		if item.IsDropped {

@@ -111,15 +111,17 @@ type PlayerMoveAction struct {
 	targetX   float32
 	targetY   float32
 	speed     float32
+	animation string
 	completed bool
 }
 
-func NewObjectMoveAction(o system.Live, targetX, targetY, speed float32) *PlayerMoveAction {
+func NewObjectMoveAction(o system.Live, targetX, targetY, speed float32, animation string) *PlayerMoveAction {
 	return &PlayerMoveAction{
 		object:    o,
 		targetX:   targetX,
 		targetY:   targetY,
 		speed:     speed,
+		animation: animation,
 		completed: false,
 	}
 }
@@ -161,7 +163,7 @@ func (a *PlayerMoveAction) Update() bool {
 		},
 	)
 	if math.Abs(float64(dx)) > math.Abs(float64(dy)) {
-		a.object.UpdateAnimation("walk")
+		a.object.UpdateAnimation(a.animation)
 		if dx > 0 {
 			a.object.SetObject(
 				system.Object{
@@ -206,15 +208,16 @@ func (a *PlayerMoveAction) Update() bool {
 	}
 	return false
 }
+
 type CallbackAction struct {
-    callback func()
+	callback func()
 }
 
 func NewCallbackAction(callback func()) *CallbackAction {
-    return &CallbackAction{callback: callback}
+	return &CallbackAction{callback: callback}
 }
 
 func (a *CallbackAction) Update() bool {
-    a.callback()
-    return true 
+	a.callback()
+	return true
 }

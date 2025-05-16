@@ -316,6 +316,8 @@ func (e *Enemy) UpdateAnimation(animationName string) {
 		e.runAnimation(0, []int{1}, []int{1})
 	case "fb_hit":
 		e.runAnimation(100, []int{1, 1}, []int{2, 2})
+	case "fb_walk_with_girl":
+		e.runAnimation(300, []int{0, 1}, []int{4, 4})
 	case "default":
 		e.runAnimation(int(animationDelay), []int{0}, []int{0})
 	}
