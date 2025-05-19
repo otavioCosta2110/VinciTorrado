@@ -28,8 +28,9 @@ func NewScreen(width, height, scenaryWidth, scenaryHeight int32, title string) *
 }
 
 func (s *Screen) InitCamera(targetX, targetY int32){
-		s.Camera.Target = rl.NewVector2(float32(targetX), float32(s.Height)/2)
+		s.Camera.Target = rl.NewVector2(float32(s.Width/2), float32(s.Height)/2)
 }
+
 func (s *Screen) UpdateCamera(targetX, targetY int32, canAdvance bool) {
 	if canAdvance {
 		buildingMinX := int32(0)

@@ -1,8 +1,10 @@
 [
   {
     "sprite": "assets/enemies/bald.png",
-    "X": 50,
-    "Y": 700,
+    "X": 1500,
+    "Y": 650,
+    "activate_pos_X": 0,
+    "activate_pos_Y": 0,
     "width": 32,
     "height": 32,
     "health": 6,
@@ -29,8 +31,10 @@
   },
   {
     "sprite": "assets/enemies/bald_blue.png",
-    "X": 200,
+    "X": 1400,
     "Y": 500,
+    "activate_pos_X": 0,
+    "activate_pos_Y": 0,
     "width": 32,
     "height": 32,
     "health": 6,

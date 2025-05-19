@@ -33,7 +33,7 @@ func (em *EnemyManager) Update(p system.Player, s screen.Screen, m *string) {
 				*m = "full_belly"
 				audio.PlayFullBellyMusic()
 			}
-			enemy.IsActive = true
+			enemy.Active = true
 			em.ActiveEnemies = append(em.ActiveEnemies, enemy)
 			em.InactiveEnemies = slices.Delete(em.InactiveEnemies, i, i+1)
 		}

@@ -25,7 +25,7 @@ func (p *Player) Update(em *enemy.EnemyManager, screen screen.Screen) {
 		enemyObject := enemy.GetObject()
 
 		if p.CheckAtk(enemyObject) {
-			enemy.TakeDamage(p.Damage, p.Object.X, p.Object.Y)
+			enemy.TakeDamage(p.Damage, p.Object)
 		}
 	}
 }
@@ -90,7 +90,7 @@ func (p *Player) Draw() {
 
 func (p *Player) TakeDamage(damage int32, eObj system.Object) {
 	if !p.isInvincible(invencibilityDuration) {
-		p.updatePlayerAnimation(100, []int{0, 1}, []int{2, 2})
+		p.UpdateAnimation("hit")
 		p.Health -= damage
 		p.LastDamageTaken = time.Now()
 
@@ -128,9 +128,33 @@ func (p *Player) isInvincible(duration int) bool {
 	return time.Since(p.LastDamageTaken).Milliseconds() <= int64(duration)
 }
 
-func (p *Player) updatePlayerAnimation(animationDelay int, framesX, framesY []int){
+func (p *Player) UpdateAnimation(animationName string) {
+	switch animationName {
+	case "walk":
+		p.runAnimation(300, []int{0, 1}, []int{0, 0})
+	case "punch":
+		p.runAnimation(50, []int{0, 1}, []int{1, 1})
+	case "kick":
+		p.runAnimation(50, []int{0}, []int{3})
+	case "hit":
+		p.runAnimation(100, []int{0, 1}, []int{2, 2})
+	case "default":
+		p.runAnimation(int(animationDelay), []int{0}, []int{0})
+	}
+}
+
+func (p *Player) runAnimation(animationDelay int, framesX, framesY []int) {
 	p.Object.UpdateAnimation(animationDelay, framesX, framesY)
 	if p.Weapon != nil {
 		p.Weapon.Object.UpdateAnimation(animationDelay, framesX, framesY)
 	}
 }
+
+func (p *Player) SetObject (obj system.Object) {
+	p.Object = obj
+}
+
+func (p *Player) IsActive() bool{
+	return true
+}
+func (p *Player) SetActive(bool) {}

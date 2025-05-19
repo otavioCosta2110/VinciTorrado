@@ -26,7 +26,7 @@ type Enemy struct {
 	HitCount       int32
 	LastHitTime    time.Time
 	IsStunned      bool
-	IsActive       bool
+	Active         bool
 	StunEndTime    time.Time
 	Layer          int
 	CanMove        bool
@@ -77,7 +77,7 @@ func NewEnemy(x, y, aX, aY, speed, width, height, scale int32, sprite sprites.Sp
 		},
 		Activate_pos_X: aX,
 		Activate_pos_Y: aY,
-		IsActive:       false,
+		Active:         false,
 		Layer:          0,
 		CanMove:        true,
 		WindUpTime:     windUpTime,
@@ -176,14 +176,14 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 				e.IsCharging = true
 				audio.PlayFullBellyPrepare()
 				e.CanMove = false
-				e.updateEnemyAnimation(0, []int{0}, []int{1}) 
+				e.UpdateAnimation("charge")
 				e.Object.LastAttackTime = currentTime
 				return false
 			}
 
 			if e.IsCharging && timeSinceLastAttack >= e.WindUpTime {
 				e.IsCharging = false
-				e.updateEnemyAnimation(0, []int{1}, []int{1}) 
+				e.UpdateAnimation("fb_attack")
 				e.Object.LastAttackTime = currentTime
 				audio.PlayFullBellyAttack()
 				return true
@@ -197,16 +197,16 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 	if physics.CheckCollision(punchObject, player) && timeSinceLastAttack >= e.AttackCooldown {
 		framex := rand.Intn(2)
 		e.Object.FrameX = int32(framex)
-		e.updateEnemyAnimation(50, []int{framex}, []int{1})
+		e.UpdateAnimation("punch")
 		e.Object.LastAttackTime = time.Now()
 		audio.PlayPunch()
 		return true
 	}
 
 	if e.EnemyType == "full_belly" && e.IsCharging {
-		e.updateEnemyAnimation(300, []int{0}, []int{1}) 
+		e.UpdateAnimation("charge")
 	} else {
-		e.updateEnemyAnimation(300, []int{0, 1}, []int{0, 0}) 
+		e.UpdateAnimation("walk")
 	}
 	return false
 }
@@ -256,7 +256,7 @@ func (e *Enemy) setKnockback(pX int32) {
 	e.Object.KnockbackY = knockbackStrengthY
 }
 
-func (e *Enemy) TakeDamage(damage int32, pX int32, pY int32) {
+func (e *Enemy) TakeDamage(damage int32, obj system.Object) {
 	if e.Health <= 0 {
 		e.Object.Destroyed = true
 		e.Layer = -1
@@ -274,13 +274,13 @@ func (e *Enemy) TakeDamage(damage int32, pX int32, pY int32) {
 
 	if e.EnemyType != "full_belly" {
 		if e.HitCount >= 3 {
-			e.updateEnemyAnimation(100, []int{1, 1}, []int{2, 2})
-			e.setKnockback(pX)
+			e.UpdateAnimation("fb_hit")
+			e.setKnockback(obj.X)
 			e.HitCount = 0
 			e.IsStunned = true
 			e.StunEndTime = time.Now().Add(700 * time.Millisecond)
 		} else {
-			e.updateEnemyAnimation(100, []int{0, 0}, []int{2, 2})
+			e.UpdateAnimation("hit")
 		}
 	}
 
@@ -289,7 +289,7 @@ func (e *Enemy) TakeDamage(damage int32, pX int32, pY int32) {
 
 func (e *Enemy) TakeDamageFromBox(box system.Object) {
 	damage := int32(1)
-	e.TakeDamage(damage, box.X, box.Y)
+	e.TakeDamage(damage, e.Object)
 
 	knockbackStrength := int32(15)
 	if e.Object.X < box.X {
@@ -300,7 +300,30 @@ func (e *Enemy) TakeDamageFromBox(box system.Object) {
 	e.Object.KnockbackY = -knockbackStrength / 2
 }
 
-func (e *Enemy) updateEnemyAnimation(animationDelay int, framesX, framesY []int) {
+func (e *Enemy) UpdateAnimation(animationName string) {
+	switch animationName {
+	case "walk":
+		e.runAnimation(300, []int{0, 1}, []int{0, 0})
+	case "punch":
+		e.runAnimation(50, []int{0, 1}, []int{1, 1})
+	case "kick":
+		e.runAnimation(50, []int{0}, []int{3})
+	case "hit":
+		e.runAnimation(100, []int{0, 1}, []int{2, 2})
+	case "fb_charge":
+		e.runAnimation(300, []int{0}, []int{1})
+	case "fb_attack":
+		e.runAnimation(0, []int{1}, []int{1})
+	case "fb_hit":
+		e.runAnimation(100, []int{1, 1}, []int{2, 2})
+	case "fb_walk_with_girl":
+		e.runAnimation(300, []int{0, 1}, []int{4, 4})
+	case "default":
+		e.runAnimation(int(animationDelay), []int{0}, []int{0})
+	}
+}
+
+func (e *Enemy) runAnimation(animationDelay int, framesX, framesY []int) {
 	e.Object.UpdateAnimation(animationDelay, framesX, framesY)
 	if e.Weapon != nil {
 		e.Weapon.Object.UpdateAnimation(animationDelay, framesX, framesY)
@@ -332,3 +355,7 @@ func (e *Enemy) GetDropCollisionBox() system.Object {
 		Height: dropHeight / 2,
 	}
 }
+func (e *Enemy) IsActive() bool {
+	return e.Active
+}
+func (p *Enemy) SetActive(bool) {}

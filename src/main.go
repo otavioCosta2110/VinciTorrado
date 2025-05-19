@@ -2,8 +2,11 @@ package main
 
 import (
 	"otaviocosta2110/vincitorrado/src/audio"
+	"otaviocosta2110/vincitorrado/src/cutscene"
 	"otaviocosta2110/vincitorrado/src/enemy"
 	"otaviocosta2110/vincitorrado/src/equipment"
+	"otaviocosta2110/vincitorrado/src/girlfriend"
+	"otaviocosta2110/vincitorrado/src/objects"
 	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/player"
 	"otaviocosta2110/vincitorrado/src/props"
@@ -13,8 +16,9 @@ import (
 	"otaviocosta2110/vincitorrado/src/ui"
 	"otaviocosta2110/vincitorrado/src/weapon"
 
-	rl "github.com/gen2brain/raylib-go/raylib"
 	"slices"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 const (
@@ -27,8 +31,8 @@ const (
 
 	// feature flags
 	oneHealthEnemies bool = true
-	enableMusic      bool = true
-	enableSoundFxs   bool = true
+	enableMusic      bool = false
+	enableSoundFxs   bool = false
 )
 
 type GameState struct {
@@ -41,6 +45,8 @@ type GameState struct {
 	Weapons      []*weapon.Weapon
 	Menu         ui.Menu
 	Music        *string
+	Cutscene     *cutscene.Cutscene
+	Girlfriend   *girlfriend.Girlfriend
 }
 
 func main() {
@@ -69,7 +75,36 @@ func main() {
 		SpriteHeight: playerSizeY,
 		Texture:      rl.LoadTexture("assets/player/player.png"),
 	}
-	player := player.NewPlayer(screen.Width/2, screen.Height/2, playerSizeX, playerSizeY, 4, playerScale, playerSprite, screen)
+
+	player := player.NewPlayer(-100, screen.Height/2+50, playerSizeX, playerSizeY, 4, playerScale, playerSprite, screen)
+	weaponSprite := sprites.Sprite{
+		SpriteWidth:  playerSizeX,
+		SpriteHeight: playerSizeY,
+		Texture:      rl.LoadTexture("assets/weapons/flowers.png"),
+	}
+
+	stats := objects.Stats{
+		Damage: 2,
+	}
+
+	playerWeapon := &weapon.Weapon{
+		Object: &system.Object{
+			X:      player.Object.X,
+			Y:      player.Object.Y,
+			Width:  32 * playerScale,
+			Height: 32 * playerScale,
+			Scale:  playerScale,
+			Sprite: weaponSprite,
+		},
+		IsDropped: true,
+		Stats:     stats,
+		HitboxX:   30,
+		HitboxY:   0,
+		OffsetX:   9,
+		OffsetY:   0,
+		Health:    3,
+	}
+	player.Weapon = playerWeapon
 	menu := ui.NewMenu(player, &playerSprite)
 
 	items, err := equipment.LoadItemsFromJSON("assets/items/items.json")
@@ -111,6 +146,14 @@ func main() {
 	screen.InitCamera(player.Object.X, player.Object.Y)
 
 	music := "mission1"
+
+	gSprite := sprites.Sprite{
+		SpriteWidth:  playerSizeX,
+		SpriteHeight: playerSizeY,
+		Texture:      rl.LoadTexture("assets/player/girlfriend.png"),
+	}
+	g := girlfriend.New(gSprite, 1000, player.Object.Y, 4)
+
 	gameState := GameState{
 		Player:       player,
 		EnemyManager: enemyManager,
@@ -121,17 +164,25 @@ func main() {
 		Weapons:      weapons,
 		Menu:         *menu,
 		Music:        &music,
+		Girlfriend:   g,
 	}
 
 	gameLoop(&gameState, chao, buildings)
 }
 
 func gameLoop(gs *GameState, chao rl.Texture2D, buildings rl.Texture2D) {
+	introCutscene := cutscene.NewCutscene()
+	introCutscene.IntroCutscenes(gs.Player, gs.Girlfriend, gs.EnemyManager)
+	introCutscene.Start()
+	gs.Cutscene = introCutscene
+
 	for !rl.WindowShouldClose() {
 		audio.UpdateMusic(*gs.Music)
 		gs.Menu.Update()
 
-		if !gs.Menu.IsVisible {
+		if gs.Cutscene.IsPlaying() {
+			gs.Cutscene.Update()
+		} else if !gs.Menu.IsVisible {
 			update(gs)
 		}
 		draw(gs, chao, buildings)
@@ -139,7 +190,7 @@ func gameLoop(gs *GameState, chao rl.Texture2D, buildings rl.Texture2D) {
 }
 
 func update(gs *GameState) {
-	if system.GameOverFlag {
+	if system.GameOverFlag || gs.Cutscene.IsPlaying() {
 		return
 	}
 	for i := range gs.Weapons {
@@ -206,8 +257,12 @@ func draw(gs *GameState, chao rl.Texture2D, buildings rl.Texture2D) {
 		prop.Draw()
 	}
 
+	if gs.Girlfriend.IsActive() {
+		gs.Girlfriend.Draw()
+	}
 	gs.EnemyManager.Draw()
 	gs.Player.Draw()
+
 
 	for _, item := range gs.Items {
 		if item.IsDropped {
