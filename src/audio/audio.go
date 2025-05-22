@@ -19,13 +19,26 @@ func PlayMissionMusic() {
 	rl.SetMusicVolume(Mission1Music, 0.5)
 }
 
+func PlayMission2Music() {
+	rl.PlayMusicStream(Mission2Music)
+	rl.SetMusicVolume(Mission2Music, 0.5)
+}
+
 func UpdateMusic(music string) {
-	switch(music){
+	switch music {
 	case "mission1":
 		rl.UpdateMusicStream(Mission1Music)
+	case "mission2":
+		rl.UpdateMusicStream(Mission2Music)
 	case "full_belly":
 		rl.UpdateMusicStream(FullBellyMusic)
 	}
+}
+
+func StopMusic() {
+	rl.StopMusicStream(Mission1Music)
+	rl.StopMusicStream(Mission2Music)
+	rl.StopMusicStream(FullBellyMusic)
 }
 
 func PauseMusic() {

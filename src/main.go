@@ -305,6 +305,9 @@ func drawBuildings(texture rl.Texture2D) {
 func transitionMap(gs *GameState, mapName string) {
 	rl.UnloadTexture(gs.Buildings)
 	rl.UnloadTexture(gs.Chao)
+	audio.StopMusic()
+	audio.PlayMission2Music()
+	*gs.Music = "mission2"
 
 	gs.Player.Object.FrameX = 0
 	gs.Player.Object.FrameY = 0
