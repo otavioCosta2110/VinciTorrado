@@ -15,9 +15,9 @@ import (
 	"otaviocosta2110/vincitorrado/src/system"
 	"otaviocosta2110/vincitorrado/src/ui"
 	"otaviocosta2110/vincitorrado/src/weapon"
+	"time"
 
 	"slices"
-
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
@@ -47,6 +47,11 @@ type GameState struct {
 	Music        *string
 	Cutscene     *cutscene.Cutscene
 	Girlfriend   *girlfriend.Girlfriend
+	Doors        []*props.Door
+	MapManager   *system.MapManager
+	Buildings    rl.Texture2D
+	Chao         rl.Texture2D
+	FloorPath    string
 }
 
 func main() {
@@ -57,6 +62,19 @@ func main() {
 	rl.InitAudioDevice()
 	defer rl.CloseAudioDevice()
 
+	buildings := loadScaledTexture("assets/scenes/predio.png", playerScale)
+	chao := loadScaledTexture("assets/scenes/chao.png", playerScale)
+
+	mapManager := system.NewMapManager()
+	mapManager.Maps["bar"] = &system.GameMap{
+		Buildings:    "assets/scenes/continuacao_bar.jpg",
+		Floor:        "assets/scenes/chao_bar.png",
+		EnemiesPath:  "assets/enemies/enemyInfo/2_00 enemyInfo.json", //novo json ou só algo q diga q ele é do bar
+		PropsPath:    "assets/props/bar_props.json",                  //tbm
+		PlayerStartX: 100,
+		PlayerStartY: 100,
+	}
+
 	if enableSoundFxs {
 		audio.LoadSounds()
 	}
@@ -64,9 +82,6 @@ func main() {
 		audio.PlayMissionMusic()
 	}
 	defer audio.UnloadSounds()
-
-	buildings := loadScaledTexture("assets/scenes/predio.png", playerScale)
-	chao := loadScaledTexture("assets/scenes/chao.png", playerScale)
 
 	screen := screen.NewScreen(windowWidth, windowHeight, buildings.Width, buildings.Height, windowTitle)
 
@@ -133,9 +148,9 @@ func main() {
 		panic("Failed to load weapons: " + err.Error())
 	}
 
-	props, err := props.LoadPropsFromJSON("assets/props/props.json", items)
+	props, doors, err := props.LoadPropsFromJSON("assets/props/props.json", items)
 	if err != nil {
-		panic("Failed to load prop cans: " + err.Error())
+		panic("Failed to load props: " + err.Error())
 	}
 
 	var kickables []physics.Kickable
@@ -165,17 +180,20 @@ func main() {
 		Menu:         *menu,
 		Music:        &music,
 		Girlfriend:   g,
+		Buildings:    buildings,
+		Chao:         chao,
+		Doors:        doors,
+		MapManager:   mapManager,
 	}
 
-	gameLoop(&gameState, chao, buildings)
+	gameLoop(&gameState)
 }
 
-func gameLoop(gs *GameState, chao rl.Texture2D, buildings rl.Texture2D) {
+func gameLoop(gs *GameState) {
 	introCutscene := cutscene.NewCutscene()
 	introCutscene.IntroCutscenes(gs.Player, gs.Girlfriend, gs.EnemyManager)
 	introCutscene.Start()
 	gs.Cutscene = introCutscene
-
 	for !rl.WindowShouldClose() {
 		audio.UpdateMusic(*gs.Music)
 		gs.Menu.Update()
@@ -185,13 +203,23 @@ func gameLoop(gs *GameState, chao rl.Texture2D, buildings rl.Texture2D) {
 		} else if !gs.Menu.IsVisible {
 			update(gs)
 		}
-		draw(gs, chao, buildings)
+		draw(gs)
 	}
 }
 
 func update(gs *GameState) {
 	if system.GameOverFlag || gs.Cutscene.IsPlaying() {
 		return
+	}
+	if gs.Player.IsKicking && time.Since(gs.Player.LastKickTime) > 200*time.Millisecond {
+		gs.Player.IsKicking = false
+		gs.Player.Object.FrameY = 0
+		gs.Player.Object.FrameX = 0
+	}
+	if gs.Player.IsAttacking && time.Since(gs.Player.LastAttackTime) > 400*time.Millisecond {
+		gs.Player.IsAttacking = false
+		gs.Player.Object.FrameX = 0
+		gs.Player.Object.FrameY = 0
 	}
 	for i := range gs.Weapons {
 		weapon := gs.Weapons[i]
@@ -243,15 +271,22 @@ func update(gs *GameState) {
 	gs.Player.Update(gs.EnemyManager, *gs.Screen)
 	canAdvance := len(gs.EnemyManager.ActiveEnemies) <= 0
 	gs.Screen.UpdateCamera(gs.Player.Object.X, gs.Player.Object.Y, canAdvance)
+
+	for _, door := range gs.Doors {
+		if door.CheckTransition(gs.Player.GetObject(), canAdvance) {
+			transitionMap(gs, door.NextMap)
+			break
+		}
+	}
 }
 
-func draw(gs *GameState, chao rl.Texture2D, buildings rl.Texture2D) {
+func draw(gs *GameState) {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.RayWhite)
 
 	rl.BeginMode2D(gs.Screen.Camera)
-	drawTiledBackground(chao, gs.Screen.Camera, gs.Screen.Width, gs.Screen.Height)
-	drawBuildings(buildings)
+	drawTiledBackground(gs.Chao, gs.Screen.Camera, gs.Screen.Width, gs.Screen.Height)
+	drawBuildings(gs.Buildings)
 
 	for _, prop := range gs.Props {
 		prop.Draw()
@@ -260,6 +295,10 @@ func draw(gs *GameState, chao rl.Texture2D, buildings rl.Texture2D) {
 	if gs.Girlfriend.IsActive() {
 		gs.Girlfriend.Draw()
 	}
+	for _, door := range gs.Doors {
+		door.Draw()
+	}
+
 	gs.EnemyManager.Draw()
 	gs.Player.Draw()
 
@@ -313,4 +352,38 @@ func drawTiledBackground(texture rl.Texture2D, camera rl.Camera2D, screenWidth, 
 
 func drawBuildings(texture rl.Texture2D) {
 	rl.DrawTexture(texture, 0, 0, rl.White)
+}
+
+func transitionMap(gs *GameState, mapName string) {
+	rl.UnloadTexture(gs.Buildings)
+	rl.UnloadTexture(gs.Chao)
+
+	gs.Player.Object.FrameX = 0
+	gs.Player.Object.FrameY = 0
+	gs.Player.IsKicking = false
+	gs.Player.LastKickTime = time.Now().Add(-time.Hour)
+
+	newMap := gs.MapManager.Maps[mapName]
+
+	gs.Buildings = loadScaledTexture(newMap.Buildings, playerScale)
+	gs.Chao = loadScaledTexture(newMap.Floor, playerScale)
+
+	enemies, _ := enemy.LoadEnemiesFromJSON(newMap.EnemiesPath, playerScale)
+	gs.EnemyManager = &enemy.EnemyManager{}
+	for _, e := range enemies {
+		gs.EnemyManager.AddEnemy(e)
+	}
+
+	props, doors, _ := props.LoadPropsFromJSON(newMap.PropsPath, gs.Items)
+	gs.Props = props
+	gs.Doors = doors
+
+	gs.Player.Object.X = newMap.PlayerStartX
+	gs.Player.Object.Y = newMap.PlayerStartY
+	gs.Screen.ResetCamera()
+
+	gs.Kickables = nil
+	for _, prop := range gs.Props {
+		gs.Kickables = append(gs.Kickables, prop)
+	}
 }
