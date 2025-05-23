@@ -151,11 +151,11 @@ func (p *Player) runAnimation(animationDelay int, framesX, framesY []int) {
 	}
 }
 
-func (p *Player) SetObject (obj system.Object) {
+func (p *Player) SetObject(obj system.Object) {
 	p.Object = obj
 }
 
-func (p *Player) IsActive() bool{
+func (p *Player) IsActive() bool {
 	return true
 }
 func (p *Player) SetActive(bool) {}

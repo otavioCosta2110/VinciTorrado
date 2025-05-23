@@ -412,7 +412,6 @@ func transitionMap(gs *GameState, mapName string) {
 		audio.PlayMission2Music()
 	}
 
-
 	props, doors, err := props.LoadPropsFromJSON(newMap.PropsPath, gs.Items)
 	if err != nil {
 		panic("Failed to load props: " + err.Error())
