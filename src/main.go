@@ -35,6 +35,7 @@ const (
 	oneHealthEnemies bool = true
 	enableMusic      bool = true
 	enableSoundFxs   bool = true
+	skipCutscenes    bool = false
 )
 
 type GameState struct {
@@ -72,7 +73,7 @@ func main() {
 		EnemiesPath:  "assets/enemies/enemyInfo/1_00 enemyInfo.json",
 		PropsPath:    "assets/props/props.json",
 		PlayerStartX: -100,
-		PlayerStartY: windowHeight/2+50,
+		PlayerStartY: windowHeight/2 + 50,
 	}
 	mapManager.Maps["bar"] = &maps.GameMap{
 		Buildings:    "assets/scenes/bar.png",
@@ -83,7 +84,7 @@ func main() {
 		PlayerStartY: 100,
 	}
 
-	initialMap := "bar"
+	initialMap := "city"
 	currentMap := mapManager.Maps[initialMap]
 
 	buildings := loadScaledTexture(currentMap.Buildings, playerScale)
@@ -200,32 +201,16 @@ func main() {
 }
 
 func gameLoop(gs *GameState) {
-	gs.Cutscene = cutscene.NewCutscene()
-	switch gs.CurrentMap {
-	case "city":
-		music := "mission1"
-		gs.Music = &music
-		gs.Cutscene.IntroCutscenes(gs.Player, gs.Girlfriend, gs.EnemyManager)
-		gs.Cutscene.Start()
-	case "bar":
-		music := "mission2"
-		gs.Music = &music
-		audio.PlayMission2Music()
-	}
-
 	for !rl.WindowShouldClose() {
 		audio.UpdateMusic(*gs.Music)
 		gs.Menu.Update()
 
-		if gs.Cutscene != nil {
-			if gs.Cutscene.IsPlaying() {
-				gs.Cutscene.Update()
-			} else if !gs.Menu.IsVisible {
-				update(gs)
-			}
+		if gs.Cutscene != nil && gs.Cutscene.IsPlaying() {
+			gs.Cutscene.Update()
 		} else if !gs.Menu.IsVisible {
 			update(gs)
 		}
+
 		draw(gs)
 	}
 }
@@ -409,6 +394,24 @@ func transitionMap(gs *GameState, mapName string) {
 		}
 		gs.EnemyManager.AddEnemy(e)
 	}
+	gs.Cutscene = cutscene.NewCutscene()
+
+	switch gs.CurrentMap {
+	case "city":
+		music := "mission1"
+		gs.Music = &music
+		if !skipCutscenes {
+			gs.Cutscene.IntroCutscenes(gs.Player, gs.Girlfriend, gs.EnemyManager)
+			gs.Cutscene.Start()
+		}
+	case "bar":
+		println("Bar")
+		music := "mission2"
+		gs.Music = &music
+		audio.StopMusic()
+		audio.PlayMission2Music()
+	}
+
 
 	props, doors, err := props.LoadPropsFromJSON(newMap.PropsPath, gs.Items)
 	if err != nil {
