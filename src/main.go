@@ -33,8 +33,8 @@ const (
 
 	// feature flags
 	oneHealthEnemies bool = true
-	enableMusic      bool = false
-	enableSoundFxs   bool = false
+	enableMusic      bool = true
+	enableSoundFxs   bool = true
 )
 
 type GameState struct {
@@ -75,7 +75,7 @@ func main() {
 		PlayerStartY: windowHeight/2+50,
 	}
 	mapManager.Maps["bar"] = &maps.GameMap{
-		Buildings:    "assets/scenes/continuacao_bar.jpg",
+		Buildings:    "assets/scenes/bar.png",
 		Floor:        "assets/scenes/chao_bar.png",
 		EnemiesPath:  "assets/enemies/enemyInfo/2_00 enemyInfo.json",
 		PropsPath:    "assets/props/bar_props.json",
@@ -83,7 +83,7 @@ func main() {
 		PlayerStartY: 100,
 	}
 
-	initialMap := "city"
+	initialMap := "bar"
 	currentMap := mapManager.Maps[initialMap]
 
 	buildings := loadScaledTexture(currentMap.Buildings, playerScale)
@@ -148,8 +148,6 @@ func main() {
 
 	screen.InitCamera(player.Object.X, player.Object.Y)
 
-	music := "mission1"
-
 	gSprite := sprites.Sprite{
 		SpriteWidth:  playerSizeX,
 		SpriteHeight: playerSizeY,
@@ -189,7 +187,6 @@ func main() {
 		Props:        props,
 		Weapons:      weapons,
 		Menu:         *menu,
-		Music:        &music,
 		Girlfriend:   g,
 		Buildings:    buildings,
 		Chao:         chao,
@@ -210,6 +207,10 @@ func gameLoop(gs *GameState) {
 		gs.Music = &music
 		gs.Cutscene.IntroCutscenes(gs.Player, gs.Girlfriend, gs.EnemyManager)
 		gs.Cutscene.Start()
+	case "bar":
+		music := "mission2"
+		gs.Music = &music
+		audio.PlayMission2Music()
 	}
 
 	for !rl.WindowShouldClose() {
@@ -376,29 +377,26 @@ func drawBuildings(texture rl.Texture2D) {
 }
 
 func transitionMap(gs *GameState, mapName string) {
-	// Unload previous map resources
 	if gs.Buildings.ID != 0 {
 		rl.UnloadTexture(gs.Buildings)
 	}
 	if gs.Chao.ID != 0 {
 		rl.UnloadTexture(gs.Chao)
 	}
+	rl.UnloadTexture(gs.Buildings)
+	rl.UnloadTexture(gs.Chao)
 
-	// Reset player state
 	gs.Player.Object.FrameX = 0
 	gs.Player.Object.FrameY = 0
 	gs.Player.IsKicking = false
 	gs.Player.LastKickTime = time.Now().Add(-time.Hour)
 
-	// Get new map data
 	newMap := gs.MapManager.Maps[mapName]
 	gs.CurrentMap = mapName
 
-	// Load new map assets
 	gs.Buildings = loadScaledTexture(newMap.Buildings, playerScale)
 	gs.Chao = loadScaledTexture(newMap.Floor, playerScale)
 
-	// Load enemies
 	enemies, err := enemy.LoadEnemiesFromJSON(newMap.EnemiesPath, playerScale)
 	if err != nil {
 		panic("Failed to load enemies: " + err.Error())
@@ -412,7 +410,6 @@ func transitionMap(gs *GameState, mapName string) {
 		gs.EnemyManager.AddEnemy(e)
 	}
 
-	// Load props
 	props, doors, err := props.LoadPropsFromJSON(newMap.PropsPath, gs.Items)
 	if err != nil {
 		panic("Failed to load props: " + err.Error())
@@ -420,12 +417,10 @@ func transitionMap(gs *GameState, mapName string) {
 	gs.Props = props
 	gs.Doors = doors
 
-	// Update player position
 	gs.Player.Object.X = newMap.PlayerStartX
 	gs.Player.Object.Y = newMap.PlayerStartY
 	gs.Screen.ResetCamera()
 
-	// Update kickables
 	gs.Kickables = nil
 	for _, prop := range gs.Props {
 		gs.Kickables = append(gs.Kickables, prop)
