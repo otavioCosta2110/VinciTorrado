@@ -1,4 +1,4 @@
-package system
+package maps
 
 type GameMap struct {
 	Buildings    string

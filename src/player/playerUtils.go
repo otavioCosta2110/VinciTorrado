@@ -21,7 +21,7 @@ func (p *Player) Update(em *enemy.EnemyManager, screen screen.Screen) {
 		p.CheckMovement(screen)
 	}
 
-	p.HandleAttackInput() // ataca mesmo sem inimigo
+	p.HandleAttackInput()
 
 	for _, enemy := range em.Enemies {
 		enemyObject := enemy.GetObject()
