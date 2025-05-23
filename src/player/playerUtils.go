@@ -21,9 +21,10 @@ func (p *Player) Update(em *enemy.EnemyManager, screen screen.Screen) {
 		p.CheckMovement(screen)
 	}
 
+	p.HandleAttackInput()
+
 	for _, enemy := range em.Enemies {
 		enemyObject := enemy.GetObject()
-
 		if p.CheckAtk(enemyObject) {
 			enemy.TakeDamage(p.Damage, p.Object)
 		}

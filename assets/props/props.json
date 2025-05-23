@@ -23,5 +23,15 @@
     "loot": [
       "Saunduiche"
     ]
-  }
+  },
+{
+  "X": 4915,
+  "Y": 252,
+  "width": 32,
+  "height": 32,
+  "scale": 4,
+  "type": "door",
+  "normal_texture": "assets/props/door.png",
+  "next_map": "bar"
+}
 ]

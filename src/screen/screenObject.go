@@ -48,6 +48,11 @@ func (s *Screen) UpdateCamera(targetX, targetY int32, canAdvance bool) {
 		}
 
 		currentX := s.Camera.Target.X
-		s.Camera.Target.X = currentX + (camX - currentX) * lerpFactor
+		s.Camera.Target.X = currentX + (camX-currentX)*lerpFactor
 	}
+}
+
+func (s *Screen) ResetCamera() {
+	s.Camera.Target = rl.NewVector2(float32(s.Width/2), float32(s.Height/2))
+	s.Camera.Offset = rl.NewVector2(float32(s.Width/2), float32(s.Height/2))
 }

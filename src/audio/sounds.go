@@ -10,7 +10,8 @@ var (
 	CollectItemSound    rl.Sound
 	FullBellyAttack     rl.Sound
 	FullBellyPrepare    rl.Sound
-	FullBellyMusic       rl.Music
+	FullBellyMusic      rl.Music
+	Mission2Music       rl.Music
 )
 
 func LoadSounds() {
@@ -23,18 +24,24 @@ func LoadSounds() {
 
 	Mission1Music = rl.LoadMusicStream("assets/sounds/mission1.mp3")
 	FullBellyMusic = rl.LoadMusicStream("assets/sounds/music_fullbelly.mp3")
+	Mission2Music = rl.LoadMusicStream("assets/sounds/mission2.mp3")
 }
 
 func UnloadSounds() {
 	rl.UnloadSound(PunchSound)
 	rl.UnloadSound(KickSound)
 	rl.UnloadSound(CollectItemSound)
-	rl.UnloadMusicStream(Mission1Music)
 	rl.UnloadSound(WeaponBreakingSound)
 	rl.UnloadSound(FullBellyAttack)
 	rl.UnloadSound(FullBellyPrepare)
+
+	rl.UnloadMusicStream(Mission1Music)
+	rl.UnloadMusicStream(Mission2Music)
+	rl.UnloadMusicStream(FullBellyMusic)
 }
 
 func UnloadMusic() {
 	rl.UnloadMusicStream(Mission1Music)
+	rl.UnloadMusicStream(FullBellyMusic)
+	rl.UnloadMusicStream(Mission2Music)
 }

@@ -8,22 +8,25 @@ import (
 	"otaviocosta2110/vincitorrado/src/weapon"
 	"time"
 
-	rl "github.com/gen2brain/raylib-go/raylib"
 	"slices"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 type Player struct {
 	system.LiveObject
-	IsKicking    bool
-	LastKickTime time.Time
-	KickCooldown time.Duration
-	KickPower    int32
-	Equipped     *equipment.Equipment
-	Equipment    []*equipment.Equipment
-	Consumables  []*equipment.Equipment
-	HatSprite    sprites.Sprite
-	Screen       *screen.Screen
-	Weapon       *weapon.Weapon
+	IsKicking      bool
+	IsAttacking    bool
+	LastKickTime   time.Time
+	KickCooldown   time.Duration
+	KickPower      int32
+	Equipped       *equipment.Equipment
+	Equipment      []*equipment.Equipment
+	Consumables    []*equipment.Equipment
+	HatSprite      sprites.Sprite
+	Screen         *screen.Screen
+	Weapon         *weapon.Weapon
+	LastAttackTime time.Time
 }
 
 func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite, s *screen.Screen) *Player {
@@ -51,6 +54,7 @@ func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite, s
 			Damage:          1,
 		},
 		IsKicking:    false,
+		IsAttacking:  false,
 		LastKickTime: time.Now(),
 		KickCooldown: 500 * time.Millisecond,
 		KickPower:    15,
