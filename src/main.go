@@ -32,9 +32,9 @@ const (
 	playerSizeY  int32  = 32
 
 	// feature flags
-	oneHealthEnemies bool = true
-	enableMusic      bool = true
-	enableSoundFxs   bool = true
+	oneHealthEnemies bool = false
+	enableMusic      bool = false
+	enableSoundFxs   bool = false
 	skipCutscenes    bool = false
 )
 
@@ -84,7 +84,7 @@ func main() {
 		PlayerStartY: 100,
 	}
 
-	initialMap := "city"
+	initialMap := "bar"
 	currentMap := mapManager.Maps[initialMap]
 
 	buildings := loadScaledTexture(currentMap.Buildings, playerScale)
