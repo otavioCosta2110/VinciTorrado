@@ -16,6 +16,7 @@ type PropType string
 const (
 	PropTypeTrash PropType = "trash"
 	PropTypeDoor  PropType = "door"
+	PropTypeTable PropType = "table"
 )
 
 type PropConfig struct {
@@ -38,6 +39,7 @@ type Prop struct {
 	NormalTexture rl.Texture2D
 	KickedTexture rl.Texture2D
 	HitboxOffset  float32
+	Type          PropType
 }
 
 func LoadPropsFromJSON(path string, items []*equipment.Equipment) ([]*Prop, []*Door, error) {
@@ -88,6 +90,7 @@ func LoadPropsFromJSON(path string, items []*equipment.Equipment) ([]*Prop, []*D
 				loot,
 			)
 			props = append(props, prop)
+			prop.Type = cfg.Type
 		}
 	}
 	return props, doors, nil
@@ -139,6 +142,10 @@ func (t *Prop) IsKicked() bool {
 func (t *Prop) HandleKick(items *[]*equipment.Equipment, _ system.Object) {
 	t.Kicked = true
 	t.Object.Sprite.Texture = t.KickedTexture
+
+	if t.Type == PropTypeTable {
+		return
+	}
 
 	proto := t.LootTable[rand.Intn(len(t.LootTable))]
 	item := &equipment.Equipment{

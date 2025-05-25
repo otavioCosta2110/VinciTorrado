@@ -5,27 +5,68 @@
     "width": 32,
     "height": 32,
     "scale": 4,
-    "normal_texture": "assets/props/mesa_bar.png",
-    "kicked_texture": "assets/props/mesa_bar_tombada.png",
+    "normal_texture": "assets/props/mesa.png",
+    "kicked_texture": "assets/props/mesa_tombada.png",
     "loot": [
       "Hamburgão",
       "Saunduiche"
     ],
-    "type": "trash"
+    "type": "table"
   },
-  
   {
     "X": 1500,
+    "Y": 400,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/mesa.png",
+    "kicked_texture": "assets/props/mesa_tombada.png",
+    "loot": [
+      "Hamburgão",
+      "Saunduiche"
+    ],
+    "type": "table"
+  },
+  {
+    "X": 2000,
     "Y": 500,
     "width": 32,
     "height": 32,
     "scale": 4,
-    "normal_texture": "assets/props/mesa_bar.png",
-    "kicked_texture": "assets/props/mesa_bar_tombada.png",
+    "normal_texture": "assets/props/mesa.png",
+    "kicked_texture": "assets/props/mesa_tombada.png",
     "loot": [
       "Hamburgão",
       "Saunduiche"
     ],
-    "type": "trash"
+    "type": "table"
+  },
+  {
+    "X": 2500,
+    "Y": 400,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/mesa.png",
+    "kicked_texture": "assets/props/mesa_tombada.png",
+    "loot": [
+      "Hamburgão",
+      "Saunduiche"
+    ],
+    "type": "table"
+  },
+  {
+    "X": 3000,
+    "Y": 500,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/mesa.png",
+    "kicked_texture": "assets/props/mesa_tombada.png",
+    "loot": [
+      "Hamburgão",
+      "Saunduiche"
+    ],
+    "type": "table"
   }
 ]
