@@ -32,10 +32,11 @@ const (
 	playerSizeY  int32  = 32
 
 	// feature flags
-	oneHealthEnemies bool = true
-	enableMusic      bool = false
-	enableSoundFxs   bool = false
+	oneHealthEnemies bool = false
+	enableMusic      bool = true
+	enableSoundFxs   bool = true
 	skipCutscenes    bool = false
+	startingMap   	 string = "bar"
 )
 
 type GameState struct {
@@ -84,8 +85,7 @@ func main() {
 		PlayerStartY: 650,
 	}
 
-	initialMap := "bar"
-	currentMap := mapManager.Maps[initialMap]
+	currentMap := mapManager.Maps[startingMap]
 
 	buildings := loadScaledTexture(currentMap.Buildings, playerScale)
 	chao := loadScaledTexture(currentMap.Floor, playerScale)
@@ -193,10 +193,10 @@ func main() {
 		Chao:         chao,
 		Doors:        doors,
 		MapManager:   mapManager,
-		CurrentMap:   initialMap,
+		CurrentMap:   startingMap,
 	}
 
-	transitionMap(&gameState, initialMap)
+	transitionMap(&gameState, startingMap)
 	gameLoop(&gameState)
 }
 
