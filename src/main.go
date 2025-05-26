@@ -32,10 +32,11 @@ const (
 	playerSizeY  int32  = 32
 
 	// feature flags
-	oneHealthEnemies bool = true
-	enableMusic      bool = false
-	enableSoundFxs   bool = false
+	oneHealthEnemies bool = false
+	enableMusic      bool = true
+	enableSoundFxs   bool = true
 	skipCutscenes    bool = false
+	startingMap   	 string = "city"
 )
 
 type GameState struct {
@@ -81,11 +82,10 @@ func main() {
 		EnemiesPath:  "assets/enemies/enemyInfo/2_00 enemyInfo.json",
 		PropsPath:    "assets/props/bar_props.json",
 		PlayerStartX: 100,
-		PlayerStartY: 100,
+		PlayerStartY: 650,
 	}
 
-	initialMap := "bar"
-	currentMap := mapManager.Maps[initialMap]
+	currentMap := mapManager.Maps[startingMap]
 
 	buildings := loadScaledTexture(currentMap.Buildings, playerScale)
 	chao := loadScaledTexture(currentMap.Floor, playerScale)
@@ -106,7 +106,7 @@ func main() {
 		Texture:      rl.LoadTexture("assets/player/player.png"),
 	}
 
-	player := player.NewPlayer(50, screen.Height/2+50, playerSizeX, playerSizeY, 4, playerScale, playerSprite, screen)
+	player := player.NewPlayer(currentMap.PlayerStartX, currentMap.PlayerStartY, playerSizeX, playerSizeY, 4, playerScale, playerSprite, screen)
 	weaponSprite := sprites.Sprite{
 		SpriteWidth:  playerSizeX,
 		SpriteHeight: playerSizeY,
@@ -193,10 +193,10 @@ func main() {
 		Chao:         chao,
 		Doors:        doors,
 		MapManager:   mapManager,
-		CurrentMap:   initialMap,
+		CurrentMap:   startingMap,
 	}
 
-	transitionMap(&gameState, initialMap)
+	transitionMap(&gameState, startingMap)
 	gameLoop(&gameState)
 }
 
@@ -297,6 +297,10 @@ func draw(gs *GameState) {
 	drawBuildings(gs.Buildings)
 
 
+	gs.EnemyManager.DrawDead()
+	for _, prop := range gs.Props {
+		prop.Draw()
+	}
 	gs.EnemyManager.Draw()
 	gs.Player.Draw()
 
@@ -305,10 +309,6 @@ func draw(gs *GameState) {
 			item.DrawAnimated(&item.Object)
 		}
 	}
-	for _, prop := range gs.Props {
-		prop.Draw()
-	}
-
 	if gs.Girlfriend.IsActive() {
 		gs.Girlfriend.Draw()
 	}
@@ -407,6 +407,10 @@ func transitionMap(gs *GameState, mapName string) {
 	case "bar":
 		println("Bar")
 		music := "mission2"
+		if !skipCutscenes {
+			gs.Cutscene.BarIntroCutscene(gs.Player, gs.Girlfriend, gs.EnemyManager)
+			gs.Cutscene.Start()
+		}
 		gs.Music = &music
 		audio.StopMusic()
 		audio.PlayMission2Music()
