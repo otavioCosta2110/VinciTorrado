@@ -32,7 +32,7 @@ const (
 	playerSizeY  int32  = 32
 
 	// feature flags
-	oneHealthEnemies bool = false
+	oneHealthEnemies bool = true
 	enableMusic      bool = false
 	enableSoundFxs   bool = false
 	skipCutscenes    bool = false
@@ -296,6 +296,15 @@ func draw(gs *GameState) {
 	drawTiledBackground(gs.Chao, gs.Screen.Camera, gs.Screen.Width, gs.Screen.Height)
 	drawBuildings(gs.Buildings)
 
+
+	gs.EnemyManager.Draw()
+	gs.Player.Draw()
+
+	for _, item := range gs.Items {
+		if item.IsDropped {
+			item.DrawAnimated(&item.Object)
+		}
+	}
 	for _, prop := range gs.Props {
 		prop.Draw()
 	}
@@ -305,15 +314,6 @@ func draw(gs *GameState) {
 	}
 	for _, door := range gs.Doors {
 		door.Draw()
-	}
-
-	gs.EnemyManager.Draw()
-	gs.Player.Draw()
-
-	for _, item := range gs.Items {
-		if item.IsDropped {
-			item.DrawAnimated(&item.Object)
-		}
 	}
 
 	for _, weapon := range gs.Weapons {
@@ -411,7 +411,6 @@ func transitionMap(gs *GameState, mapName string) {
 		audio.StopMusic()
 		audio.PlayMission2Music()
 	}
-
 
 	props, doors, err := props.LoadPropsFromJSON(newMap.PropsPath, gs.Items)
 	if err != nil {
