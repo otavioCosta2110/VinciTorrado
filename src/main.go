@@ -36,7 +36,7 @@ const (
 	enableMusic      bool = true
 	enableSoundFxs   bool = true
 	skipCutscenes    bool = false
-	startingMap   	 string = "bar"
+	startingMap   	 string = "city"
 )
 
 type GameState struct {
