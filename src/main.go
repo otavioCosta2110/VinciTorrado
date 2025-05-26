@@ -81,7 +81,7 @@ func main() {
 		EnemiesPath:  "assets/enemies/enemyInfo/2_00 enemyInfo.json",
 		PropsPath:    "assets/props/bar_props.json",
 		PlayerStartX: 100,
-		PlayerStartY: 100,
+		PlayerStartY: 650,
 	}
 
 	initialMap := "bar"
@@ -106,7 +106,7 @@ func main() {
 		Texture:      rl.LoadTexture("assets/player/player.png"),
 	}
 
-	player := player.NewPlayer(50, screen.Height/2+50, playerSizeX, playerSizeY, 4, playerScale, playerSprite, screen)
+	player := player.NewPlayer(currentMap.PlayerStartX, currentMap.PlayerStartY, playerSizeX, playerSizeY, 4, playerScale, playerSprite, screen)
 	weaponSprite := sprites.Sprite{
 		SpriteWidth:  playerSizeX,
 		SpriteHeight: playerSizeY,
@@ -297,6 +297,10 @@ func draw(gs *GameState) {
 	drawBuildings(gs.Buildings)
 
 
+	gs.EnemyManager.DrawDead()
+	for _, prop := range gs.Props {
+		prop.Draw()
+	}
 	gs.EnemyManager.Draw()
 	gs.Player.Draw()
 
@@ -305,10 +309,6 @@ func draw(gs *GameState) {
 			item.DrawAnimated(&item.Object)
 		}
 	}
-	for _, prop := range gs.Props {
-		prop.Draw()
-	}
-
 	if gs.Girlfriend.IsActive() {
 		gs.Girlfriend.Draw()
 	}
@@ -407,6 +407,10 @@ func transitionMap(gs *GameState, mapName string) {
 	case "bar":
 		println("Bar")
 		music := "mission2"
+		if !skipCutscenes {
+			gs.Cutscene.BarIntroCutscene(gs.Player, gs.Girlfriend, gs.EnemyManager)
+			gs.Cutscene.Start()
+		}
 		gs.Music = &music
 		audio.StopMusic()
 		audio.PlayMission2Music()

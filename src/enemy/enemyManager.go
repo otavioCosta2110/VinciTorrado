@@ -72,7 +72,20 @@ func (em *EnemyManager) Draw() {
 		return enemies[i].Layer < enemies[j].Layer
 	})
 	for _, enemy := range enemies {
-		enemy.Draw()
+		if !enemy.Object.Destroyed {
+			enemy.Draw()
+		}
+	}
+}
+func (em *EnemyManager) DrawDead() {
+	enemies := em.Enemies
+	sort.Slice(enemies, func(i, j int) bool {
+		return enemies[i].Layer < enemies[j].Layer
+	})
+	for _, enemy := range enemies {
+		if enemy.Object.Destroyed {
+			enemy.Draw()
+		}
 	}
 }
 
