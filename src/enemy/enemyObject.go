@@ -176,7 +176,7 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 				e.IsCharging = true
 				audio.PlayFullBellyPrepare()
 				e.CanMove = false
-				e.UpdateAnimation("charge")
+				e.UpdateAnimation("fb_charge")
 				e.Object.LastAttackTime = currentTime
 				return false
 			}
@@ -204,7 +204,7 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 	}
 
 	if e.EnemyType == "full_belly" && e.IsCharging {
-		e.UpdateAnimation("charge")
+		e.UpdateAnimation("fb_charge")
 	} else {
 		e.UpdateAnimation("walk")
 	}
@@ -311,7 +311,7 @@ func (e *Enemy) UpdateAnimation(animationName string) {
 	case "hit":
 		e.runAnimation(100, []int{0, 1}, []int{2, 2})
 	case "fb_charge":
-		e.runAnimation(300, []int{0}, []int{1})
+		e.runAnimation(100, []int{0}, []int{1})
 	case "fb_attack":
 		e.runAnimation(0, []int{1}, []int{1})
 	case "fb_hit":
