@@ -1,2 +1,22 @@
 [
+  {
+    "name": "Pistol",
+    "sprite": "assets/weapons/pipe.png",
+    "X": 500,
+    "Y": 500,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "offsetX": 9,
+    "offsetY": 0,
+    "hitboxX": 30,
+    "hitboxY": 0,
+    "stats": {
+      "damage": 20
+    },
+    "health": 3,
+    "is_gun": true,
+    "ammo": 12,
+    "maxAmmo": 12
+  }
 ]

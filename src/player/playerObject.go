@@ -27,6 +27,7 @@ type Player struct {
 	Screen         *screen.Screen
 	Weapon         *weapon.Weapon
 	LastAttackTime time.Time
+	Projectiles []*weapon.Projectile
 }
 
 func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite, s *screen.Screen) *Player {

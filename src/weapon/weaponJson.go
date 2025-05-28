@@ -13,18 +13,21 @@ import (
 )
 
 type WeaponConfig struct {
-	Sprite  string `json:"sprite"`
-	X       int32  `json:"X"`
-	Y       int32  `json:"Y"`
-	HitboxX int32  `json:"hitbox_X"`
-	HitboxY int32  `json:"hitbox_Y"`
-	OffsetX int32  `json:"offset_X"`
-	OffsetY int32  `json:"offset_Y"`
-	Width   int32  `json:"width"`
-	Height  int32  `json:"height"`
-	Damage  int32  `json:"damage"`
-	Health  int32  `json:"health"`
-	Scale   int32  `json:"scale"`
+	Sprite  string        `json:"sprite"`
+	X       int32         `json:"X"`
+	Y       int32         `json:"Y"`
+	HitboxX int32         `json:"hitbox_X"`
+	HitboxY int32         `json:"hitbox_Y"`
+	OffsetX int32         `json:"offset_X"`
+	OffsetY int32         `json:"offset_Y"`
+	Width   int32         `json:"width"`
+	Height  int32         `json:"height"`
+	Stats   objects.Stats `json:"stats"`
+	Health  int32         `json:"health"`
+	Scale   int32         `json:"scale"`
+	IsGun   bool          `json:"is_gun"`
+	Ammo    int32         `json:"ammo"`
+	MaxAmmo int32         `json:"maxAmmo"`
 }
 
 func LoadWeaponsFromJSON(filename string) ([]*Weapon, error) {
@@ -41,8 +44,9 @@ func LoadWeaponsFromJSON(filename string) ([]*Weapon, error) {
 	var weapons []*Weapon
 	for _, config := range configs {
 		stats := objects.Stats{
-			Damage: config.Damage,
+			Damage: config.Stats.Damage,
 		}
+		println(config.Stats.Damage)
 
 		spritesheet := sprites.Sprite{
 			SpriteWidth:  config.Width,
@@ -66,6 +70,9 @@ func LoadWeaponsFromJSON(filename string) ([]*Weapon, error) {
 			OffsetX:   config.OffsetX,
 			OffsetY:   config.OffsetY,
 			Health:    config.Health,
+			IsGun:     config.IsGun,
+			Ammo:      config.Ammo,
+			MaxAmmo:   config.MaxAmmo,
 		}
 
 		weapons = append(weapons, weapon)

@@ -33,9 +33,9 @@ const (
 
 	// feature flags
 	oneHealthEnemies bool = false
-	enableMusic      bool = true
-	enableSoundFxs   bool = true
-	skipCutscenes    bool = false
+	enableMusic      bool = false
+	enableSoundFxs   bool = false
+	skipCutscenes    bool = true
 	startingMap   	 string = "bar"
 )
 
