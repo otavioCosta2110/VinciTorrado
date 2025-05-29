@@ -34,12 +34,15 @@ type PropConfig struct {
 
 type Prop struct {
 	system.Object
-	LootTable     []*equipment.Equipment
-	Kicked        bool
-	NormalTexture rl.Texture2D
-	KickedTexture rl.Texture2D
-	HitboxOffset  float32
-	Type          PropType
+	LootTable      []*equipment.Equipment
+	Kicked         bool
+	NormalTexture  rl.Texture2D
+	KickedTexture  rl.Texture2D
+	HitboxOffset   float32
+	Type           PropType
+	OriginalWidth  int32
+	OriginalHeight int32
+	OriginalY      int32
 }
 
 func LoadPropsFromJSON(path string, items []*equipment.Equipment) ([]*Prop, []*Door, error) {
@@ -89,6 +92,8 @@ func LoadPropsFromJSON(path string, items []*equipment.Equipment) ([]*Prop, []*D
 				cfg.KickedTexture,
 				loot,
 			)
+			prop.OriginalWidth = cfg.Width
+			prop.OriginalHeight = cfg.Height
 			props = append(props, prop)
 			prop.Type = cfg.Type
 		}
@@ -116,6 +121,7 @@ func NewProp(x, y, scale, width, height int32, normalTexPath, kickedTexPath stri
 		LootTable:     loot,
 		NormalTexture: normalTex,
 		KickedTexture: kickedTex,
+		OriginalY:     y,
 	}
 }
 
@@ -139,7 +145,7 @@ func (t *Prop) IsKicked() bool {
 	return t.Kicked
 }
 
-func (t *Prop) HandleKick(items *[]*equipment.Equipment, _ system.Object) {
+func (t *Prop) HandleKick(items *[]*equipment.Equipment, kicker system.Object) {
 	t.Kicked = true
 	t.Object.Sprite.Texture = t.KickedTexture
 
@@ -169,6 +175,14 @@ func (t *Prop) HandleKick(items *[]*equipment.Equipment, _ system.Object) {
 	*items = append(*items, item)
 }
 
-func (t *Prop) GetObject() system.Object {
-	return t.Object
+func (t *Prop) GetObject() system.Object { //pra mexer com a hitbox da mesa
+	obj := t.Object
+
+	if t.Kicked && t.Type == PropTypeTable {
+		obj.Height = t.OriginalHeight + (t.OriginalHeight / 2)
+
+		obj.Y = t.OriginalY + (t.OriginalHeight * t.Scale / 4)
+	}
+
+	return obj
 }

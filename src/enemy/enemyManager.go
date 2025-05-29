@@ -1,12 +1,15 @@
 package enemy
 
 import (
+	"math/rand"
 	"otaviocosta2110/vincitorrado/src/audio"
 	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/system"
+	"otaviocosta2110/vincitorrado/src/weapon"
 	"slices"
 	"sort"
+	"time"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -16,6 +19,9 @@ type EnemyManager struct {
 	ActiveEnemies   []*Enemy
 	InactiveEnemies []*Enemy
 	NumEnemies      int
+	lastBossShot    time.Time
+	BossProjectiles []*weapon.BossProjectile
+	CurrentMap      string
 }
 
 func (em *EnemyManager) Update(p system.Player, s screen.Screen, m *string) {
@@ -46,7 +52,29 @@ func (em *EnemyManager) Update(p system.Player, s screen.Screen, m *string) {
 			em.ActiveEnemies = slices.Delete(em.ActiveEnemies, i, i+1)
 		}
 	}
+
+	if em.CurrentMap == "bar" {
+		if time.Since(em.lastBossShot) > 2*time.Second {
+			em.lastBossShot = time.Now()
+
+			yPos := 400 + rand.Int31n(200)
+			const bossProjectileScale = 1.0
+			bossBullet := weapon.NewBossProjectile(5000, yPos, bossProjectileScale)
+			em.BossProjectiles = append(em.BossProjectiles, bossBullet)
+		}
+
+		for i := 0; i < len(em.BossProjectiles); i++ {
+			bullet := em.BossProjectiles[i]
+			bullet.Update()
+
+			if bullet.Object.X < -100 {
+				em.BossProjectiles = append(em.BossProjectiles[:i], em.BossProjectiles[i+1:]...)
+				i--
+			}
+		}
+	}
 }
+
 func isInCameraBounds(enemy *Enemy, cameraBounds rl.Rectangle) bool {
 	enemyRect := rl.Rectangle{
 		X:      float32(enemy.Activate_pos_X),

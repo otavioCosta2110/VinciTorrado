@@ -32,31 +32,32 @@ const (
 	playerSizeY  int32  = 32
 
 	// feature flags
-	oneHealthEnemies bool = false
-	enableMusic      bool = false
-	enableSoundFxs   bool = false
-	skipCutscenes    bool = true
-	startingMap   	 string = "bar"
+	oneHealthEnemies bool   = false
+	enableMusic      bool   = false
+	enableSoundFxs   bool   = false
+	skipCutscenes    bool   = true
+	startingMap      string = "city"
 )
 
 type GameState struct {
-	Player       *player.Player
-	EnemyManager *enemy.EnemyManager
-	Screen       *screen.Screen
-	Kickables    []physics.Kickable
-	Items        []*equipment.Equipment
-	Props        []*props.Prop
-	Weapons      []*weapon.Weapon
-	Menu         ui.Menu
-	Music        *string
-	Cutscene     *cutscene.Cutscene
-	Girlfriend   *girlfriend.Girlfriend
-	Doors        []*props.Door
-	MapManager   *maps.MapManager
-	Buildings    rl.Texture2D
-	Chao         rl.Texture2D
-	FloorPath    string
-	CurrentMap   string
+	Player          *player.Player
+	EnemyManager    *enemy.EnemyManager
+	Screen          *screen.Screen
+	Kickables       []physics.Kickable
+	Items           []*equipment.Equipment
+	Props           []*props.Prop
+	Weapons         []*weapon.Weapon
+	Menu            ui.Menu
+	Music           *string
+	Cutscene        *cutscene.Cutscene
+	Girlfriend      *girlfriend.Girlfriend
+	Doors           []*props.Door
+	MapManager      *maps.MapManager
+	Buildings       rl.Texture2D
+	Chao            rl.Texture2D
+	FloorPath       string
+	CurrentMap      string
+	BossProjectiles []*weapon.BossProjectile
 }
 
 func main() {
@@ -161,7 +162,9 @@ func main() {
 		panic("Failed to load enemies: " + err.Error())
 	}
 
-	enemyManager := &enemy.EnemyManager{}
+	enemyManager := &enemy.EnemyManager{
+		BossProjectiles: []*weapon.BossProjectile{},
+	}
 	for _, e := range enemies {
 		if oneHealthEnemies {
 			e.Health = 0
@@ -286,6 +289,31 @@ func update(gs *GameState) {
 			break
 		}
 	}
+	if gs.CurrentMap == "bar" {
+		for i, bullet := range gs.EnemyManager.BossProjectiles {
+			if physics.CheckCollision(*bullet.Object, gs.Player.GetObject()) {
+				damageSource := system.Object{X: bullet.Object.X, Y: bullet.Object.Y}
+				gs.Player.TakeDamage(bullet.Damage, damageSource)
+				bullet.IsActive = false
+			}
+
+			for _, prop := range gs.Props {
+				if prop.Type == props.PropTypeTable && prop.Kicked {
+					if physics.CheckCollision(*bullet.Object, prop.GetObject()) {
+						bullet.IsActive = false
+					}
+				}
+			}
+
+			if !bullet.IsActive {
+				gs.EnemyManager.BossProjectiles = append(
+					gs.EnemyManager.BossProjectiles[:i],
+					gs.EnemyManager.BossProjectiles[i+1:]...,
+				)
+				i--
+			}
+		}
+	}
 }
 
 func draw(gs *GameState) {
@@ -295,7 +323,6 @@ func draw(gs *GameState) {
 	rl.BeginMode2D(gs.Screen.Camera)
 	drawTiledBackground(gs.Chao, gs.Screen.Camera, gs.Screen.Width, gs.Screen.Height)
 	drawBuildings(gs.Buildings)
-
 
 	gs.EnemyManager.DrawDead()
 	for _, prop := range gs.Props {
@@ -319,6 +346,12 @@ func draw(gs *GameState) {
 	for _, weapon := range gs.Weapons {
 		if weapon.IsDropped {
 			weapon.DrawAnimated()
+		}
+	}
+
+	if gs.CurrentMap == "bar" {
+		for _, bullet := range gs.EnemyManager.BossProjectiles {
+			bullet.Draw()
 		}
 	}
 
@@ -387,7 +420,10 @@ func transitionMap(gs *GameState, mapName string) {
 		panic("Failed to load enemies: " + err.Error())
 	}
 
-	gs.EnemyManager = &enemy.EnemyManager{}
+	gs.EnemyManager = &enemy.EnemyManager{
+		BossProjectiles: []*weapon.BossProjectile{},
+		CurrentMap:      mapName,
+	}
 	for _, e := range enemies {
 		if oneHealthEnemies {
 			e.Health = 0
