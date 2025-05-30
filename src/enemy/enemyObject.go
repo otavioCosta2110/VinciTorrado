@@ -5,10 +5,12 @@ import (
 	"otaviocosta2110/vincitorrado/src/audio"
 	"otaviocosta2110/vincitorrado/src/equipment"
 	"otaviocosta2110/vincitorrado/src/physics"
+	"otaviocosta2110/vincitorrado/src/props"
 	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/sprites"
 	"otaviocosta2110/vincitorrado/src/system"
 	"otaviocosta2110/vincitorrado/src/weapon"
+	"slices"
 	"time"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -38,6 +40,8 @@ type Enemy struct {
 	Weapon         *weapon.Weapon
 	AttackCooldown int64
 	IsCharging     bool
+	Projectiles    []*weapon.Projectile
+	LastShotTime   time.Time
 }
 
 func (e *Enemy) GetObject() system.Object {
@@ -87,6 +91,7 @@ func NewEnemy(x, y, aX, aY, speed, width, height, scale int32, sprite sprites.Sp
 		Weapon:         weapon,
 		AttackCooldown: attackCooldown,
 		IsCharging:     false,
+		LastShotTime:   time.Now(),
 	}
 }
 
@@ -98,6 +103,7 @@ func (e *Enemy) Draw() {
 		if e.Weapon != nil && e.Weapon.IsDropped {
 			e.Weapon.DrawAnimated()
 		}
+
 	}
 
 	var width float32 = float32(e.Object.Sprite.SpriteWidth)
@@ -131,11 +137,35 @@ func (e *Enemy) Draw() {
 	if e.Weapon != nil && !e.Weapon.IsDropped {
 		e.Weapon.DrawEquipped(&e.Object)
 	}
+
+	if e.Weapon != nil && e.Weapon.IsGun {
+		e.DrawProjectiles()
+	}
+}
+
+func (e *Enemy) Shoot() {
+	if e.Weapon == nil || !e.Weapon.IsGun || e.Weapon.Ammo <= 0 {
+		return
+	}
+
+	direction := rl.Vector2{X: 1.0, Y: 0.0}
+	if e.Object.Flipped {
+		direction.X = -1.0
+	}
+
+	startX := float32(e.Object.X)
+	startY := float32(e.Object.Y)
+
+	projectile := e.Weapon.Shoot(startX, startY, direction)
+	if projectile != nil {
+		e.Projectiles = append(e.Projectiles, projectile)
+	}
 }
 
 func (e *Enemy) CheckAtk(player system.Object) bool {
 	currentTime := time.Now()
 	timeSinceLastAttack := time.Since(e.Object.LastAttackTime).Milliseconds()
+	timeSinceLastShot := time.Since(e.LastShotTime).Seconds() // Get time since last shot in seconds
 
 	if timeSinceLastAttack < e.AttackCooldown {
 		e.CanMove = false
@@ -143,6 +173,13 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 	}
 	e.CanMove = true
 
+	// Handle shooting (every 2 seconds)
+	if e.Weapon != nil && e.Weapon.IsGun && timeSinceLastShot >= 2.0 {
+		e.Shoot()
+		e.LastShotTime = currentTime // Update last shot time
+	}
+
+	// Rest of your melee attack logic...
 	punchX := e.Object.X
 	punchY := e.Object.Y - e.Object.Height/3
 	punchWidth := e.Object.Width / 2
@@ -210,7 +247,7 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 	}
 	return false
 }
-func (e *Enemy) Update(p system.Player, screen screen.Screen) {
+func (e *Enemy) Update(p system.Player, screen screen.Screen, prps []*props.Prop) {
 	if e.isSpawning {
 		e.isSpawning = false
 	}
@@ -241,6 +278,7 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen) {
 			*e = MoveEnemyTowardPlayer(p, *e, screen)
 		}
 	}
+	e.UpdateProjectiles(p, prps)
 }
 
 func (e *Enemy) setKnockback(pX int32) {
@@ -359,3 +397,46 @@ func (e *Enemy) IsActive() bool {
 	return e.Active
 }
 func (p *Enemy) SetActive(bool) {}
+
+func (e *Enemy) UpdateProjectiles(p system.Player, prs []*props.Prop) {
+	for i := 0; i < len(e.Projectiles); {
+		proj := e.Projectiles[i]
+		proj.Update()
+
+		hitPlayer := false
+
+		if proj.IsActive && !p.GetObject().Destroyed &&
+			physics.CheckCollision(*proj.Object, p.GetObject()) {
+			p.TakeDamage(proj.Damage, *proj.Object)
+			proj.IsActive = false
+			hitPlayer = true
+			break
+		}
+
+		for _, prop := range prs {
+			if prop.Kicked {
+				propProjHitbox := system.Object{
+					X:      prop.GetObject().X,
+					Y:      prop.GetObject().Y + 50,
+					Width:  prop.GetObject().Width + 200,
+					Height: prop.GetObject().Height + 50,
+				}
+				if physics.CheckCollision(*proj.Object, propProjHitbox) {
+					proj.IsActive = false
+				}
+			}
+		}
+
+		if !proj.IsActive || hitPlayer {
+			e.Projectiles = slices.Delete(e.Projectiles, i, i+1)
+		} else {
+			i++
+		}
+	}
+}
+
+func (e *Enemy) DrawProjectiles() {
+	for _, proj := range e.Projectiles {
+		proj.Draw()
+	}
+}

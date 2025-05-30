@@ -20,9 +20,6 @@ func (w *Weapon) Shoot(startX, startY float32, direction rl.Vector2) *Projectile
 	if w.Ammo <= 0 {
 		return nil
 	}
-	if w.HasActiveBullets() {
-		return nil
-	}
 
 	w.Ammo--
 
@@ -39,11 +36,11 @@ func (w *Weapon) Shoot(startX, startY float32, direction rl.Vector2) *Projectile
 				Texture:      rl.LoadTexture("assets/weapons/bullet.png"),
 			},
 		},
-		Speed:     10.0,
+		Speed:     20.0,
 		Direction: direction,
 		IsActive:  true,
 		Damage:    w.Stats.Damage,
-		Lifetime:  2.0,
+		Lifetime:  20.0,
 	}
 	w.Projectile = proj
 
@@ -90,72 +87,6 @@ func (p *Projectile) Draw() {
 		dest,
 		origin,
 		0.0,
-		rl.White,
-	)
-}
-
-type BossProjectile struct {
-	Object   *system.Object
-	Speed    float32
-	IsActive bool
-	Damage   int32
-}
-
-func NewBossProjectile(x, y int32, scale int32) *BossProjectile {
-	return &BossProjectile{
-		Object: &system.Object{
-			X:      x,
-			Y:      y,
-			Width:  8 * scale,
-			Height: 8 * scale,
-			Scale:  scale,
-			Sprite: sprites.Sprite{
-				SpriteWidth:  8,
-				SpriteHeight: 8,
-				Texture:      rl.LoadTexture("assets/weapons/bullet.png"),
-			},
-		},
-		Speed:    15.0,
-		IsActive: true,
-		Damage:   1,
-	}
-}
-
-func (p *BossProjectile) Update() {
-	if !p.IsActive {
-		return
-	}
-	p.Object.X -= int32(p.Speed)
-}
-
-func (p *BossProjectile) Draw() {
-	if !p.IsActive {
-		return
-	}
-
-	source := rl.NewRectangle(0, 0,
-		float32(p.Object.Sprite.SpriteWidth),
-		float32(p.Object.Sprite.SpriteHeight))
-
-	if p.Object.Flipped {
-		source.Width = -source.Width
-	}
-
-	dest := rl.NewRectangle(
-		float32(p.Object.X),
-		float32(p.Object.Y),
-		float32(p.Object.Sprite.SpriteWidth)*float32(p.Object.Scale),
-		float32(p.Object.Sprite.SpriteHeight)*float32(p.Object.Scale),
-	)
-
-	origin := rl.NewVector2(0, 0)
-
-	rl.DrawTexturePro(
-		p.Object.Sprite.Texture,
-		source,
-		dest,
-		origin,
-		0,
 		rl.White,
 	)
 }

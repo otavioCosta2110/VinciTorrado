@@ -8,7 +8,7 @@ import (
 	"time"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
-	"slices"
+	// "slices"
 )
 
 const (
@@ -23,7 +23,7 @@ func (p *Player) Update(em *enemy.EnemyManager, screen screen.Screen) {
 	}
 
 	p.HandleAttackInput()
-	p.UpdateProjectiles(em)
+	// p.UpdateProjectiles(em)
 
 	for _, enemy := range em.Enemies {
 		enemyObject := enemy.GetObject()
@@ -89,7 +89,7 @@ func (p *Player) Draw() {
 	if p.Weapon != nil {
 		p.Weapon.DrawEquipped(&p.Object)
 	}
-	p.DrawProjectiles()
+	// p.DrawProjectiles()
 }
 
 func (p *Player) TakeDamage(damage int32, eObj system.Object) {
@@ -183,33 +183,33 @@ func (p *Player) SetActive(bool) {}
 // 	}
 // }
 
-func (p *Player) UpdateProjectiles(em *enemy.EnemyManager) {
-	for i := 0; i < len(p.Projectiles); {
-		proj := p.Projectiles[i]
-		proj.Update()
-
-		hitEnemy := false
-
-		for _, enemy := range em.Enemies {
-			if proj.IsActive && !enemy.GetObject().Destroyed &&
-				physics.CheckCollision(*proj.Object, enemy.GetObject()) {
-				enemy.TakeDamage(proj.Damage, *proj.Object)
-				proj.IsActive = false
-				hitEnemy = true
-				break
-			}
-		}
-
-		if !proj.IsActive || hitEnemy {
-			p.Projectiles = slices.Delete(p.Projectiles, i, i+1)
-		} else {
-			i++
-		}
-	}
-}
-
-func (p *Player) DrawProjectiles() {
-	for _, proj := range p.Projectiles {
-		proj.Draw()
-	}
-}
+// func (p *Player) UpdateProjectiles(em *enemy.EnemyManager) {
+// 	for i := 0; i < len(p.Projectiles); {
+// 		proj := p.Projectiles[i]
+// 		proj.Update()
+//
+// 		hitEnemy := false
+//
+// 		for _, enemy := range em.Enemies {
+// 			if proj.IsActive && !enemy.GetObject().Destroyed &&
+// 				physics.CheckCollision(*proj.Object, enemy.GetObject()) {
+// 				enemy.TakeDamage(proj.Damage, *proj.Object)
+// 				proj.IsActive = false
+// 				hitEnemy = true
+// 				break
+// 			}
+// 		}
+//
+// 		if !proj.IsActive || hitEnemy {
+// 			p.Projectiles = slices.Delete(p.Projectiles, i, i+1)
+// 		} else {
+// 			i++
+// 		}
+// 	}
+// }
+//
+// func (p *Player) DrawProjectiles() {
+// 	for _, proj := range p.Projectiles {
+// 		proj.Draw()
+// 	}
+// }

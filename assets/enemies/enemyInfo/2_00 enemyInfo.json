@@ -227,7 +227,7 @@
   },
   {
     "sprite": "assets/enemies/mafia_boss.png",
-    "X": 500,
+    "X": 5000,
     "Y": 500,
     "activate_pos_X": 0,
     "activate_pos_Y": 0,
@@ -252,12 +252,12 @@
       "hitboxX": 30,
       "hitboxY": 0,
       "stats": {
-        "damage": 20
+        "damage": 2
       },
       "health": 3,
       "is_gun": true,
-      "ammo": 12,
-      "maxAmmo": 12
+      "ammo": 100,
+      "maxAmmo": 100
     }
   }
 ]

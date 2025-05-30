@@ -46,7 +46,6 @@ func LoadWeaponsFromJSON(filename string) ([]*Weapon, error) {
 		stats := objects.Stats{
 			Damage: config.Stats.Damage,
 		}
-		println(config.Stats.Damage)
 
 		spritesheet := sprites.Sprite{
 			SpriteWidth:  config.Width,

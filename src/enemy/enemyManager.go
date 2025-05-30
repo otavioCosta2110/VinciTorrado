@@ -4,9 +4,9 @@ import (
 	// "math/rand"
 	"otaviocosta2110/vincitorrado/src/audio"
 	"otaviocosta2110/vincitorrado/src/physics"
+	"otaviocosta2110/vincitorrado/src/props"
 	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/system"
-	"otaviocosta2110/vincitorrado/src/weapon"
 	"slices"
 	"sort"
 	"time"
@@ -20,11 +20,10 @@ type EnemyManager struct {
 	InactiveEnemies []*Enemy
 	NumEnemies      int
 	lastBossShot    time.Time
-	BossProjectiles []*weapon.BossProjectile
 	CurrentMap      string
 }
 
-func (em *EnemyManager) Update(p system.Player, s screen.Screen, m *string) {
+func (em *EnemyManager) Update(p system.Player, s screen.Screen, m *string, prps []*props.Prop) {
 	cameraBounds := rl.Rectangle{
 		X:      s.Camera.Target.X - float32(s.Width)/2,
 		Y:      s.Camera.Target.Y - float32(s.Height)/2,
@@ -47,31 +46,9 @@ func (em *EnemyManager) Update(p system.Player, s screen.Screen, m *string) {
 
 	for i := len(em.ActiveEnemies) - 1; i >= 0; i-- {
 		enemy := em.ActiveEnemies[i]
-		enemy.Update(p, s)
+		enemy.Update(p, s, prps)
 		if enemy.Object.Destroyed {
 			em.ActiveEnemies = slices.Delete(em.ActiveEnemies, i, i+1)
-		}
-	}
-
-	if em.CurrentMap == "bar" {
-		if time.Since(em.lastBossShot) > 2*time.Second {
-			em.lastBossShot = time.Now()
-
-			// yPos := 400 + rand.Int31n(200)
-			const bossProjectileScale = 4.0
-			// bossBullet := weapon.NewBossProjectile(5000, yPos, bossProjectileScale)
-			// bossBullet.Object.Flipped = true
-			// em.BossProjectiles = append(em.BossProjectiles, bossBullet)
-		}
-
-		for i := 0; i < len(em.BossProjectiles); i++ {
-			bullet := em.BossProjectiles[i]
-			bullet.Update()
-
-			if bullet.Object.X < -100 {
-				em.BossProjectiles = slices.Delete(em.BossProjectiles, i, i+1)
-				i--
-			}
 		}
 	}
 }

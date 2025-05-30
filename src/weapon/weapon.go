@@ -19,12 +19,12 @@ type Weapon struct {
 	Stats      objects.Stats
 	Health     int32
 	IsGun      bool
-	Ammo       int32       
-	MaxAmmo    int32       
-	Projectile *Projectile 
+	Ammo       int32
+	MaxAmmo    int32
+	Projectile *Projectile
 }
 
-func New(obj *system.Object, offsetX, offsetY int32, hitboxX, hitboxY int32, stats objects.Stats, health int32, isEquipped bool, isDropped bool) *Weapon {
+func New(obj *system.Object, offsetX, offsetY int32, hitboxX, hitboxY int32, stats objects.Stats, health int32, isEquipped bool, isDropped bool, isGun bool, ammo int32, maxAmmo int32) *Weapon {
 	return &Weapon{
 		Object:     obj,
 		IsDropped:  isDropped,
@@ -35,6 +35,9 @@ func New(obj *system.Object, offsetX, offsetY int32, hitboxX, hitboxY int32, sta
 		HitboxY:    hitboxY,
 		Stats:      stats,
 		Health:     health,
+		IsGun:      isGun,
+		Ammo:       ammo,
+		MaxAmmo:    maxAmmo,
 	}
 }
 
@@ -160,11 +163,4 @@ func (w *Weapon) GetDropCollisionBox() system.Object {
 		Width:  dropWidth / 4,
 		Height: dropHeight / 4,
 	}
-}
-func (w *Weapon) HasActiveBullets() bool {
-	if w.Projectile == nil {
-		return false
-	}
-
-	return w.Projectile.IsActive
 }

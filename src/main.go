@@ -32,7 +32,7 @@ const (
 	playerSizeY  int32  = 32
 
 	// feature flags
-	oneHealthEnemies bool   = false
+	oneHealthEnemies bool   = true
 	enableMusic      bool   = false
 	enableSoundFxs   bool   = false
 	skipCutscenes    bool   = true
@@ -57,7 +57,6 @@ type GameState struct {
 	Chao            rl.Texture2D
 	FloorPath       string
 	CurrentMap      string
-	BossProjectiles []*weapon.BossProjectile
 }
 
 func main() {
@@ -162,9 +161,7 @@ func main() {
 		panic("Failed to load enemies: " + err.Error())
 	}
 
-	enemyManager := &enemy.EnemyManager{
-		BossProjectiles: []*weapon.BossProjectile{},
-	}
+	enemyManager := &enemy.EnemyManager{ }
 	for _, e := range enemies {
 		if oneHealthEnemies {
 			e.Health = 0
@@ -278,40 +275,23 @@ func update(gs *GameState) {
 		}
 	}
 
-	gs.EnemyManager.Update(gs.Player, *gs.Screen, gs.Music)
+	gs.EnemyManager.Update(gs.Player, *gs.Screen, gs.Music, gs.Props)
 	gs.Player.Update(gs.EnemyManager, *gs.Screen)
-	canAdvance := len(gs.EnemyManager.ActiveEnemies) <= 0
+
+	activeEnemies := []*enemy.Enemy{}
+	for _, enemy := range gs.EnemyManager.ActiveEnemies {
+		if enemy.EnemyType != "mafia_boss" {
+			activeEnemies = append(activeEnemies, enemy)
+		}
+	}
+
+	canAdvance := len(activeEnemies) <= 0
 	gs.Screen.UpdateCamera(gs.Player.Object.X, gs.Player.Object.Y, canAdvance)
 
 	for _, door := range gs.Doors {
 		if door.CheckTransition(gs.Player.GetObject(), canAdvance) {
 			transitionMap(gs, door.NextMap)
 			break
-		}
-	}
-	if gs.CurrentMap == "bar" {
-		for i, bullet := range gs.EnemyManager.BossProjectiles {
-			if physics.CheckCollision(*bullet.Object, gs.Player.GetObject()) {
-				damageSource := system.Object{X: bullet.Object.X, Y: bullet.Object.Y}
-				gs.Player.TakeDamage(bullet.Damage, damageSource)
-				bullet.IsActive = false
-			}
-
-			for _, prop := range gs.Props {
-				if prop.Type == props.PropTypeTable && prop.Kicked {
-					if physics.CheckCollision(*bullet.Object, prop.GetObject()) {
-						bullet.IsActive = false
-					}
-				}
-			}
-
-			if !bullet.IsActive {
-				gs.EnemyManager.BossProjectiles = slices.Delete(
-					gs.EnemyManager.BossProjectiles, i,
-					i+1,
-				)
-				i--
-			}
 		}
 	}
 }
@@ -346,12 +326,6 @@ func draw(gs *GameState) {
 	for _, weapon := range gs.Weapons {
 		if weapon.IsDropped {
 			weapon.DrawAnimated()
-		}
-	}
-
-	if gs.CurrentMap == "bar" {
-		for _, bullet := range gs.EnemyManager.BossProjectiles {
-			bullet.Draw()
 		}
 	}
 
@@ -421,7 +395,6 @@ func transitionMap(gs *GameState, mapName string) {
 	}
 
 	gs.EnemyManager = &enemy.EnemyManager{
-		BossProjectiles: []*weapon.BossProjectile{},
 		CurrentMap:      mapName,
 	}
 	for _, e := range enemies {

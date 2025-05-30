@@ -41,6 +41,9 @@ type WeaponDrop struct {
 	Stats   DropStats `json:"stats"`
 	Health  int32     `json:"health"`
 	Scale   int32     `json:"scale"`
+	IsGun   bool      `json:"is_gun"`
+	Ammo    int32     `json:"ammo"`
+	MaxAmmo int32     `json:"maxAmmo"`
 }
 
 type EnemyConfig struct {
@@ -59,7 +62,7 @@ type EnemyConfig struct {
 	Drops          *Drop       `json:"drops"`
 	Weapon         *WeaponDrop `json:"weapon"`
 	EnemyType      string      `json:"type"`
-	AttackCooldown int64      `json:"attackCooldown"`
+	AttackCooldown int64       `json:"attackCooldown"`
 }
 
 func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
@@ -116,6 +119,9 @@ func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
 				config.Weapon.Health,
 				true,
 				false,
+				config.Weapon.IsGun,
+				config.Weapon.Ammo,
+				config.Weapon.MaxAmmo,
 			)
 		}
 
