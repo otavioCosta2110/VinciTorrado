@@ -1,6 +1,7 @@
 package weapon
 
 import (
+	"otaviocosta2110/vincitorrado/src/audio"
 	"otaviocosta2110/vincitorrado/src/sprites"
 	"otaviocosta2110/vincitorrado/src/system"
 
@@ -17,6 +18,7 @@ type Projectile struct {
 }
 
 func (w *Weapon) Shoot(startX, startY float32, direction rl.Vector2) *Projectile {
+	audio.PlayShot()
 	if w.Ammo <= 0 {
 		return nil
 	}

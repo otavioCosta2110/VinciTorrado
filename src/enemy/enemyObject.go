@@ -420,6 +420,7 @@ func (e *Enemy) UpdateProjectiles(p system.Player, prs []*props.Prop) {
 					Height: prop.GetObject().Height + 50,
 				}
 				if physics.CheckCollision(*proj.Object, propProjHitbox) {
+					audio.PlayBulletHittingTableSound()
 					proj.IsActive = false
 				}
 			}
