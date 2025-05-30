@@ -45,7 +45,6 @@ func (w *Weapon) Shoot(startX, startY float32, direction rl.Vector2) *Projectile
 		Damage:    w.Stats.Damage,
 		Lifetime:  2.0,
 	}
-	println("Projectile created at position:", proj.Damage)
 	w.Projectile = proj
 
 	return proj
@@ -107,16 +106,16 @@ func NewBossProjectile(x, y int32, scale int32) *BossProjectile {
 		Object: &system.Object{
 			X:      x,
 			Y:      y,
-			Width:  16 * scale,
-			Height: 16 * scale,
+			Width:  8 * scale,
+			Height: 8 * scale,
 			Scale:  scale,
 			Sprite: sprites.Sprite{
-				SpriteWidth:  16,
-				SpriteHeight: 16,
+				SpriteWidth:  8,
+				SpriteHeight: 8,
 				Texture:      rl.LoadTexture("assets/weapons/bullet.png"),
 			},
 		},
-		Speed:    8.0,
+		Speed:    15.0,
 		IsActive: true,
 		Damage:   1,
 	}
@@ -138,6 +137,10 @@ func (p *BossProjectile) Draw() {
 		float32(p.Object.Sprite.SpriteWidth),
 		float32(p.Object.Sprite.SpriteHeight))
 
+	if p.Object.Flipped {
+		source.Width = -source.Width
+	}
+
 	dest := rl.NewRectangle(
 		float32(p.Object.X),
 		float32(p.Object.Y),
@@ -145,11 +148,13 @@ func (p *BossProjectile) Draw() {
 		float32(p.Object.Sprite.SpriteHeight)*float32(p.Object.Scale),
 	)
 
+	origin := rl.NewVector2(0, 0)
+
 	rl.DrawTexturePro(
 		p.Object.Sprite.Texture,
 		source,
 		dest,
-		rl.Vector2{},
+		origin,
 		0,
 		rl.White,
 	)

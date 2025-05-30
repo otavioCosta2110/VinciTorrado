@@ -163,25 +163,25 @@ func (p *Player) IsActive() bool {
 }
 func (p *Player) SetActive(bool) {}
 
-func (p *Player) Shoot() {
-	println(p.Weapon.Ammo)
-	if p.Weapon == nil || !p.Weapon.IsGun || p.Weapon.Ammo <= 0 {
-		return
-	}
-
-	direction := rl.Vector2{X: 1.0, Y: 0.0}
-	if p.Object.Flipped {
-		direction.X = -1.0
-	}
-
-	startX := float32(p.Object.X)
-	startY := float32(p.Object.Y)
-
-	projectile := p.Weapon.Shoot(startX, startY, direction)
-	if projectile != nil {
-		p.Projectiles = append(p.Projectiles, projectile)
-	}
-}
+// func (p *Player) Shoot() {
+// 	println(p.Weapon.Ammo)
+// 	if p.Weapon == nil || !p.Weapon.IsGun || p.Weapon.Ammo <= 0 {
+// 		return
+// 	}
+//
+// 	direction := rl.Vector2{X: 1.0, Y: 0.0}
+// 	if p.Object.Flipped {
+// 		direction.X = -1.0
+// 	}
+//
+// 	startX := float32(p.Object.X)
+// 	startY := float32(p.Object.Y)
+//
+// 	projectile := p.Weapon.Shoot(startX, startY, direction)
+// 	if projectile != nil {
+// 		p.Projectiles = append(p.Projectiles, projectile)
+// 	}
+// }
 
 func (p *Player) UpdateProjectiles(em *enemy.EnemyManager) {
 	for i := 0; i < len(p.Projectiles); {

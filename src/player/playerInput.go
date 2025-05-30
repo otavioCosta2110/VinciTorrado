@@ -72,33 +72,29 @@ func (player *Player) CheckAtk(enemyObj system.Object) bool {
 	}
 
 	if rl.IsKeyPressed(rl.KeyZ) {
-		if player.Weapon != nil && player.Weapon.IsGun {
-			player.Shoot()
-		} else {
-			isAttacking = true
+		isAttacking = true
 
-			player.UpdateAnimation("punch")
+		player.UpdateAnimation("punch")
 
-			punchObj := system.Object{
-				X:      punchX,
-				Y:      punchY,
-				Width:  int32(punchWidth),
-				Height: int32(punchHeight),
-			}
+		punchObj := system.Object{
+			X:      punchX,
+			Y:      punchY,
+			Width:  int32(punchWidth),
+			Height: int32(punchHeight),
+		}
 
-			if physics.CheckCollision(punchObj, enemyObj) {
-				if !enemyObj.Destroyed {
-					audio.PlayPunch()
-					if player.Weapon != nil {
-						player.Weapon.Health -= 1
-						if player.Weapon.Health <= 0 {
-							audio.PlayWeaponBreaking()
-							player.DropWeapon()
-						}
+		if physics.CheckCollision(punchObj, enemyObj) {
+			if !enemyObj.Destroyed {
+				audio.PlayPunch()
+				if player.Weapon != nil {
+					player.Weapon.Health -= 1
+					if player.Weapon.Health <= 0 {
+						audio.PlayWeaponBreaking()
+						player.DropWeapon()
 					}
 				}
-				return true
 			}
+			return true
 		}
 	}
 	if !isAttacking {

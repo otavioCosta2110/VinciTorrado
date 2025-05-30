@@ -38,8 +38,25 @@ func MoveEnemyTowardPlayer(p system.Player, e Enemy, s screen.Screen) Enemy {
 			distY /= distance
 		}
 
-		e.Object.X += int32((distX * float64(e.Speed)) * 1.5)
-		e.Object.Y += int32((distY * float64(e.Speed)) * 1.5)
+		if e.EnemyType == "mafia_boss" {
+			screenTop := (s.ScenaryHeight - (e.Object.Height / 2))
+			screenBottom := s.Height - e.Object.Height
+
+			if distY > 0 {
+				e.Object.Y -= int32(float64(e.Speed) * 1.5)
+			} else if distY < 0 {
+				e.Object.Y += int32(float64(e.Speed) * 1.5)
+			}
+
+			if e.Object.Y < screenTop {
+				e.Object.Y = screenTop
+			} else if e.Object.Y > screenBottom {
+				e.Object.Y = screenBottom
+			}
+		} else {
+			e.Object.X += int32((distX * float64(e.Speed)) * 1.5)
+			e.Object.Y += int32((distY * float64(e.Speed)) * 1.5)
+		}
 
 		if distX > 0 {
 			e.Object.Flipped = false

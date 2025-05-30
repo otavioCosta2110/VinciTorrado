@@ -36,7 +36,7 @@ const (
 	enableMusic      bool   = false
 	enableSoundFxs   bool   = false
 	skipCutscenes    bool   = true
-	startingMap      string = "city"
+	startingMap      string = "bar"
 )
 
 type GameState struct {
@@ -306,9 +306,9 @@ func update(gs *GameState) {
 			}
 
 			if !bullet.IsActive {
-				gs.EnemyManager.BossProjectiles = append(
-					gs.EnemyManager.BossProjectiles[:i],
-					gs.EnemyManager.BossProjectiles[i+1:]...,
+				gs.EnemyManager.BossProjectiles = slices.Delete(
+					gs.EnemyManager.BossProjectiles, i,
+					i+1,
 				)
 				i--
 			}

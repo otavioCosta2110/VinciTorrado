@@ -1,7 +1,7 @@
 package enemy
 
 import (
-	"math/rand"
+	// "math/rand"
 	"otaviocosta2110/vincitorrado/src/audio"
 	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/screen"
@@ -57,10 +57,11 @@ func (em *EnemyManager) Update(p system.Player, s screen.Screen, m *string) {
 		if time.Since(em.lastBossShot) > 2*time.Second {
 			em.lastBossShot = time.Now()
 
-			yPos := 400 + rand.Int31n(200)
-			const bossProjectileScale = 1.0
-			bossBullet := weapon.NewBossProjectile(5000, yPos, bossProjectileScale)
-			em.BossProjectiles = append(em.BossProjectiles, bossBullet)
+			// yPos := 400 + rand.Int31n(200)
+			const bossProjectileScale = 4.0
+			// bossBullet := weapon.NewBossProjectile(5000, yPos, bossProjectileScale)
+			// bossBullet.Object.Flipped = true
+			// em.BossProjectiles = append(em.BossProjectiles, bossBullet)
 		}
 
 		for i := 0; i < len(em.BossProjectiles); i++ {
@@ -68,7 +69,7 @@ func (em *EnemyManager) Update(p system.Player, s screen.Screen, m *string) {
 			bullet.Update()
 
 			if bullet.Object.X < -100 {
-				em.BossProjectiles = append(em.BossProjectiles[:i], em.BossProjectiles[i+1:]...)
+				em.BossProjectiles = slices.Delete(em.BossProjectiles, i, i+1)
 				i--
 			}
 		}
