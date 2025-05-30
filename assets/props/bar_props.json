@@ -8,10 +8,9 @@
     "normal_texture": "assets/props/mesa.png",
     "kicked_texture": "assets/props/mesa_tombada.png",
     "loot": [
-      "Hamburgão",
-      "Saunduiche"
+      "Cachaca"
     ],
-    "type": "table"
+    "type": "trash"
   },
   {
     "X": 300,
@@ -21,10 +20,6 @@
     "scale": 4,
     "normal_texture": "assets/props/mesa.png",
     "kicked_texture": "assets/props/mesa_tombada.png",
-    "loot": [
-      "Hamburgão",
-      "Saunduiche"
-    ],
     "type": "table"
   },
   {
@@ -77,10 +72,6 @@
     "scale": 4,
     "normal_texture": "assets/props/mesa.png",
     "kicked_texture": "assets/props/mesa_tombada.png",
-    "loot": [
-      "Hamburgão",
-      "Saunduiche"
-    ],
     "type": "table"
   },
   {
