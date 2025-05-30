@@ -257,7 +257,7 @@
     "scale": 4,
     "weapon": {
       "name": "Pistol",
-      "sprite": "assets/weapons/pipe.png",
+      "sprite": "assets/weapons/thompson.png",
       "X": 500,
       "Y": 500,
       "width": 32,
