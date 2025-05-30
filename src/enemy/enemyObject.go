@@ -165,7 +165,7 @@ func (e *Enemy) Shoot() {
 func (e *Enemy) CheckAtk(player system.Object) bool {
 	currentTime := time.Now()
 	timeSinceLastAttack := time.Since(e.Object.LastAttackTime).Milliseconds()
-	timeSinceLastShot := time.Since(e.LastShotTime).Seconds() // Get time since last shot in seconds
+	timeSinceLastShot := time.Since(e.LastShotTime).Seconds()
 
 	if timeSinceLastAttack < e.AttackCooldown {
 		e.CanMove = false
@@ -173,13 +173,11 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 	}
 	e.CanMove = true
 
-	// Handle shooting (every 2 seconds)
-	if e.Weapon != nil && e.Weapon.IsGun && timeSinceLastShot >= 2.0 {
+	if e.Weapon != nil && e.Weapon.IsGun && timeSinceLastShot >= 4.0 {
 		e.Shoot()
-		e.LastShotTime = currentTime // Update last shot time
+		e.LastShotTime = currentTime
 	}
 
-	// Rest of your melee attack logic...
 	punchX := e.Object.X
 	punchY := e.Object.Y - e.Object.Height/3
 	punchWidth := e.Object.Width / 2

@@ -36,7 +36,7 @@ func (w *Weapon) Shoot(startX, startY float32, direction rl.Vector2) *Projectile
 				Texture:      rl.LoadTexture("assets/weapons/bullet.png"),
 			},
 		},
-		Speed:     20.0,
+		Speed:     15.0,
 		Direction: direction,
 		IsActive:  true,
 		Damage:    w.Stats.Damage,
