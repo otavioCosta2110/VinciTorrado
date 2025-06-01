@@ -439,3 +439,17 @@ func (e *Enemy) DrawProjectiles() {
 		proj.Draw()
 	}
 }
+
+func (e *Enemy) Explode(p system.Player) {
+	explosionRadius := int32(100)
+	explosionBox := system.Object{
+		X:      e.Object.X - explosionRadius/2,
+		Y:      e.Object.Y - explosionRadius/2,
+		Width:  explosionRadius,
+		Height: explosionRadius,
+	}
+
+	if physics.CheckCollision(explosionBox, p.GetObject()) {
+		p.TakeDamage(3, e.Object)
+	}
+}

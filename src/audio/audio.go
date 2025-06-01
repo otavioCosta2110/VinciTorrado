@@ -74,6 +74,10 @@ func PlayBulletHittingTableSound() {
 	rl.PlaySound(BulletHittingTableSound)
 }
 
+func PlayBombBippingSound() {
+	rl.PlaySound(BombBippingSound)
+}
+
 func SetVolume(volume float32) {
 	rl.SetSoundVolume(PunchSound, volume)
 	rl.SetSoundVolume(KickSound, volume)

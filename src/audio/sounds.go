@@ -12,6 +12,7 @@ var (
 	FullBellyPrepare        rl.Sound
 	Shot                    rl.Sound
 	BulletHittingTableSound rl.Sound
+	BombBippingSound        rl.Sound
 
 	FullBellyMusic rl.Music
 	Mission2Music  rl.Music
@@ -25,7 +26,8 @@ func LoadSounds() {
 	FullBellyAttack = rl.LoadSound("assets/sounds/full_belly_attack.mp3")
 	FullBellyPrepare = rl.LoadSound("assets/sounds/full_belly_prepare.mp3")
 	Shot = rl.LoadSound("assets/sounds/shot.mp3")
-	BulletHittingTableSound = rl.LoadSound("assets/sounds/bullet_hitting_table.mp3") // Assuming this is the correct path
+	BulletHittingTableSound = rl.LoadSound("assets/sounds/bullet_hitting_table.mp3")
+	BombBippingSound = rl.LoadSound("assets/sounds/bomb_bipping.mp3")
 
 	Mission1Music = rl.LoadMusicStream("assets/sounds/mission1.mp3")
 	FullBellyMusic = rl.LoadMusicStream("assets/sounds/music_fullbelly.mp3")
@@ -40,6 +42,8 @@ func UnloadSounds() {
 	rl.UnloadSound(FullBellyAttack)
 	rl.UnloadSound(FullBellyPrepare)
 	rl.UnloadSound(Shot)
+	rl.UnloadSound(BulletHittingTableSound)
+	rl.UnloadSound(BombBippingSound)
 
 	rl.UnloadMusicStream(Mission1Music)
 	rl.UnloadMusicStream(Mission2Music)
