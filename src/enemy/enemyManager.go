@@ -23,7 +23,7 @@ type EnemyManager struct {
 	CurrentMap      string
 }
 
-func (em *EnemyManager) Update(p system.Player, s screen.Screen, m *string, prps []*props.Prop) {
+func (em *EnemyManager) Update(p system.Player, s screen.Screen, m *string, prps []*props.Prop, buildings *rl.Texture2D) {
 	cameraBounds := rl.Rectangle{
 		X:      s.Camera.Target.X - float32(s.Width)/2,
 		Y:      s.Camera.Target.Y - float32(s.Height)/2,
@@ -58,11 +58,13 @@ func (em *EnemyManager) Update(p system.Player, s screen.Screen, m *string, prps
 					audio.PlayBombBippingSound()
 					enemy.ExplosionStart = time.Now()
 					enemy.HasExplosionPlayedSound = true
-
 				}
+
 				if enemy.HasExplosionPlayedSound && time.Since(enemy.ExplosionStart) >= time.Duration(5.071*float64(time.Second)) && !enemy.Exploded {
 					enemy.Explode(p)
 					enemy.Exploded = true
+					explodedBuildingsPath := "assets/scenes/bar_exploded.png"
+					*buildings = system.LoadScaledTexture(explodedBuildingsPath, enemy.Object.Scale)
 				}
 			}
 		}

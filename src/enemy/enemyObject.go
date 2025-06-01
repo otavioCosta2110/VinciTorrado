@@ -166,7 +166,7 @@ func (e *Enemy) Draw() {
 				rl.White,
 			)
 		} else {
-			e.Exploded = false // End the explosion after duration
+			rl.UnloadTexture(explosionTexture)
 		}
 	}
 }

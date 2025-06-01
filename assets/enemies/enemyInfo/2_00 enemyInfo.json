@@ -243,7 +243,7 @@
   },
   {
     "sprite": "assets/enemies/mafia_boss.png",
-    "X": 500,
+    "X": 5000,
     "Y": 500,
     "activate_pos_X": 0,
     "activate_pos_Y": 0,

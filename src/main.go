@@ -32,7 +32,7 @@ const (
 	playerSizeY  int32  = 32
 
 	// feature flags
-	oneHealthEnemies bool   = false
+	oneHealthEnemies bool   = true
 	enableMusic      bool   = true
 	enableSoundFxs   bool   = true
 	skipCutscenes    bool   = true
@@ -53,7 +53,7 @@ type GameState struct {
 	Girlfriend      *girlfriend.Girlfriend
 	Doors           []*props.Door
 	MapManager      *maps.MapManager
-	Buildings       rl.Texture2D
+	Buildings       *rl.Texture2D
 	Chao            rl.Texture2D
 	FloorPath       string
 	CurrentMap      string
@@ -87,8 +87,8 @@ func main() {
 
 	currentMap := mapManager.Maps[startingMap]
 
-	buildings := loadScaledTexture(currentMap.Buildings, playerScale)
-	chao := loadScaledTexture(currentMap.Floor, playerScale)
+	buildings := system.LoadScaledTexture(currentMap.Buildings, playerScale)
+	chao := system.LoadScaledTexture(currentMap.Floor, playerScale)
 
 	if enableSoundFxs {
 		audio.LoadSounds()
@@ -189,7 +189,7 @@ func main() {
 		Weapons:      weapons,
 		Menu:         *menu,
 		Girlfriend:   g,
-		Buildings:    buildings,
+		Buildings:    &buildings,
 		Chao:         chao,
 		Doors:        doors,
 		MapManager:   mapManager,
@@ -275,7 +275,7 @@ func update(gs *GameState) {
 		}
 	}
 
-	gs.EnemyManager.Update(gs.Player, *gs.Screen, gs.Music, gs.Props)
+	gs.EnemyManager.Update(gs.Player, *gs.Screen, gs.Music, gs.Props, gs.Buildings)
 	gs.Player.Update(gs.EnemyManager, *gs.Screen)
 
 	activeEnemies := []*enemy.Enemy{}
@@ -302,7 +302,7 @@ func draw(gs *GameState) {
 
 	rl.BeginMode2D(gs.Screen.Camera)
 	drawTiledBackground(gs.Chao, gs.Screen.Camera, gs.Screen.Width, gs.Screen.Height)
-	drawBuildings(gs.Buildings)
+	drawBuildings(*gs.Buildings)
 
 	gs.EnemyManager.DrawDead()
 	for _, prop := range gs.Props {
@@ -341,13 +341,6 @@ func draw(gs *GameState) {
 	rl.EndDrawing()
 }
 
-func loadScaledTexture(path string, scale int32) rl.Texture2D {
-	texture := rl.LoadTexture(path)
-	texture.Width *= scale
-	texture.Height *= scale
-	return texture
-}
-
 func drawTiledBackground(texture rl.Texture2D, camera rl.Camera2D, screenWidth, screenHeight int32) {
 	texWidth := texture.Width
 	texHeight := texture.Height
@@ -370,12 +363,12 @@ func drawBuildings(texture rl.Texture2D) {
 
 func transitionMap(gs *GameState, mapName string) {
 	if gs.Buildings.ID != 0 {
-		rl.UnloadTexture(gs.Buildings)
+		rl.UnloadTexture(*gs.Buildings)
 	}
 	if gs.Chao.ID != 0 {
 		rl.UnloadTexture(gs.Chao)
 	}
-	rl.UnloadTexture(gs.Buildings)
+	rl.UnloadTexture(*gs.Buildings)
 	rl.UnloadTexture(gs.Chao)
 
 	gs.Player.Object.FrameX = 0
@@ -386,8 +379,8 @@ func transitionMap(gs *GameState, mapName string) {
 	newMap := gs.MapManager.Maps[mapName]
 	gs.CurrentMap = mapName
 
-	gs.Buildings = loadScaledTexture(newMap.Buildings, playerScale)
-	gs.Chao = loadScaledTexture(newMap.Floor, playerScale)
+	*gs.Buildings = system.LoadScaledTexture(newMap.Buildings, playerScale)
+	gs.Chao = system.LoadScaledTexture(newMap.Floor, playerScale)
 
 	enemies, err := enemy.LoadEnemiesFromJSON(newMap.EnemiesPath, playerScale)
 	if err != nil {
@@ -414,7 +407,6 @@ func transitionMap(gs *GameState, mapName string) {
 			gs.Cutscene.Start()
 		}
 	case "bar":
-		println("Bar")
 		music := "mission2"
 		if !skipCutscenes {
 			gs.Cutscene.BarIntroCutscene(gs.Player, gs.Girlfriend, gs.EnemyManager)
