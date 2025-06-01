@@ -22,29 +22,31 @@ const (
 
 type Enemy struct {
 	system.LiveObject
-	Activate_pos_X          int32
-	Activate_pos_Y          int32
-	LastAttackTime          time.Time
-	HitCount                int32
-	LastHitTime             time.Time
-	IsStunned               bool
-	Active                  bool
-	StunEndTime             time.Time
-	Layer                   int
-	CanMove                 bool
-	WindUpTime              int64
-	isSpawning              bool
-	EnemyType               string
-	Drop                    *equipment.Equipment
-	DropCollected           bool
-	Weapon                  *weapon.Weapon
-	AttackCooldown          int64
-	IsCharging              bool
-	Projectiles             []*weapon.Projectile
-	LastShotTime            time.Time
-	Exploded                bool
-	ExplosionStart          time.Time
-	HasExplosionPlayedSound bool
+	Activate_pos_X            int32
+	Activate_pos_Y            int32
+	LastAttackTime            time.Time
+	HitCount                  int32
+	LastHitTime               time.Time
+	IsStunned                 bool
+	Active                    bool
+	StunEndTime               time.Time
+	Layer                     int
+	CanMove                   bool
+	WindUpTime                int64
+	isSpawning                bool
+	EnemyType                 string
+	Drop                      *equipment.Equipment
+	DropCollected             bool
+	Weapon                    *weapon.Weapon
+	AttackCooldown            int64
+	IsCharging                bool
+	Projectiles               []*weapon.Projectile
+	LastShotTime              time.Time
+	Exploded                  bool
+	ExplosionStart            time.Time
+	HasExplosionPlayedSound   bool
+	hasExplosionTextureLoaded bool
+	explosionDuration         time.Duration
 }
 
 func (e *Enemy) GetObject() system.Object {
@@ -82,22 +84,24 @@ func NewEnemy(x, y, aX, aY, speed, width, height, scale int32, sprite sprites.Sp
 			Health:    5,
 			Speed:     speed,
 		},
-		Activate_pos_X:          aX,
-		Activate_pos_Y:          aY,
-		Active:                  false,
-		Layer:                   0,
-		CanMove:                 true,
-		WindUpTime:              windUpTime,
-		isSpawning:              true,
-		EnemyType:               enemyType,
-		Drop:                    drops,
-		Weapon:                  weapon,
-		AttackCooldown:          attackCooldown,
-		IsCharging:              false,
-		LastShotTime:            time.Now(),
-		Exploded:                false,
-		ExplosionStart:          time.Time{},
-		HasExplosionPlayedSound: false,
+		Activate_pos_X:            aX,
+		Activate_pos_Y:            aY,
+		Active:                    false,
+		Layer:                     0,
+		CanMove:                   true,
+		WindUpTime:                windUpTime,
+		isSpawning:                true,
+		EnemyType:                 enemyType,
+		Drop:                      drops,
+		Weapon:                    weapon,
+		AttackCooldown:            attackCooldown,
+		IsCharging:                false,
+		LastShotTime:              time.Now(),
+		Exploded:                  false,
+		ExplosionStart:            time.Time{},
+		HasExplosionPlayedSound:   false,
+		hasExplosionTextureLoaded: false,
+		explosionDuration:         1000 * time.Millisecond,
 	}
 }
 
@@ -146,6 +150,24 @@ func (e *Enemy) Draw() {
 
 	if e.Weapon != nil && e.Weapon.IsGun {
 		e.DrawProjectiles()
+	}
+
+	if e.Object.Destroyed && e.EnemyType == "mafia_boss" && e.Exploded {
+		explosionTexture := rl.LoadTexture("assets/props/explosion.png")
+		e.hasExplosionTextureLoaded = true
+		if e.hasExplosionTextureLoaded && time.Since(e.ExplosionStart) < e.explosionDuration {
+			explosionX := float32(e.Object.X) - float32(explosionTexture.Width)*2
+			explosionY := float32(e.Object.Y) - float32(explosionTexture.Height)*3
+			rl.DrawTextureEx(
+				explosionTexture,
+				rl.NewVector2(explosionX, explosionY),
+				float32(e.Object.Scale),
+				float32(e.Object.Scale),
+				rl.White,
+			)
+		} else {
+			e.Exploded = false // End the explosion after duration
+		}
 	}
 }
 
@@ -458,4 +480,8 @@ func (e *Enemy) Explode(p system.Player) {
 	if physics.CheckCollision(explosionBox, p.GetObject()) {
 		p.TakeDamage(3, e.Object)
 	}
+
+	e.ExplosionStart = time.Now()
+
+	audio.PlayExplosionSound()
 }
