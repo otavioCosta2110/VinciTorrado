@@ -51,6 +51,22 @@ func (em *EnemyManager) Update(p system.Player, s screen.Screen, m *string, prps
 			em.ActiveEnemies = slices.Delete(em.ActiveEnemies, i, i+1)
 		}
 	}
+	for _, enemy := range em.Enemies {
+		if enemy.Object.Destroyed && enemy.EnemyType == "mafia_boss" {
+			if !enemy.Exploded {
+				if !enemy.HasExplosionPlayedSound {
+					audio.PlayBombBippingSound()
+					enemy.ExplosionStart = time.Now()
+					enemy.HasExplosionPlayedSound = true
+
+				}
+				if enemy.HasExplosionPlayedSound && time.Since(enemy.ExplosionStart) >= time.Duration(5.071*float64(time.Second)) && !enemy.Exploded {
+					enemy.Explode(p)
+					enemy.Exploded = true
+				}
+			}
+		}
+	}
 }
 
 func isInCameraBounds(enemy *Enemy, cameraBounds rl.Rectangle) bool {

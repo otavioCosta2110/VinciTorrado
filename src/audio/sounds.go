@@ -27,7 +27,7 @@ func LoadSounds() {
 	FullBellyPrepare = rl.LoadSound("assets/sounds/full_belly_prepare.mp3")
 	Shot = rl.LoadSound("assets/sounds/shot.mp3")
 	BulletHittingTableSound = rl.LoadSound("assets/sounds/bullet_hitting_table.mp3")
-	BombBippingSound = rl.LoadSound("assets/sounds/bomb_bipping.mp3")
+	BombBippingSound = rl.LoadSound("assets/sounds/bipping_bomb.mp3")
 
 	Mission1Music = rl.LoadMusicStream("assets/sounds/mission1.mp3")
 	FullBellyMusic = rl.LoadMusicStream("assets/sounds/music_fullbelly.mp3")
