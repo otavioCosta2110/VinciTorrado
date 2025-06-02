@@ -32,11 +32,11 @@ const (
 	playerSizeY  int32  = 32
 
 	// feature flags
-	oneHealthEnemies bool   = true
+	oneHealthEnemies bool   = false
 	enableMusic      bool   = true
 	enableSoundFxs   bool   = true
-	skipCutscenes    bool   = true
-	startingMap      string = "bar"
+	skipCutscenes    bool   = false
+	startingMap      string = "city"
 )
 
 type GameState struct {
