@@ -66,6 +66,22 @@ func PlayFullBellyPrepare() {
 	rl.PlaySound(FullBellyPrepare)
 }
 
+func PlayShot() {
+	rl.PlaySound(Shot)
+}
+
+func PlayBulletHittingTableSound() {
+	rl.PlaySound(BulletHittingTableSound)
+}
+
+func PlayBombBippingSound() {
+	rl.PlaySound(BombBippingSound)
+}
+
+func PlayExplosionSound() {
+	rl.PlaySound(ExplosionSound)
+}
+
 func SetVolume(volume float32) {
 	rl.SetSoundVolume(PunchSound, volume)
 	rl.SetSoundVolume(KickSound, volume)

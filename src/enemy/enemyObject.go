@@ -5,10 +5,12 @@ import (
 	"otaviocosta2110/vincitorrado/src/audio"
 	"otaviocosta2110/vincitorrado/src/equipment"
 	"otaviocosta2110/vincitorrado/src/physics"
+	"otaviocosta2110/vincitorrado/src/props"
 	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/sprites"
 	"otaviocosta2110/vincitorrado/src/system"
 	"otaviocosta2110/vincitorrado/src/weapon"
+	"slices"
 	"time"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -20,24 +22,31 @@ const (
 
 type Enemy struct {
 	system.LiveObject
-	Activate_pos_X int32
-	Activate_pos_Y int32
-	LastAttackTime time.Time
-	HitCount       int32
-	LastHitTime    time.Time
-	IsStunned      bool
-	Active         bool
-	StunEndTime    time.Time
-	Layer          int
-	CanMove        bool
-	WindUpTime     int64
-	isSpawning     bool
-	EnemyType      string
-	Drop           *equipment.Equipment
-	DropCollected  bool
-	Weapon         *weapon.Weapon
-	AttackCooldown int64
-	IsCharging     bool
+	Activate_pos_X            int32
+	Activate_pos_Y            int32
+	LastAttackTime            time.Time
+	HitCount                  int32
+	LastHitTime               time.Time
+	IsStunned                 bool
+	Active                    bool
+	StunEndTime               time.Time
+	Layer                     int
+	CanMove                   bool
+	WindUpTime                int64
+	isSpawning                bool
+	EnemyType                 string
+	Drop                      *equipment.Equipment
+	DropCollected             bool
+	Weapon                    *weapon.Weapon
+	AttackCooldown            int64
+	IsCharging                bool
+	Projectiles               []*weapon.Projectile
+	LastShotTime              time.Time
+	Exploded                  bool
+	ExplosionStart            time.Time
+	HasExplosionPlayedSound   bool
+	hasExplosionTextureLoaded bool
+	explosionDuration         time.Duration
 }
 
 func (e *Enemy) GetObject() system.Object {
@@ -75,18 +84,24 @@ func NewEnemy(x, y, aX, aY, speed, width, height, scale int32, sprite sprites.Sp
 			Health:    5,
 			Speed:     speed,
 		},
-		Activate_pos_X: aX,
-		Activate_pos_Y: aY,
-		Active:         false,
-		Layer:          0,
-		CanMove:        true,
-		WindUpTime:     windUpTime,
-		isSpawning:     true,
-		EnemyType:      enemyType,
-		Drop:           drops,
-		Weapon:         weapon,
-		AttackCooldown: attackCooldown,
-		IsCharging:     false,
+		Activate_pos_X:            aX,
+		Activate_pos_Y:            aY,
+		Active:                    false,
+		Layer:                     0,
+		CanMove:                   true,
+		WindUpTime:                windUpTime,
+		isSpawning:                true,
+		EnemyType:                 enemyType,
+		Drop:                      drops,
+		Weapon:                    weapon,
+		AttackCooldown:            attackCooldown,
+		IsCharging:                false,
+		LastShotTime:              time.Now(),
+		Exploded:                  false,
+		ExplosionStart:            time.Time{},
+		HasExplosionPlayedSound:   false,
+		hasExplosionTextureLoaded: false,
+		explosionDuration:         1000 * time.Millisecond,
 	}
 }
 
@@ -98,6 +113,7 @@ func (e *Enemy) Draw() {
 		if e.Weapon != nil && e.Weapon.IsDropped {
 			e.Weapon.DrawAnimated()
 		}
+
 	}
 
 	var width float32 = float32(e.Object.Sprite.SpriteWidth)
@@ -131,17 +147,64 @@ func (e *Enemy) Draw() {
 	if e.Weapon != nil && !e.Weapon.IsDropped {
 		e.Weapon.DrawEquipped(&e.Object)
 	}
+
+	if e.Weapon != nil && e.Weapon.IsGun {
+		e.DrawProjectiles()
+	}
+
+	if e.Object.Destroyed && e.EnemyType == "mafia_boss" && e.Exploded {
+		explosionTexture := rl.LoadTexture("assets/props/explosion.png")
+		e.hasExplosionTextureLoaded = true
+		if e.hasExplosionTextureLoaded && time.Since(e.ExplosionStart) < e.explosionDuration {
+			explosionX := float32(e.Object.X) - float32(explosionTexture.Width)*2
+			explosionY := float32(e.Object.Y) - float32(explosionTexture.Height)*3
+			rl.DrawTextureEx(
+				explosionTexture,
+				rl.NewVector2(explosionX, explosionY),
+				float32(e.Object.Scale),
+				float32(e.Object.Scale),
+				rl.White,
+			)
+		} else {
+			rl.UnloadTexture(explosionTexture)
+		}
+	}
+}
+
+func (e *Enemy) Shoot() {
+	if e.Weapon == nil || !e.Weapon.IsGun || e.Weapon.Ammo <= 0 {
+		return
+	}
+
+	direction := rl.Vector2{X: 1.0, Y: 0.0}
+	if e.Object.Flipped {
+		direction.X = -1.0
+	}
+
+	startX := float32(e.Object.X)
+	startY := float32(e.Object.Y)
+
+	projectile := e.Weapon.Shoot(startX, startY, direction)
+	if projectile != nil {
+		e.Projectiles = append(e.Projectiles, projectile)
+	}
 }
 
 func (e *Enemy) CheckAtk(player system.Object) bool {
 	currentTime := time.Now()
 	timeSinceLastAttack := time.Since(e.Object.LastAttackTime).Milliseconds()
+	timeSinceLastShot := time.Since(e.LastShotTime).Seconds()
 
 	if timeSinceLastAttack < e.AttackCooldown {
 		e.CanMove = false
 		return false
 	}
 	e.CanMove = true
+
+	if e.Weapon != nil && e.Weapon.IsGun && timeSinceLastShot >= 4.0 {
+		e.Shoot()
+		e.LastShotTime = currentTime
+	}
 
 	punchX := e.Object.X
 	punchY := e.Object.Y - e.Object.Height/3
@@ -210,7 +273,7 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 	}
 	return false
 }
-func (e *Enemy) Update(p system.Player, screen screen.Screen) {
+func (e *Enemy) Update(p system.Player, screen screen.Screen, prps []*props.Prop) {
 	if e.isSpawning {
 		e.isSpawning = false
 	}
@@ -241,6 +304,7 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen) {
 			*e = MoveEnemyTowardPlayer(p, *e, screen)
 		}
 	}
+	e.UpdateProjectiles(p, prps)
 }
 
 func (e *Enemy) setKnockback(pX int32) {
@@ -359,3 +423,65 @@ func (e *Enemy) IsActive() bool {
 	return e.Active
 }
 func (p *Enemy) SetActive(bool) {}
+
+func (e *Enemy) UpdateProjectiles(p system.Player, prs []*props.Prop) {
+	for i := 0; i < len(e.Projectiles); {
+		proj := e.Projectiles[i]
+		proj.Update()
+
+		hitPlayer := false
+
+		if proj.IsActive && !p.GetObject().Destroyed &&
+			physics.CheckCollision(*proj.Object, p.GetObject()) {
+			p.TakeDamage(proj.Damage, *proj.Object)
+			proj.IsActive = false
+			hitPlayer = true
+			break
+		}
+
+		for _, prop := range prs {
+			if prop.Kicked {
+				propProjHitbox := system.Object{
+					X:      prop.GetObject().X,
+					Y:      prop.GetObject().Y + 50,
+					Width:  prop.GetObject().Width + 200,
+					Height: prop.GetObject().Height + 50,
+				}
+				if physics.CheckCollision(*proj.Object, propProjHitbox) {
+					audio.PlayBulletHittingTableSound()
+					proj.IsActive = false
+				}
+			}
+		}
+
+		if !proj.IsActive || hitPlayer {
+			e.Projectiles = slices.Delete(e.Projectiles, i, i+1)
+		} else {
+			i++
+		}
+	}
+}
+
+func (e *Enemy) DrawProjectiles() {
+	for _, proj := range e.Projectiles {
+		proj.Draw()
+	}
+}
+
+func (e *Enemy) Explode(p system.Player) {
+	explosionRadius := int32(100)
+	explosionBox := system.Object{
+		X:      e.Object.X - explosionRadius/2,
+		Y:      e.Object.Y - explosionRadius/2,
+		Width:  explosionRadius,
+		Height: explosionRadius,
+	}
+
+	if physics.CheckCollision(explosionBox, p.GetObject()) {
+		p.TakeDamage(3, e.Object)
+	}
+
+	e.ExplosionStart = time.Now()
+
+	audio.PlayExplosionSound()
+}

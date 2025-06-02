@@ -1,12 +1,15 @@
 package enemy
 
 import (
+	// "math/rand"
 	"otaviocosta2110/vincitorrado/src/audio"
 	"otaviocosta2110/vincitorrado/src/physics"
+	"otaviocosta2110/vincitorrado/src/props"
 	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/system"
 	"slices"
 	"sort"
+	"time"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -16,9 +19,11 @@ type EnemyManager struct {
 	ActiveEnemies   []*Enemy
 	InactiveEnemies []*Enemy
 	NumEnemies      int
+	lastBossShot    time.Time
+	CurrentMap      string
 }
 
-func (em *EnemyManager) Update(p system.Player, s screen.Screen, m *string) {
+func (em *EnemyManager) Update(p system.Player, s screen.Screen, m *string, prps []*props.Prop, buildings *rl.Texture2D) {
 	cameraBounds := rl.Rectangle{
 		X:      s.Camera.Target.X - float32(s.Width)/2,
 		Y:      s.Camera.Target.Y - float32(s.Height)/2,
@@ -41,12 +46,31 @@ func (em *EnemyManager) Update(p system.Player, s screen.Screen, m *string) {
 
 	for i := len(em.ActiveEnemies) - 1; i >= 0; i-- {
 		enemy := em.ActiveEnemies[i]
-		enemy.Update(p, s)
+		enemy.Update(p, s, prps)
 		if enemy.Object.Destroyed {
 			em.ActiveEnemies = slices.Delete(em.ActiveEnemies, i, i+1)
 		}
 	}
+	for _, enemy := range em.Enemies {
+		if enemy.Object.Destroyed && enemy.EnemyType == "mafia_boss" {
+			if !enemy.Exploded {
+				if !enemy.HasExplosionPlayedSound {
+					audio.PlayBombBippingSound()
+					enemy.ExplosionStart = time.Now()
+					enemy.HasExplosionPlayedSound = true
+				}
+
+				if enemy.HasExplosionPlayedSound && time.Since(enemy.ExplosionStart) >= time.Duration(5.071*float64(time.Second)) && !enemy.Exploded {
+					enemy.Explode(p)
+					enemy.Exploded = true
+					explodedBuildingsPath := "assets/scenes/bar_exploded.png"
+					*buildings = system.LoadScaledTexture(explodedBuildingsPath, enemy.Object.Scale)
+				}
+			}
+		}
+	}
 }
+
 func isInCameraBounds(enemy *Enemy, cameraBounds rl.Rectangle) bool {
 	enemyRect := rl.Rectangle{
 		X:      float32(enemy.Activate_pos_X),

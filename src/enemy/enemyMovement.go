@@ -8,8 +8,10 @@ import (
 )
 
 func MoveEnemyTowardPlayer(p system.Player, e Enemy, s screen.Screen) Enemy {
+	currentTime := time.Now()
+	timeSinceLastAttack := currentTime.Sub(e.Object.LastAttackTime).Milliseconds()
 	hitStunDuration := time.Millisecond * 300
-	if time.Since(e.LastDamageTaken) < hitStunDuration {
+	if time.Since(e.LastDamageTaken) < hitStunDuration || timeSinceLastAttack < e.AttackCooldown {
 		e.CanMove = false
 	}
 
@@ -26,25 +28,37 @@ func MoveEnemyTowardPlayer(p system.Player, e Enemy, s screen.Screen) Enemy {
 	enemyX := float64(e.Object.X)
 	enemyY := float64(e.Object.Y)
 
-	distX := playerX - enemyX
-	distY := playerY - enemyY
-	distance := math.Sqrt(distX*distX + distY*distY)
-
-	punchRange := float64(e.Object.Width) * 1.2
-
-	if distance > punchRange {
-		if distance > 0 {
-			distX /= distance
-			distY /= distance
+	if e.EnemyType == "mafia_boss" {
+		if enemyY < playerY {
+			enemyY += float64(e.Speed)
 		}
+		if enemyY > playerY {
+			enemyY -= float64(e.Speed)
+		}
+		e.Object.Y = int32(enemyY)
+		e.Object.Flipped = true
+	} else {
 
-		e.Object.X += int32((distX * float64(e.Speed)) * 1.5)
-		e.Object.Y += int32((distY * float64(e.Speed)) * 1.5)
+		distX := playerX - enemyX
+		distY := playerY - enemyY
+		distance := math.Sqrt(distX*distX + distY*distY)
 
-		if distX > 0 {
-			e.Object.Flipped = false
-		} else if distX < 0 {
-			e.Object.Flipped = true
+		punchRange := float64(e.Object.Width) * 1.2
+
+		if distance > punchRange {
+			if distance > 0 {
+				distX /= distance
+				distY /= distance
+			}
+
+			e.Object.X += int32((distX * float64(e.Speed)) * 1.5)
+			e.Object.Y += int32((distY * float64(e.Speed)) * 1.5)
+
+			if distX > 0 {
+				e.Object.Flipped = false
+			} else if distX < 0 {
+				e.Object.Flipped = true
+			}
 		}
 	}
 

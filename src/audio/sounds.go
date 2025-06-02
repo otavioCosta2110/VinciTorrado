@@ -3,15 +3,20 @@ package audio
 import rl "github.com/gen2brain/raylib-go/raylib"
 
 var (
-	PunchSound          rl.Sound
-	KickSound           rl.Sound
-	WeaponBreakingSound rl.Sound
-	Mission1Music       rl.Music
-	CollectItemSound    rl.Sound
-	FullBellyAttack     rl.Sound
-	FullBellyPrepare    rl.Sound
-	FullBellyMusic      rl.Music
-	Mission2Music       rl.Music
+	PunchSound              rl.Sound
+	KickSound               rl.Sound
+	WeaponBreakingSound     rl.Sound
+	Mission1Music           rl.Music
+	CollectItemSound        rl.Sound
+	FullBellyAttack         rl.Sound
+	FullBellyPrepare        rl.Sound
+	Shot                    rl.Sound
+	BulletHittingTableSound rl.Sound
+	BombBippingSound        rl.Sound
+	ExplosionSound          rl.Sound
+
+	FullBellyMusic rl.Music
+	Mission2Music  rl.Music
 )
 
 func LoadSounds() {
@@ -21,6 +26,10 @@ func LoadSounds() {
 	CollectItemSound = rl.LoadSound("assets/sounds/collect_item.mp3")
 	FullBellyAttack = rl.LoadSound("assets/sounds/full_belly_attack.mp3")
 	FullBellyPrepare = rl.LoadSound("assets/sounds/full_belly_prepare.mp3")
+	Shot = rl.LoadSound("assets/sounds/shot.mp3")
+	BulletHittingTableSound = rl.LoadSound("assets/sounds/bullet_hitting_table.mp3")
+	BombBippingSound = rl.LoadSound("assets/sounds/bipping_bomb.mp3")
+	ExplosionSound = rl.LoadSound("assets/sounds/explosion.mp3")
 
 	Mission1Music = rl.LoadMusicStream("assets/sounds/mission1.mp3")
 	FullBellyMusic = rl.LoadMusicStream("assets/sounds/music_fullbelly.mp3")
@@ -34,6 +43,10 @@ func UnloadSounds() {
 	rl.UnloadSound(WeaponBreakingSound)
 	rl.UnloadSound(FullBellyAttack)
 	rl.UnloadSound(FullBellyPrepare)
+	rl.UnloadSound(Shot)
+	rl.UnloadSound(BulletHittingTableSound)
+	rl.UnloadSound(BombBippingSound)
+	rl.UnloadSound(BombBippingSound)
 
 	rl.UnloadMusicStream(Mission1Music)
 	rl.UnloadMusicStream(Mission2Music)
