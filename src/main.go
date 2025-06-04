@@ -355,6 +355,9 @@ func draw(gs *GameState) {
 	for _, prop := range gs.Props {
 		prop.Draw()
 	}
+	for _, door := range gs.Doors {
+		door.Draw()
+	}
 	gs.EnemyManager.Draw()
 	gs.Player.Draw()
 
@@ -365,9 +368,6 @@ func draw(gs *GameState) {
 	}
 	if gs.Girlfriend.IsActive() {
 		gs.Girlfriend.Draw()
-	}
-	for _, door := range gs.Doors {
-		door.Draw()
 	}
 
 	for _, weapon := range gs.Weapons {
