@@ -254,6 +254,7 @@ func gameLoop(gs *GameState) {
 				gs.RestartGame()
 			}
 			if rl.IsKeyPressed(rl.KeyEscape) {
+				rl.CloseWindow()
 				break 
 			}
 
