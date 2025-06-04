@@ -8,12 +8,33 @@ import (
 var GameOverFlag bool = false
 
 
-func GameOver(s *screen.Screen) {
-	text := "Game Over"
-	textWidth := rl.MeasureText(text, 100)
-
-	xPos := (s.Width - textWidth) / 2
-	yPos := s.Height / 2
-
-	rl.DrawText(text, xPos, yPos, 100, rl.White)
+func DrawGameOver(screen *screen.Screen) {
+    rl.BeginDrawing()
+    defer rl.EndDrawing()
+    
+    rl.ClearBackground(rl.NewColor(0, 0, 0, 200)) 
+    
+    text := "GAME OVER"
+    fontSize := int32(72)
+    textWidth := rl.MeasureText(text, fontSize)
+    rl.DrawText(text, 
+        screen.Width/2 - textWidth/2, 
+        screen.Height/2 - fontSize, 
+        fontSize, rl.Red)
+    
+    restartText := "Press R to restart"
+    restartFontSize := int32(36)
+    restartWidth := rl.MeasureText(restartText, restartFontSize)
+    rl.DrawText(restartText,
+        screen.Width/2 - restartWidth/2,
+        screen.Height/2 + restartFontSize,
+        restartFontSize, rl.White)
+    
+    exitText := "Press ESC to return to menu"
+    exitFontSize := int32(24)
+    exitWidth := rl.MeasureText(exitText, exitFontSize)
+    rl.DrawText(exitText,
+        screen.Width/2 - exitWidth/2,
+        screen.Height/2 + restartFontSize*2,
+        exitFontSize, rl.Gray)
 }

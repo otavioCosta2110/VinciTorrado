@@ -111,7 +111,6 @@ func (m *Menu) getItemIconPos(item *equipment.Equipment) rl.Rectangle {
 		return rl.NewRectangle(0, 0, 32, 32)
 	}
 
-	println("Item Name:", item.Name, "Type:", item.Type)
 	switch {
 	case item.Name == "Turbante":
 		return rl.NewRectangle(32, 32, 32, 32)
@@ -122,7 +121,6 @@ func (m *Menu) getItemIconPos(item *equipment.Equipment) rl.Rectangle {
 		case "Saunduiche":
 			return rl.NewRectangle(32, 0, 32, 32)
 		case "Cachaca":
-			println("Cachaca icon")
 			return rl.NewRectangle(0, 32, 32, 32)
 		default:
 			return rl.NewRectangle(64, 0, 32, 32)

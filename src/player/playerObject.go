@@ -27,10 +27,11 @@ type Player struct {
 	Screen         *screen.Screen
 	Weapon         *weapon.Weapon
 	LastAttackTime time.Time
+	InitialItems   []*equipment.Equipment
+	InitialWeapon  *weapon.Weapon
 }
 
-func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite, s *screen.Screen) *Player {
-
+func NewPlayer(x, y, width, height, speed, maxHealth, scale int32, sprite sprites.Sprite, s *screen.Screen) *Player {
 	return &Player{
 		LiveObject: system.LiveObject{
 			Object: system.Object{
@@ -48,17 +49,19 @@ func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite, s
 				Flipped:       false,
 			},
 			Speed:           speed,
-			MaxHealth:       5,
-			Health:          5,
+			MaxHealth:       maxHealth,
+			Health:          maxHealth,
 			LastDamageTaken: time.Now(),
 			Damage:          1,
 		},
-		IsKicking:    false,
-		IsAttacking:  false,
-		LastKickTime: time.Now(),
-		KickCooldown: 500 * time.Millisecond,
-		KickPower:    15,
-		Screen:       s,
+		IsKicking:     false,
+		IsAttacking:   false,
+		LastKickTime:  time.Now(),
+		KickCooldown:  500 * time.Millisecond,
+		KickPower:     15,
+		Screen:        s,
+		InitialItems:  make([]*equipment.Equipment, 0),
+		InitialWeapon: nil,
 	}
 }
 

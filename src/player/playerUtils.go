@@ -2,9 +2,11 @@ package player
 
 import (
 	"otaviocosta2110/vincitorrado/src/enemy"
+	"otaviocosta2110/vincitorrado/src/equipment"
 	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/system"
+	"otaviocosta2110/vincitorrado/src/weapon"
 	"time"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -159,3 +161,43 @@ func (p *Player) IsActive() bool {
 	return true
 }
 func (p *Player) SetActive(bool) {}
+
+func (p *Player) Reset() {
+	p.Health = p.MaxHealth
+	p.IsAttacking = false
+	p.IsKicking = false
+
+	p.Object.FrameX = 0
+	p.Object.FrameY = 0
+
+	p.Equipment = make([]*equipment.Equipment, 0)
+	p.Consumables = make([]*equipment.Equipment, 0)
+	if p.Weapon != nil {
+		p.DropWeapon()
+	}
+
+	for _, item := range p.InitialItems {
+		newItem := *item 
+		p.AddToInventory(&newItem)
+
+		if p.Equipped != nil && p.Equipped.Name == item.Name {
+			p.Equip(&newItem)
+		}
+	}
+
+	if p.InitialWeapon != nil {
+		newWeapon := *p.InitialWeapon 
+		p.PickUp(newWeapon)
+	}
+
+}
+
+func (p *Player) RecordInitialEquipment() {
+	p.InitialItems = make([]*equipment.Equipment, len(p.Equipment))
+	copy(p.InitialItems, p.Equipment)
+
+	if p.Weapon != nil {
+		p.InitialWeapon = &weapon.Weapon{}
+		*p.InitialWeapon = *p.Weapon
+	}
+}
