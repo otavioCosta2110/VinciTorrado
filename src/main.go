@@ -74,13 +74,6 @@ func main() {
 	rl.InitAudioDevice()
 	defer rl.CloseAudioDevice()
 
-	rl.InitWindow(windowWidth, windowHeight, windowTitle)
-	defer rl.CloseWindow()
-	rl.SetTargetFPS(60)
-	rl.SetExitKey(0)
-	rl.InitAudioDevice()
-	defer rl.CloseAudioDevice()
-
 	mapManager := maps.NewMapManager()
 	mapManager.Maps["city"] = &maps.GameMap{
 		Buildings:    "assets/scenes/predio.png",
