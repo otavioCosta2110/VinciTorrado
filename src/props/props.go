@@ -175,7 +175,7 @@ func (t *Prop) HandleKick(items *[]*equipment.Equipment, kicker system.Object) {
 	*items = append(*items, item)
 }
 
-func (t *Prop) GetObject() system.Object { //pra mexer com a hitbox da mesa
+func (t *Prop) GetObject() system.Object {
 	obj := t.Object
 
 	if t.Kicked && t.Type == PropTypeTable {

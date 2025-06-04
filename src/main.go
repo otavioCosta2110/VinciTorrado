@@ -30,6 +30,9 @@ const (
 	playerScale  int32  = 4
 	playerSizeX  int32  = 32
 	playerSizeY  int32  = 32
+	MenuState           = iota
+	GameOverState
+	GameRunningState
 
 	// feature flags
 	oneHealthEnemies bool   = false
@@ -40,26 +43,35 @@ const (
 )
 
 type GameState struct {
-	Player          *player.Player
-	EnemyManager    *enemy.EnemyManager
-	Screen          *screen.Screen
-	Kickables       []physics.Kickable
-	Items           []*equipment.Equipment
-	Props           []*props.Prop
-	Weapons         []*weapon.Weapon
-	Menu            ui.Menu
-	Music           *string
-	Cutscene        *cutscene.Cutscene
-	Girlfriend      *girlfriend.Girlfriend
-	Doors           []*props.Door
-	MapManager      *maps.MapManager
-	Buildings       *rl.Texture2D
-	Chao            rl.Texture2D
-	FloorPath       string
-	CurrentMap      string
+	CurrentState int
+	StartMenu    *ui.StartMenu
+	Player       *player.Player
+	EnemyManager *enemy.EnemyManager
+	Screen       *screen.Screen
+	Kickables    []physics.Kickable
+	Items        []*equipment.Equipment
+	Props        []*props.Prop
+	Weapons      []*weapon.Weapon
+	Menu         ui.Menu
+	Music        *string
+	Cutscene     *cutscene.Cutscene
+	Girlfriend   *girlfriend.Girlfriend
+	Doors        []*props.Door
+	MapManager   *maps.MapManager
+	Buildings    *rl.Texture2D
+	Chao         rl.Texture2D
+	FloorPath    string
+	CurrentMap   string
 }
 
 func main() {
+	rl.InitWindow(windowWidth, windowHeight, windowTitle)
+	defer rl.CloseWindow()
+	rl.SetTargetFPS(60)
+	rl.SetExitKey(0)
+	rl.InitAudioDevice()
+	defer rl.CloseAudioDevice()
+
 	rl.InitWindow(windowWidth, windowHeight, windowTitle)
 	defer rl.CloseWindow()
 	rl.SetTargetFPS(60)
@@ -97,6 +109,10 @@ func main() {
 		audio.PlayMissionMusic()
 	}
 	defer audio.UnloadSounds()
+
+	// Initialize the StartMenu
+	startMenu := ui.NewStartMenu()
+	defer rl.UnloadTexture(startMenu.BgTexture) // Clean up when program ends
 
 	screen := screen.NewScreen(windowWidth, windowHeight, buildings.Width, buildings.Height, windowTitle)
 
@@ -161,7 +177,7 @@ func main() {
 		panic("Failed to load enemies: " + err.Error())
 	}
 
-	enemyManager := &enemy.EnemyManager{ }
+	enemyManager := &enemy.EnemyManager{}
 	for _, e := range enemies {
 		if oneHealthEnemies {
 			e.Health = 0
@@ -194,6 +210,7 @@ func main() {
 		Doors:        doors,
 		MapManager:   mapManager,
 		CurrentMap:   startingMap,
+		StartMenu:    startMenu,
 	}
 
 	transitionMap(&gameState, startingMap)
@@ -201,17 +218,42 @@ func main() {
 }
 
 func gameLoop(gs *GameState) {
+	gs.CurrentState = MenuState
+
 	for !rl.WindowShouldClose() {
-		audio.UpdateMusic(*gs.Music)
-		gs.Menu.Update()
+		switch gs.CurrentState {
+		case MenuState:
+			if gs.StartMenu.DrawStartMenu(gs.Screen) {
+				gs.CurrentState = GameRunningState
+				if enableMusic {
+					audio.PlayMissionMusic()
+				}
+			}
 
-		if gs.Cutscene != nil && gs.Cutscene.IsPlaying() {
-			gs.Cutscene.Update()
-		} else if !gs.Menu.IsVisible {
-			update(gs)
+		case GameRunningState:
+			audio.UpdateMusic(*gs.Music)
+			gs.Menu.Update()
+
+			if gs.Cutscene != nil && gs.Cutscene.IsPlaying() {
+				gs.Cutscene.Update()
+			} else if !gs.Menu.IsVisible {
+				update(gs)
+			}
+
+			draw(gs)
+
+			if system.GameOverFlag {
+				gs.CurrentState = GameOverState
+			}
+
+		case GameOverState:
+			system.GameOver(gs.Screen)
+			if rl.IsKeyPressed(rl.KeyEnter) {
+				transitionMap(gs, startingMap)
+				gs.CurrentState = GameRunningState
+				system.GameOverFlag = false
+			}
 		}
-
-		draw(gs)
 	}
 }
 
@@ -388,7 +430,7 @@ func transitionMap(gs *GameState, mapName string) {
 	}
 
 	gs.EnemyManager = &enemy.EnemyManager{
-		CurrentMap:      mapName,
+		CurrentMap: mapName,
 	}
 	for _, e := range enemies {
 		if oneHealthEnemies {
