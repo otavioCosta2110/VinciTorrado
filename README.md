@@ -52,5 +52,6 @@ Universidade Regional Integrada do Alto Uruguai e das Missões – URI Santiago 
   
 *Protagonista Vinci Torrado*
 
-![image](https://github.com/user-attachments/assets/9fe53421-517d-403a-908c-4294edfa6b83)
+![fight](https://github.com/user-attachments/assets/b6ccd77b-d2f0-4c4d-a981-5a83d939ba21)
+
 *Pequena parte do primeiro nível*
