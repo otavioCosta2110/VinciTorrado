@@ -16,7 +16,6 @@ Na decadente cidade de **Jaminaro**, o protagonista **Vinci** inicia uma jornada
 
 ## 🎮 Mecânicas de Jogo
 
-- **Movimentação lateral (side-scrolling)** com corrida, pulo, esquiva e agachamento.
 - **Combate corpo a corpo** baseado em combos de socos com possibilidade de atordoamento dos inimigos.
 - **Coleta de itens e equipamentos**, como o *Turbante de Jalut*, que aumentam atributos do personagem.
 - **Armas temporárias**, como facas e ferramentas.
