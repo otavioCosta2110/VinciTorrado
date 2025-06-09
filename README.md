@@ -43,7 +43,7 @@ A produção do jogo segue um modelo incremental, dividido em três etapas:
 Todo o conteúdo artístico (personagens, cenários, cutscenes) é feito em **Pixelorama**, utilizando o estilo **pixel art 32x32** para manter a estética retrô. O design visual é coeso com a narrativa e a progressão dos desafios em cada fase.
 
 ## 🎶 Trilha Sonora e Efeitos Sonoros
-Tanto a trilha sonora quantos os efeitos sonoros foram criados com o apoio de inteligência artificial. As músicas foram geradas no site suno.com e ElevenLabs, garantindo que cada nível tenha um clima sonoro único. Já os efeitos sonoros (SFX) foram desenvolvidos com a assistência da IA ElevenLabs, proporcionando áudios de alta qualidade para os golpes, interações e todos os momentos de ação, contribuindo para uma imersão total.****
+Tanto a trilha sonora quantos os efeitos sonoros foram criados com o apoio de inteligência artificial. As músicas foram geradas no site suno.com e ElevenLabs, garantindo que cada nível tenha um clima sonoro único. Já os efeitos sonoros (SFX) foram desenvolvidos com a assistência da IA ElevenLabs, proporcionando áudios de alta qualidade para os golpes, interações e todos os momentos de ação, contribuindo para uma imersão total.
 
 ## 👨‍💻 Desenvolvedores
 
