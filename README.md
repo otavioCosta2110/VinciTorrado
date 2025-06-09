@@ -11,6 +11,8 @@ Na decadente cidade de **Jaminaro**, o protagonista **Vinci** inicia uma jornada
 - **Golang**: Linguagem eficiente, moderna e de fácil aprendizado, ideal para o desenvolvimento de jogos de forma performática.
 - **Raylib**: Biblioteca gráfica open-source com suporte a 2D/3D, perfeita para jogos com visual retrô e lógica simples.
 - **Pixelorama**: Usado para criação dos sprites em pixel art e design dos cenários.
+- **Suno.com (IA)**: Utilizado para a geração da trilha sonora original do jogo.
+- **ElevenLabs (IA)**: Utilizado para a criação dos efeitos sonoros (SFX).
 
 ## 🎮 Mecânicas de Jogo
 
@@ -39,6 +41,9 @@ A produção do jogo segue um modelo incremental, dividido em três etapas:
 ## 🎨 Arte e Design
 
 Todo o conteúdo artístico (personagens, cenários, cutscenes) é feito em **Pixelorama**, utilizando o estilo **pixel art 32x32** para manter a estética retrô. O design visual é coeso com a narrativa e a progressão dos desafios em cada fase.
+
+## 🎶 Trilha Sonora e Efeitos Sonoros
+Tanto a trilha sonora quantos os efeitos sonoros foram criados com o apoio de inteligência artificial. As músicas foram geradas no site suno.com e ElevenLabs, garantindo que cada nível tenha um clima sonoro único. Já os efeitos sonoros (SFX) foram desenvolvidos com a assistência da IA ElevenLabs, proporcionando áudios de alta qualidade para os golpes, interações e todos os momentos de ação, contribuindo para uma imersão total.****
 
 ## 👨‍💻 Desenvolvedores
 
