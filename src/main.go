@@ -34,7 +34,7 @@ const (
 	// feature flags
 	oneHealthEnemies bool   = false
 	enableMusic      bool   = false
-	enableSoundFxs   bool   = false
+	enableSoundFxs   bool   = true
 	skipCutscenes    bool   = true
 	startingMap      string = "city"
 )

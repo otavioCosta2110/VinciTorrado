@@ -307,7 +307,6 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen, prps []*props.Prop
 	if !e.IsStunned {
 		if e.EnemyType == "gf_monster" && e.IsCharging {
 			e.handleCharge(p)
-			println("Playing gf_running animation")
 			e.UpdateAnimation("gf_running")
 			return
 		}
