@@ -1,7 +1,6 @@
 package enemy
 
 import (
-	"math"
 	"math/rand"
 	"otaviocosta2110/vincitorrado/src/audio"
 	"otaviocosta2110/vincitorrado/src/equipment"
@@ -305,7 +304,7 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen, prps []*props.Prop
 
 	if !e.IsStunned {
 		if e.EnemyType == "gf_monster" && e.IsCharging {
-			e.handleCharge()
+			e.handleCharge(p)
 			println("Playing gf_running animation")
 			e.UpdateAnimation("gf_running")
 			return
@@ -508,65 +507,4 @@ func (e *Enemy) Explode(p system.Player) {
 	e.ExplosionStart = time.Now()
 
 	audio.PlayExplosionSound()
-}
-
-func (e *Enemy) startCharge(p system.Player) {
-	if e.EnemyType != "gf_monster" {
-		return
-	}
-
-	e.IsCharging = true
-
-	e.Speed = 9
-
-	dirX := float32(p.GetObject().X - e.Object.X)
-	dirY := float32(p.GetObject().Y - e.Object.Y)
-	length := float32(math.Sqrt(float64(dirX*dirX + dirY*dirY)))
-
-	if length > 0 {
-		e.ChargeDirection = rl.Vector2{
-			X: dirX / length,
-			Y: dirY / length,
-		}
-	} else {
-		e.ChargeDirection = rl.Vector2{X: 1, Y: 0}
-	}
-}
-
-func (e *Enemy) handleCharge() {
-	e.Object.X += int32(e.ChargeDirection.X * float32(e.Speed))
-	e.Object.Y += int32(e.ChargeDirection.Y * float32(e.Speed))
-
-	screenWidth := int32(rl.GetScreenWidth())
-	screenHeight := int32(rl.GetScreenHeight())
-
-	enemyLeft := e.Object.X - e.Object.Width/2
-	enemyRight := e.Object.X + e.Object.Width/2
-	enemyTop := e.Object.Y - e.Object.Height
-	enemyBottom := e.Object.Y
-
-	hitWall := false
-	if enemyLeft <= 0 || enemyRight >= screenWidth {
-		hitWall = true
-	}
-	if enemyTop <= 0 || enemyBottom >= screenHeight-e.Object.Height/2 {
-		hitWall = true
-	}
-
-	if hitWall {
-		e.onChargeCollision()
-		e.IsStunned = true
-		return
-	}
-
-}
-
-func (e *Enemy) onChargeCollision() {
-	e.IsCharging = false
-	e.IsStunned = true
-	e.StunEndTime = time.Now().Add(2 * time.Second)
-
-	e.UpdateAnimation("gf_stunned")
-
-	// TODO: tocar som de bater na parede
 }
