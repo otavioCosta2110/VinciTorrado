@@ -48,6 +48,8 @@ type Enemy struct {
 	hasExplosionTextureLoaded bool
 	explosionDuration         time.Duration
 	ChargeDirection           rl.Vector2
+	MaxHealth                 int32
+	LastHealthDecrease        time.Time
 }
 
 func (e *Enemy) GetObject() system.Object {

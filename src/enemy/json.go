@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"otaviocosta2110/vincitorrado/src/equipment"
 	"otaviocosta2110/vincitorrado/src/objects"
@@ -160,6 +161,7 @@ func LoadEnemiesFromJSON(filename string, playerScale int32) ([]*Enemy, error) {
 		enemy.Health = config.Health
 		enemy.MaxHealth = config.Health
 		enemy.Damage = config.Damage
+		enemy.LastHealthDecrease = time.Now()
 
 		enemies = append(enemies, enemy)
 	}

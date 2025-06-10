@@ -70,6 +70,21 @@ func (e *Enemy) handleCharge(p system.Player) {
 
 }
 
+func (e *Enemy) UpdateGirlfriendHealth() {
+	if e.EnemyType != "gf_monster" {
+		return
+	}
+
+	if time.Since(e.LastHealthDecrease) > 5*time.Second {
+		e.Health -= 1
+		e.LastHealthDecrease = time.Now()
+
+		if e.Health <= 0 {
+			e.Object.Destroyed = true
+		}
+	}
+}
+
 func (e *Enemy) onChargeCollision() {
 	e.IsCharging = false
 	e.IsStunned = true

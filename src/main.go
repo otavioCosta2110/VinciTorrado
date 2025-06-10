@@ -40,23 +40,23 @@ const (
 )
 
 type GameState struct {
-	Player          *player.Player
-	EnemyManager    *enemy.EnemyManager
-	Screen          *screen.Screen
-	Kickables       []physics.Kickable
-	Items           []*equipment.Equipment
-	Props           []*props.Prop
-	Weapons         []*weapon.Weapon
-	Menu            ui.Menu
-	Music           *string
-	Cutscene        *cutscene.Cutscene
-	Girlfriend      *girlfriend.Girlfriend
-	Doors           []*props.Door
-	MapManager      *maps.MapManager
-	Buildings       *rl.Texture2D
-	Chao            rl.Texture2D
-	FloorPath       string
-	CurrentMap      string
+	Player       *player.Player
+	EnemyManager *enemy.EnemyManager
+	Screen       *screen.Screen
+	Kickables    []physics.Kickable
+	Items        []*equipment.Equipment
+	Props        []*props.Prop
+	Weapons      []*weapon.Weapon
+	Menu         ui.Menu
+	Music        *string
+	Cutscene     *cutscene.Cutscene
+	Girlfriend   *girlfriend.Girlfriend
+	Doors        []*props.Door
+	MapManager   *maps.MapManager
+	Buildings    *rl.Texture2D
+	Chao         rl.Texture2D
+	FloorPath    string
+	CurrentMap   string
 }
 
 func main() {
@@ -161,7 +161,7 @@ func main() {
 		panic("Failed to load enemies: " + err.Error())
 	}
 
-	enemyManager := &enemy.EnemyManager{ }
+	enemyManager := &enemy.EnemyManager{}
 	for _, e := range enemies {
 		if oneHealthEnemies {
 			e.Health = 0
@@ -294,6 +294,12 @@ func update(gs *GameState) {
 			break
 		}
 	}
+
+	for _, e := range gs.EnemyManager.Enemies {
+		if e.EnemyType == "gf_monster" {
+			e.UpdateGirlfriendHealth()
+		}
+	}
 }
 
 func draw(gs *GameState) {
@@ -328,6 +334,15 @@ func draw(gs *GameState) {
 			weapon.DrawAnimated()
 		}
 	}
+
+	var girlfriendBoss *enemy.Enemy
+	for _, e := range gs.EnemyManager.Enemies {
+		if e.EnemyType == "gf_monster" {
+			girlfriendBoss = e
+			break
+		}
+	}
+	ui.DrawBossHealthBar(girlfriendBoss, gs.Screen.Width)
 
 	rl.EndMode2D()
 
@@ -388,7 +403,7 @@ func transitionMap(gs *GameState, mapName string) {
 	}
 
 	gs.EnemyManager = &enemy.EnemyManager{
-		CurrentMap:      mapName,
+		CurrentMap: mapName,
 	}
 	for _, e := range enemies {
 		if oneHealthEnemies {
