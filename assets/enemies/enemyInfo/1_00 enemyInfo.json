@@ -1,17 +1,18 @@
 [
   {
-    "sprite": "assets/enemies/bald.png",
-    "X": 1500,
-    "Y": 650,
+    "sprite": "assets/enemies/gf_monster.png",
+    "X": 500,
+    "Y": 400,
     "activate_pos_X": 0,
     "activate_pos_Y": 0,
-    "width": 32,
-    "height": 32,
+    "width": 64,
+    "height": 64,
     "health": 6,
     "damage": 1,
-    "speed": 2,
+    "speed": 9,
     "windUpTime": 200,
     "scale": 4,
+    "type": "gf_monster",
     "weapon": {
       "sprite": "assets/weapons/knife.png",
       "hitbox_X": 30,
@@ -28,20 +29,6 @@
       "health": 8,
       "scale": 4
     }
-  },
-  {
-    "sprite": "assets/enemies/bald_blue.png",
-    "X": 1400,
-    "Y": 500,
-    "activate_pos_X": 0,
-    "activate_pos_Y": 0,
-    "width": 32,
-    "height": 32,
-    "health": 6,
-    "damage": 1,
-    "speed": 2,
-    "windUpTime": 500,
-    "scale": 4
   },
   {
     "sprite": "assets/enemies/bald_woman.png",
