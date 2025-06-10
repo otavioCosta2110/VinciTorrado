@@ -67,7 +67,9 @@ func DrawBossHealthBar(boss *enemy.Enemy, screenWidth int32) {
 
 	barWidth := int32(300)
 	barHeight := int32(30)
-	posX := screenWidth/2 - barWidth/2
+	margin := int32(20)
+
+	posX := screenWidth - barWidth - margin
 	posY := int32(30)
 
 	rl.DrawRectangle(posX, posY, barWidth, barHeight, rl.DarkGray)
@@ -76,17 +78,16 @@ func DrawBossHealthBar(boss *enemy.Enemy, screenWidth int32) {
 	fillWidth := int32(float32(barWidth) * healthPercent)
 
 	rl.DrawRectangle(posX, posY, fillWidth, barHeight, rl.Red)
-
 	rl.DrawRectangleLines(posX, posY, barWidth, barHeight, rl.White)
-
-	name := "Giiiiiiirlfriend"
-	fontSize := int32(20)
-	textWidth := rl.MeasureText(name, fontSize)
-	rl.DrawText(
-		name,
-		screenWidth/2-textWidth/2,
-		posY-fontSize-5,
-		fontSize,
-		rl.White,
-	)
+	/*
+		name := "Giiiiiiirlfriend"
+		fontSize := int32(20)
+		textWidth := rl.MeasureText(name, fontSize)
+		rl.DrawText(
+			name,
+			posX+barWidth/2-textWidth/2,
+			posY-fontSize-5,
+			fontSize,
+			rl.White,
+		)*/
 }
