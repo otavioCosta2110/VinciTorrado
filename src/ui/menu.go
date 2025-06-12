@@ -124,6 +124,9 @@ func (m *Menu) getItemIconPos(item *equipment.Equipment) rl.Rectangle {
 		case "Cachaca":
 			println("Cachaca icon")
 			return rl.NewRectangle(0, 32, 32, 32)
+		case "guarana":
+			println("Guarana icon")
+			return rl.NewRectangle(0, 64, 32, 32)
 		default:
 			return rl.NewRectangle(64, 0, 32, 32)
 		}
