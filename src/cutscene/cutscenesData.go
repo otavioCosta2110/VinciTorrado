@@ -42,7 +42,7 @@ func (c *Cutscene) BarIntroCutscene(player system.Live, gf system.Live, enemyMan
 	posYMafia := mafiaBoss.Object.Y
 	weaponMafia := mafiaBoss.Weapon
 
-	mafiaBoss.Object.X = 900
+	mafiaBoss.Object.X = 4000
 	mafiaBoss.Object.Y = 400
 	mafiaBoss.Weapon = nil
 

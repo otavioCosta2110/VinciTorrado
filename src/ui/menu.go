@@ -115,6 +115,10 @@ func (m *Menu) getItemIconPos(item *equipment.Equipment) rl.Rectangle {
 	switch {
 	case item.Name == "Turbante":
 		return rl.NewRectangle(32, 32, 32, 32)
+	case item.Name == "Suit":
+		return rl.NewRectangle(64, 32, 32, 32)
+	case item.Name == "Shoes":
+		return rl.NewRectangle(96, 32, 32, 32)
 	case item.Type == "consumable":
 		switch item.Name {
 		case "Hamburgão":

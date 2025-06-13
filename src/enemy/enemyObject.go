@@ -284,7 +284,7 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen, prps []*props.Prop
 	if e.Object.Destroyed {
 		e.Object.FrameX = 0
 		e.Object.FrameY = 3
-		if e.EnemyType != "full_belly" {
+		if e.EnemyType != "full_belly" && e.EnemyType != "mafia_boss" {
 			e.DropWeapon()
 		} else {
 			e.Weapon = nil

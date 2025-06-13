@@ -113,7 +113,16 @@
     "damage": 4,
     "speed": 1,
     "windUpTime": 800,
-    "scale": 4
+    "scale": 4,
+    "drops": {
+      "name": "Shoes",
+      "sprite": "assets/player/playerShoes.png",
+      "stats": {
+        "health": 0,
+        "speed": 3,
+        "damage": 1
+      }
+    }
   },
   {
     "sprite": "assets/enemies/mafia_unc.png",
@@ -274,6 +283,15 @@
       "is_gun": true,
       "ammo": 100,
       "maxAmmo": 100
+    },
+    "drops": {
+      "name": "Suit",
+      "sprite": "assets/player/playerSuit.png",
+      "stats": {
+        "health": 2,
+        "speed": 0,
+        "damage": 0
+      }
     }
   }
 ]
