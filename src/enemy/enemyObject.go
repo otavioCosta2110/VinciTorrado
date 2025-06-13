@@ -509,3 +509,36 @@ func (e *Enemy) Explode(p system.Player) {
 
 	audio.PlayExplosionSound()
 }
+
+// girlfriendMonster json
+// {
+//   "sprite": "assets/enemies/gf_monster.png",
+//   "X": 500,
+//   "Y": 400,
+//   "activate_pos_X": 0,
+//   "activate_pos_Y": 0,
+//   "width": 64,
+//   "height": 64,
+//   "health": 6,
+//   "damage": 1,
+//   "speed": 9,
+//   "windUpTime": 200,
+//   "scale": 4,
+//   "type": "gf_monster",
+//   "weapon": {
+//     "sprite": "assets/weapons/knife.png",
+//     "hitbox_X": 30,
+//     "hitbox_Y": 0,
+//     "offset_X": 9,
+//     "offset_Y": 0,
+//     "width": 32,
+//     "height": 32,
+//     "stats": {
+//       "health": 0,
+//       "speed": 0,
+//       "damage": 1
+//     },
+//     "health": 8,
+//     "scale": 4
+//   }
+// },

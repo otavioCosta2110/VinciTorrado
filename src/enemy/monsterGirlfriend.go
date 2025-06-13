@@ -1,4 +1,4 @@
-// TODO: som de correr, grunidos, som de bater na parede
+// TODO: grunidos, som de bater na parede
 package enemy
 
 import (

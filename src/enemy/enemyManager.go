@@ -1,7 +1,6 @@
 package enemy
 
 import (
-	// "math/rand"
 	"otaviocosta2110/vincitorrado/src/audio"
 	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/props"
