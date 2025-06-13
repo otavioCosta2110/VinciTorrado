@@ -33,10 +33,10 @@ const (
 
 	// feature flags
 	oneHealthEnemies bool   = false
-	enableMusic      bool   = false
+	enableMusic      bool   = true
 	enableSoundFxs   bool   = true
 	skipCutscenes    bool   = true
-	startingMap      string = "bar"
+	startingMap      string = "city"
 )
 
 type GameState struct {
