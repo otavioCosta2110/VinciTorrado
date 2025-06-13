@@ -5,12 +5,10 @@
     "width": 32,
     "height": 32,
     "scale": 4,
-    "normal_texture": "assets/props/mesa.png",
-    "kicked_texture": "assets/props/mesa_tombada.png",
-    "loot": [
-      "Cachaca"
-    ],
-    "type": "trash"
+    "normal_texture": "assets/props/jukebox.png",
+    "kicked_texture": "assets/props/broken_jukebox.png",
+    "loot": [],
+    "type": "jukebox"
   },
   {
     "X": 300,
