@@ -12,6 +12,8 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
+const batchSize = 10
+
 type EnemyManager struct {
 	Enemies         []*Enemy
 	ActiveEnemies   []*Enemy
@@ -24,34 +26,7 @@ type EnemyManager struct {
 func (em *EnemyManager) Update(p system.Player, s screen.Screen, m *string, prps []*props.Prop, buildings *rl.Texture2D, isPaused *bool) {
 	for _, enemy := range em.Enemies {
 		if enemy.Object.Destroyed && enemy.EnemyType == "mafia_boss" {
-			if !enemy.Exploded {
-				if !enemy.HasExplosionPlayedSound {
-					audio.PlayBombBippingSound()
-					enemy.ExplosionStart = time.Now()
-					enemy.HasExplosionPlayedSound = true
-					enemy.ExplosionElapsed = 0
-				}
-
-				if *isPaused && !enemy.ExplosionPaused {
-					enemy.ExplosionPaused = true
-					enemy.ExplosionPauseTime = time.Now()
-					audio.PauseBombBippingSound()
-				} else if !*isPaused && enemy.ExplosionPaused {
-					enemy.ExplosionPaused = false
-					enemy.ExplosionElapsed += time.Since(enemy.ExplosionPauseTime)
-					audio.ResumeBombBippingSound()
-				}
-
-				if !*isPaused {
-					elapsed := time.Since(enemy.ExplosionStart) - enemy.ExplosionElapsed
-					if elapsed >= time.Duration(5.071*float64(time.Second)) && !enemy.Exploded {
-						enemy.Explode(p)
-						enemy.Exploded = true
-						explodedBuildingsPath := "assets/scenes/bar_exploded.png"
-						*buildings = system.LoadScaledTexture(explodedBuildingsPath, enemy.Object.Scale)
-					}
-				}
-			}
+			em.updateBossExplosion(enemy, p, isPaused, buildings)
 		}
 	}
 
@@ -78,14 +53,18 @@ func (em *EnemyManager) Update(p system.Player, s screen.Screen, m *string, prps
 		}
 	}
 
-	for i := len(em.ActiveEnemies) - 1; i >= 0; i-- {
-		enemy := em.ActiveEnemies[i]
-		enemy.Update(p, s, prps)
-		if enemy.Object.Destroyed {
-			em.ActiveEnemies = slices.Delete(em.ActiveEnemies, i, i+1)
+	for i := 0; i < len(em.ActiveEnemies); i += batchSize {
+		end := min(i+batchSize, len(em.ActiveEnemies))
+		for j := i; j < end; j++ {
+			enemy := em.ActiveEnemies[j]
+			enemy.Update(p, s, prps)
+			if enemy.Object.Destroyed {
+				em.ActiveEnemies = slices.Delete(em.ActiveEnemies, j, j+1)
+				end--
+				j--
+			}
 		}
 	}
-
 }
 
 func isInCameraBounds(enemy *Enemy, cameraBounds rl.Rectangle) bool {
@@ -108,16 +87,16 @@ func (em *EnemyManager) RemoveActiveEnemy(enemy *Enemy) {
 }
 
 func (em *EnemyManager) Draw() {
-	enemies := em.Enemies
-	sort.Slice(enemies, func(i, j int) bool {
-		return enemies[i].Layer < enemies[j].Layer
+	sort.Slice(em.Enemies, func(i, j int) bool {
+		return em.Enemies[i].Layer < em.Enemies[j].Layer
 	})
-	for _, enemy := range enemies {
+	for _, enemy := range em.Enemies {
 		if !enemy.Object.Destroyed {
 			enemy.Draw()
 		}
 	}
 }
+
 func (em *EnemyManager) DrawDead() {
 	enemies := em.Enemies
 	sort.Slice(enemies, func(i, j int) bool {
@@ -134,4 +113,35 @@ func (em *EnemyManager) AddEnemy(e *Enemy) {
 	em.Enemies = append(em.Enemies, e)
 	em.InactiveEnemies = append(em.InactiveEnemies, e)
 	em.NumEnemies++
+}
+
+func (em *EnemyManager) updateBossExplosion(enemy *Enemy, p system.Player, isPaused *bool, buildings *rl.Texture2D) {
+	if !enemy.Exploded {
+		if !enemy.HasExplosionPlayedSound {
+			audio.PlayBombBippingSound()
+			enemy.ExplosionStart = time.Now()
+			enemy.HasExplosionPlayedSound = true
+			enemy.ExplosionElapsed = 0
+		}
+
+		if *isPaused && !enemy.ExplosionPaused {
+			enemy.ExplosionPaused = true
+			enemy.ExplosionPauseTime = time.Now()
+			audio.PauseBombBippingSound()
+		} else if !*isPaused && enemy.ExplosionPaused {
+			enemy.ExplosionPaused = false
+			enemy.ExplosionElapsed += time.Since(enemy.ExplosionPauseTime)
+			audio.ResumeBombBippingSound()
+		}
+
+		if !*isPaused {
+			elapsed := time.Since(enemy.ExplosionStart) - enemy.ExplosionElapsed
+			if elapsed >= time.Duration(5.071*float64(time.Second)) && !enemy.Exploded {
+				enemy.Explode(p)
+				enemy.Exploded = true
+				explodedBuildingsPath := "assets/scenes/bar_exploded.png"
+				*buildings = system.LoadScaledTexture(explodedBuildingsPath, enemy.Object.Scale)
+			}
+		}
+	}
 }
