@@ -158,7 +158,6 @@ func (a *PlayerMoveAction) Update() bool {
 			Sprite:         a.object.GetObject().Sprite,
 			Scale:          a.object.GetObject().Scale,
 			Destroyed:      a.object.GetObject().Destroyed,
-			IsKicking:      a.object.GetObject().IsKicking,
 			Flipped:        a.object.GetObject().Flipped,
 		},
 	)
@@ -180,7 +179,6 @@ func (a *PlayerMoveAction) Update() bool {
 					Sprite:         a.object.GetObject().Sprite,
 					Scale:          a.object.GetObject().Scale,
 					Destroyed:      a.object.GetObject().Destroyed,
-					IsKicking:      a.object.GetObject().IsKicking,
 					Flipped:        false,
 				},
 			)
@@ -200,7 +198,6 @@ func (a *PlayerMoveAction) Update() bool {
 					Sprite:         a.object.GetObject().Sprite,
 					Scale:          a.object.GetObject().Scale,
 					Destroyed:      a.object.GetObject().Destroyed,
-					IsKicking:      a.object.GetObject().IsKicking,
 					Flipped:        true,
 				},
 			)

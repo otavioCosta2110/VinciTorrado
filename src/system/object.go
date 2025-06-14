@@ -6,7 +6,7 @@ import (
 )
 
 type Object struct {
-	X, Y, Z        int32
+	X, Y           int32
 	Width          int32
 	Height         int32
 	KnockbackX     int32
@@ -18,8 +18,7 @@ type Object struct {
 	Sprite         sprites.Sprite
 	Scale          int32
 	Destroyed      bool
-	IsKicking      bool
-	Flipped         bool
+	Flipped        bool
 }
 
 func (obj *Object) UpdateAnimation(animationDelay int, framesX, framesY []int) {
