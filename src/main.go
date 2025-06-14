@@ -34,7 +34,7 @@ const (
 	// feature flags
 	oneHealthEnemies bool   = true
 	enableMusic      bool   = false
-	enableSoundFxs   bool   = false
+	enableSoundFxs   bool   = true
 	skipCutscenes    bool   = true
 	startingMap      string = "bar"
 )
@@ -207,9 +207,8 @@ func gameLoop(gs *GameState) {
 
 		if gs.Cutscene != nil && gs.Cutscene.IsPlaying() {
 			gs.Cutscene.Update()
-		} else if !gs.Menu.IsVisible {
-			update(gs)
 		}
+		update(gs)
 
 		draw(gs)
 	}
@@ -219,6 +218,13 @@ func update(gs *GameState) {
 	if system.GameOverFlag || gs.Cutscene.IsPlaying() {
 		return
 	}
+
+	gs.EnemyManager.Update(gs.Player, *gs.Screen, gs.Music, gs.Props, gs.Buildings, &gs.Menu.IsVisible)
+
+	if gs.Menu.IsVisible {
+		return
+	}
+
 	if gs.Player.IsKicking && time.Since(gs.Player.LastKickTime) > 200*time.Millisecond {
 		gs.Player.IsKicking = false
 		gs.Player.Object.FrameY = 0
@@ -275,7 +281,6 @@ func update(gs *GameState) {
 		}
 	}
 
-	gs.EnemyManager.Update(gs.Player, *gs.Screen, gs.Music, gs.Props, gs.Buildings)
 	gs.Player.Update(gs.EnemyManager, *gs.Screen)
 
 	activeEnemies := []*enemy.Enemy{}

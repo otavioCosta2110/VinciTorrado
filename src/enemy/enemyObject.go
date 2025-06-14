@@ -50,6 +50,9 @@ type Enemy struct {
 	ChargeDirection           rl.Vector2
 	MaxHealth                 int32
 	LastHealthDecrease        time.Time
+	ExplosionPauseTime        time.Time
+	ExplosionPaused           bool
+	ExplosionElapsed          time.Duration
 }
 
 func (e *Enemy) GetObject() system.Object {

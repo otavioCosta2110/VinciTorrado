@@ -8,7 +8,6 @@ import (
 	"time"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
-	// "slices"
 )
 
 const (
@@ -23,7 +22,6 @@ func (p *Player) Update(em *enemy.EnemyManager, screen screen.Screen) {
 	}
 
 	p.HandleAttackInput()
-	// p.UpdateProjectiles(em)
 
 	for _, enemy := range em.Enemies {
 		enemyObject := enemy.GetObject()
@@ -47,13 +45,8 @@ func (p *Player) Draw() {
 		playerWidth = -playerWidth
 	}
 
-	sourceRec := rl.NewRectangle(
-		float32(p.Object.FrameX)*float32(p.Object.Sprite.SpriteWidth),
-		float32(p.Object.FrameY)*float32(p.Object.Sprite.SpriteHeight),
-		playerWidth,
-		float32(p.Object.Sprite.SpriteHeight),
-	)
 
+	sourceRec := p.Object.Sprite.GetSpriteByCoordinates(p.Object.FrameX, p.Object.FrameY, int32(playerWidth), p.Object.Sprite.SpriteHeight)
 	destinationRec := rl.NewRectangle(
 		float32(p.Object.X),
 		float32(p.Object.Y),
@@ -89,7 +82,6 @@ func (p *Player) Draw() {
 	if p.Weapon != nil {
 		p.Weapon.DrawEquipped(&p.Object)
 	}
-	// p.DrawProjectiles()
 }
 
 func (p *Player) TakeDamage(damage int32, eObj system.Object) {

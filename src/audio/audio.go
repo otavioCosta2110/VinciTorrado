@@ -81,6 +81,15 @@ func PlayBombBippingSound() {
 func PlayExplosionSound() {
 	rl.PlaySound(ExplosionSound)
 }
+
+func PauseBombBippingSound() {
+    rl.PauseSound(BombBippingSound)
+}
+
+func ResumeBombBippingSound() {
+    rl.ResumeSound(BombBippingSound)
+}
+
 func PlayGfRunningSound() {
 	rl.PlaySound(GfRunningSound)
 }
