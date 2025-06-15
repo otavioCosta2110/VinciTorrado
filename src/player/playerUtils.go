@@ -47,8 +47,11 @@ func (p *Player) Draw() {
 		playerWidth = -playerWidth
 	}
 
-
-	sourceRec := p.Object.Sprite.GetSpriteByCoordinates(p.Object.FrameX, p.Object.FrameY, int32(playerWidth), p.Object.Sprite.SpriteHeight)
+	sourceRec := p.Object.Sprite.GetSpriteByCoordinates(
+		p.Object.FrameX,
+		p.Object.FrameY,
+		int32(playerWidth),
+		p.Object.Sprite.SpriteHeight)
 
 	destinationRec := rl.NewRectangle(
 		float32(p.Object.X),
@@ -71,9 +74,9 @@ func (p *Player) Draw() {
 		color,
 	)
 
-	if p.Equipped != nil && p.Equipped.IsEquipped && p.HatSprite.Texture.ID != 0 {
+	if p.Equipped != nil && p.Equipped.IsEquipped {
 		rl.DrawTexturePro(
-			p.HatSprite.Texture,
+			p.Equipped.Object.Sprite.Texture,
 			sourceRec,
 			destinationRec,
 			origin,
@@ -154,7 +157,7 @@ func (p *Player) SetObject(obj system.Object) {
 }
 
 func (p *Player) IsActive() bool {
-	return true
+	return !p.Object.Destroyed
 }
 func (p *Player) SetActive(bool) {}
 
@@ -174,7 +177,7 @@ func (p *Player) Reset() {
 	}
 
 	for _, item := range p.InitialItems {
-		newItem := *item 
+		newItem := *item
 		p.AddToInventory(&newItem)
 
 		if p.Equipped != nil && p.Equipped.Name == item.Name {
@@ -183,7 +186,7 @@ func (p *Player) Reset() {
 	}
 
 	if p.InitialWeapon != nil {
-		newWeapon := *p.InitialWeapon 
+		newWeapon := *p.InitialWeapon
 		p.PickUp(newWeapon)
 	}
 

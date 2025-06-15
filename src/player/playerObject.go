@@ -9,8 +9,6 @@ import (
 	"time"
 
 	"slices"
-
-	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 type Player struct {
@@ -23,7 +21,6 @@ type Player struct {
 	Equipped       *equipment.Equipment
 	Equipment      []*equipment.Equipment
 	Consumables    []*equipment.Equipment
-	HatSprite      sprites.Sprite
 	Screen         *screen.Screen
 	Weapon         *weapon.Weapon
 	LastAttackTime time.Time
@@ -83,8 +80,6 @@ func (p *Player) Equip(item *equipment.Equipment) {
 	p.MaxHealth += p.Equipped.Stats.Life
 	p.Damage += p.Equipped.Stats.Damage
 	p.Speed += p.Equipped.Stats.Speed
-
-	p.HatSprite = item.Object.Sprite
 }
 
 func (p *Player) Unequip() {
@@ -103,10 +98,6 @@ func (p *Player) Unequip() {
 }
 func (p *Player) HasEquipment() bool {
 	return p.Equipped != nil
-}
-
-func (p *Player) Cleanup() {
-	rl.UnloadTexture(p.HatSprite.Texture)
 }
 
 func (p *Player) UseConsumable(index int) {

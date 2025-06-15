@@ -106,7 +106,7 @@ func (a *WaitAction) Update() bool {
 	return a.elapsed >= a.duration
 }
 
-type PlayerMoveAction struct {
+type ObjectMoveAction struct {
 	object    system.Live
 	targetX   float32
 	targetY   float32
@@ -115,8 +115,8 @@ type PlayerMoveAction struct {
 	completed bool
 }
 
-func NewObjectMoveAction(o system.Live, targetX, targetY, speed float32, animation string) *PlayerMoveAction {
-	return &PlayerMoveAction{
+func NewObjectMoveAction(o system.Live, targetX, targetY, speed float32, animation string) *ObjectMoveAction {
+	return &ObjectMoveAction{
 		object:    o,
 		targetX:   targetX,
 		targetY:   targetY,
@@ -126,7 +126,7 @@ func NewObjectMoveAction(o system.Live, targetX, targetY, speed float32, animati
 	}
 }
 
-func (a *PlayerMoveAction) Update() bool {
+func (a *ObjectMoveAction) Update() bool {
 	if a.completed {
 		return true
 	}
@@ -143,6 +143,7 @@ func (a *PlayerMoveAction) Update() bool {
 	dx = dx / distance * a.speed
 	dy = dy / distance * a.speed
 
+	println("Moving object to target:", int32(a.object.GetObject().X + int32(dx),), int32(a.object.GetObject().Y))
 	a.object.SetObject(
 		system.Object{
 			X:              a.object.GetObject().X + int32(dx),

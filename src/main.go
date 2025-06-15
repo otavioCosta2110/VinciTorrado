@@ -36,11 +36,11 @@ const (
 	GameRunningState
 
 	// feature flags
-	oneHealthEnemies   bool   = true
+	playerInfiniteLife bool   = false
+	oneHealthEnemies   bool   = false
 	enableMusic        bool   = false
 	enableSoundFxs     bool   = true
-	skipCutscenes      bool   = true
-	playerInfiniteLife bool   = false
+	skipCutscenes      bool   = false
 	startingMap        string = "city"
 )
 

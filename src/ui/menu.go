@@ -144,16 +144,16 @@ func (m *Menu) getItemIconPos(item *equipment.Equipment) rl.Rectangle {
 	}
 
 	iconMap := map[string]rl.Rectangle{
-		"Turbante": rl.NewRectangle(32, 32, 32, 32),
+		"Turban": rl.NewRectangle(32, 32, 32, 32),
 		"Suit":     rl.NewRectangle(64, 32, 32, 32),
 		"Shoes":    rl.NewRectangle(96, 32, 32, 32),
 	}
 
 	consumableMap := map[string]rl.Rectangle{
-		"Hamburgão":  rl.NewRectangle(0, 0, 32, 32),
-		"Saunduiche": rl.NewRectangle(32, 0, 32, 32),
+		"Hamburger":  rl.NewRectangle(0, 0, 32, 32),
+		"Sandwich": rl.NewRectangle(32, 0, 32, 32),
 		"Cachaca":    rl.NewRectangle(0, 32, 32, 32),
-		"guarana":    rl.NewRectangle(0, 64, 32, 32),
+		"Soda":    rl.NewRectangle(0, 64, 32, 32),
 	}
 
 	if rect, exists := iconMap[item.Name]; exists {
@@ -226,7 +226,7 @@ func (m *Menu) drawPlayerPreview(x, y float32) {
 
 	if m.PlayerReference.HasEquipment() {
 		rl.DrawTexturePro(
-			m.PlayerReference.HatSprite.Texture,
+			m.PlayerReference.Equipped.Object.Sprite.Texture,
 			sourceRec,
 			destinationRec,
 			origin,

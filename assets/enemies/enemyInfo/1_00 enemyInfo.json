@@ -4,7 +4,6 @@
     "X": 1500,
     "Y": 650,
     "activate_pos_X": 0,
-    "activate_pos_Y": 0,
     "width": 32,
     "height": 32,
     "health": 6,
@@ -34,7 +33,6 @@
     "X": 1400,
     "Y": 500,
     "activate_pos_X": 0,
-    "activate_pos_Y": 0,
     "width": 32,
     "height": 32,
     "health": 6,
@@ -73,8 +71,9 @@
   },
   {
     "sprite": "assets/enemies/bald_woman_red.png",
-    "X": 2000,
-    "Y": 400,
+    "X": 2800,
+    "Y": 700,
+    "activate_pos_X": 2500,
     "width": 32,
     "height": 32,
     "health": 4,
@@ -82,6 +81,47 @@
     "speed": 3,
     "windUpTime": 20,
     "scale": 4
+  },
+  {
+    "sprite": "assets/enemies/bald_blue.png",
+    "X": 2500,
+    "Y": 350,
+    "width": 32,
+    "height": 32,
+    "health": 6,
+    "damage": 1,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4
+  },
+  {
+    "sprite": "assets/enemies/bald.png",
+    "X": 3000,
+    "Y": 650,
+    "activate_pos_X": 2500,
+    "width": 32,
+    "height": 32,
+    "health": 6,
+    "damage": 1,
+    "speed": 2,
+    "windUpTime": 200,
+    "scale": 4,
+    "weapon": {
+      "sprite": "assets/weapons/knife.png",
+      "hitbox_X": 30,
+      "hitbox_Y": 0,
+      "offset_X": 9,
+      "offset_Y": 0,
+      "width": 32,
+      "height": 32,
+      "stats": {
+        "health": 0,
+        "speed": 0,
+        "damage": 1
+      },
+      "health": 8,
+      "scale": 4
+    }
   },
   {
     "sprite": "assets/enemies/dwarf.png",
@@ -95,7 +135,7 @@
     "windUpTime": 0,
     "scale": 4,
     "drops": {
-      "name": "Turbante",
+      "name": "Turban",
       "sprite": "assets/player/playerTurbante.png",
       "stats": {
         "health": 1,
@@ -103,6 +143,62 @@
         "damage": 1
       }
     }
+  },
+  {
+    "sprite": "assets/enemies/bald_woman_red.png",
+    "X": 4200,
+    "Y": 448,
+    "activate_pos_X": 3520,
+    "activate_pos_Y": 350,
+    "width": 32,
+    "height": 32,
+    "health": 3,
+    "damage": 1,
+    "speed": 2,
+    "windUpTime": 20,
+    "scale": 4
+  },
+  {
+    "sprite": "assets/enemies/bald_woman.png",
+    "X": 3800,
+    "Y": 700,
+    "activate_pos_X": 3520,
+    "activate_pos_Y": 350,
+    "width": 32,
+    "height": 32,
+    "health": 3,
+    "damage": 1,
+    "speed": 2,
+    "windUpTime": 20,
+    "scale": 4
+  },
+  {
+    "sprite": "assets/enemies/bald_woman_red.png",
+    "X": 3700,
+    "Y": 300,
+    "activate_pos_X": 3520,
+    "activate_pos_Y": 350,
+    "width": 32,
+    "height": 32,
+    "health": 3,
+    "damage": 1,
+    "speed": 2,
+    "windUpTime": 20,
+    "scale": 4
+  },
+  {
+    "sprite": "assets/enemies/bald_woman.png",
+    "X": 3850,
+    "Y": 478,
+    "activate_pos_X": 3520,
+    "activate_pos_Y": 350,
+    "width": 32,
+    "height": 32,
+    "health": 3,
+    "damage": 1,
+    "speed": 2,
+    "windUpTime": 20,
+    "scale": 4
   },
   {
     "sprite": "assets/enemies/bald_woman.png",
@@ -137,7 +233,6 @@
     "X": 3720,
     "Y": 324,
     "activate_pos_X": 3520,
-    "activate_pos_Y": 350,
     "width": 32,
     "height": 32,
     "health": 3,
@@ -151,7 +246,6 @@
     "X": 5000,
     "Y": 500,
     "activate_pos_X": 4850,
-    "activate_pos_Y": 350,
     "width": 32,
     "height": 32,
     "health": 20,

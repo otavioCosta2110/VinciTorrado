@@ -114,6 +114,7 @@ func (th *TransitionHandler) TransitionMap(mapName string) {
 		music := "mission1"
 		*th.Music = &music
 		if !th.SkipCutscenes {
+			println("Starting city intro cutscene")
 			(*th.Cutscene).IntroCutscenes(th.Player, th.Girfriend, th.EnemyManager)
 			(*th.Cutscene).Start()
 		}

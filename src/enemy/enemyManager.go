@@ -12,8 +12,6 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-const batchSize = 10
-
 type EnemyManager struct {
 	Enemies         []*Enemy
 	ActiveEnemies   []*Enemy
@@ -53,16 +51,11 @@ func (em *EnemyManager) Update(p system.Player, s screen.Screen, m *string, prps
 		}
 	}
 
-	for i := 0; i < len(em.ActiveEnemies); i += batchSize {
-		end := min(i+batchSize, len(em.ActiveEnemies))
-		for j := i; j < end; j++ {
-			enemy := em.ActiveEnemies[j]
-			enemy.Update(p, s, prps)
-			if enemy.Object.Destroyed {
-				em.ActiveEnemies = slices.Delete(em.ActiveEnemies, j, j+1)
-				end--
-				j--
-			}
+	for i := len(em.ActiveEnemies) - 1; i >= 0; i-- {
+		enemy := em.ActiveEnemies[i]
+		enemy.Update(p, s, prps)
+		if enemy.Object.Destroyed {
+			em.ActiveEnemies = slices.Delete(em.ActiveEnemies, i, i+1)
 		}
 	}
 }
