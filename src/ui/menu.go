@@ -18,10 +18,10 @@ const (
 )
 
 type EquipmentSlot struct {
-	Rect     rl.Rectangle
-	IsActive bool
-	IconPos  rl.Rectangle
-	Item     *equipment.Equipment
+	Rect    rl.Rectangle
+	IconPos rl.Rectangle
+	Item    *equipment.Equipment
+	IsEmpty bool
 }
 
 type Menu struct {
@@ -29,14 +29,23 @@ type Menu struct {
 	IsVisible       bool
 	PlayerSprite    *sprites.Sprite
 	PlayerReference *player.Player
-	EquipmentSlots  []EquipmentSlot
-	SelectedSlot    int
-	Columns         int
+
+	EquipmentSlots []EquipmentSlot
+	SelectedSlot   int
+	Columns        int
+
 	IconSheet       rl.Texture2D
 	ConsumableSheet rl.Texture2D
-	SlotWidth       float32
-	SlotHeight      float32
-	SlotSpacing     float32
+
+	SlotWidth   float32
+	SlotHeight  float32
+	SlotSpacing float32
+
+	menuMoveSound   rl.Sound
+	menuSelectSound rl.Sound
+
+	screenWidth  int
+	screenHeight int
 }
 
 func NewMenu(player *player.Player, sprite *sprites.Sprite) *Menu {
@@ -45,44 +54,44 @@ func NewMenu(player *player.Player, sprite *sprites.Sprite) *Menu {
 		IsVisible:       false,
 		PlayerSprite:    sprite,
 		PlayerReference: player,
-		SelectedSlot:    0,
+		SelectedSlot:    -1,
 		Columns:         2,
-		IconSheet:       rl.LoadTexture("assets/ui/equipamentos.png"),
-		ConsumableSheet: rl.LoadTexture("assets/ui/items.png"),
 		SlotWidth:       120,
 		SlotHeight:      120,
 		SlotSpacing:     50,
+		screenWidth:     rl.GetScreenWidth(),
+		screenHeight:    rl.GetScreenHeight(),
 	}
 
+	menu.loadResources()
 	menu.initEquipmentSlots()
+
 	return menu
 }
 
+func (m *Menu) loadResources() {
+	m.IconSheet = rl.LoadTexture("assets/ui/equipamentos.png")
+	m.ConsumableSheet = rl.LoadTexture("assets/ui/items.png")
+	m.menuMoveSound = rl.LoadSound("assets/sounds/menu_move.mp3")
+	m.menuSelectSound = rl.LoadSound("assets/sounds/menu_selected.mp3")
+}
+
+func (m *Menu) Unload() {
+	rl.UnloadTexture(m.IconSheet)
+	rl.UnloadTexture(m.ConsumableSheet)
+	rl.UnloadSound(m.menuMoveSound)
+	rl.UnloadSound(m.menuSelectSound)
+}
+
 func (m *Menu) initEquipmentSlots() {
-	startX := float32(rl.GetScreenWidth())/2 - (float32(m.Columns)*m.SlotWidth)/2 + 50
-	startY := float32(rl.GetScreenHeight() / 5)
+	startX := float32(m.screenWidth)/2 - (float32(m.Columns)*m.SlotWidth)/2 + 50
+	startY := float32(m.screenHeight / 5)
 
-	inventorySize := len(m.PlayerReference.Equipment)
+	m.EquipmentSlots = make([]EquipmentSlot, 0, len(m.PlayerReference.Equipment))
 
-	if inventorySize == 0 {
-		inventorySize = 0
-	}
-
-	m.EquipmentSlots = make([]EquipmentSlot, 0, inventorySize)
-
-	for i := range inventorySize {
+	for i, item := range m.PlayerReference.Equipment {
 		row := i / m.Columns
 		col := i % m.Columns
-
-		var item *equipment.Equipment
-		var iconPos rl.Rectangle
-
-		if i < len(m.PlayerReference.Equipment) {
-			item = m.PlayerReference.Equipment[i]
-			iconPos = m.getItemIconPos(item)
-		} else {
-			iconPos = rl.NewRectangle(0, 0, 32, 32)
-		}
 
 		m.EquipmentSlots = append(m.EquipmentSlots, EquipmentSlot{
 			Rect: rl.NewRectangle(
@@ -91,15 +100,14 @@ func (m *Menu) initEquipmentSlots() {
 				m.SlotWidth,
 				m.SlotHeight,
 			),
-			IsActive: false,
-			IconPos:  iconPos,
-			Item:     item,
+			IconPos: m.getItemIconPos(item),
+			Item:    item,
+			IsEmpty: false,
 		})
 	}
 
-	m.SelectedSlot = -1
 	for i, slot := range m.EquipmentSlots {
-		if slot.Item != nil {
+		if !slot.IsEmpty {
 			m.SelectedSlot = i
 			break
 		}
@@ -111,32 +119,31 @@ func (m *Menu) getItemIconPos(item *equipment.Equipment) rl.Rectangle {
 		return rl.NewRectangle(0, 0, 32, 32)
 	}
 
-	println("Item Name:", item.Name, "Type:", item.Type)
-	switch {
-	case item.Name == "Turbante":
-		return rl.NewRectangle(32, 32, 32, 32)
-	case item.Name == "Suit":
-		return rl.NewRectangle(64, 32, 32, 32)
-	case item.Name == "Shoes":
-		return rl.NewRectangle(96, 32, 32, 32)
-	case item.Type == "consumable":
-		switch item.Name {
-		case "Hamburgão":
-			return rl.NewRectangle(0, 0, 32, 32)
-		case "Saunduiche":
-			return rl.NewRectangle(32, 0, 32, 32)
-		case "Cachaca":
-			println("Cachaca icon")
-			return rl.NewRectangle(0, 32, 32, 32)
-		case "guarana":
-			println("Guarana icon")
-			return rl.NewRectangle(0, 64, 32, 32)
-		default:
-			return rl.NewRectangle(64, 0, 32, 32)
-		}
-	default:
-		return rl.NewRectangle(0, 0, 32, 32)
+	iconMap := map[string]rl.Rectangle{
+		"Turbante": rl.NewRectangle(32, 32, 32, 32),
+		"Suit":     rl.NewRectangle(64, 32, 32, 32),
+		"Shoes":    rl.NewRectangle(96, 32, 32, 32),
 	}
+
+	consumableMap := map[string]rl.Rectangle{
+		"Hamburgão":  rl.NewRectangle(0, 0, 32, 32),
+		"Saunduiche": rl.NewRectangle(32, 0, 32, 32),
+		"Cachaca":    rl.NewRectangle(0, 32, 32, 32),
+		"guarana":    rl.NewRectangle(0, 64, 32, 32),
+	}
+
+	if rect, exists := iconMap[item.Name]; exists {
+		return rect
+	}
+
+	if item.Type == "consumable" {
+		if rect, exists := consumableMap[item.Name]; exists {
+			return rect
+		}
+		return rl.NewRectangle(64, 0, 32, 32)
+	}
+
+	return rl.NewRectangle(0, 0, 32, 32)
 }
 
 func (m *Menu) Draw() {
@@ -144,27 +151,41 @@ func (m *Menu) Draw() {
 		return
 	}
 
-	rl.DrawRectangle(0, 0, int32(rl.GetScreenWidth()), int32(rl.GetScreenHeight()), rl.Fade(rl.Black, 0.5))
+	rl.DrawRectangle(0, 0, int32(m.screenWidth), int32(m.screenHeight), rl.Fade(rl.Black, 0.5))
 
-	menuWidth := float32(rl.GetScreenWidth()) * 0.8
-	menuHeight := float32(rl.GetScreenHeight()) * 0.8
-	menuX := (float32(rl.GetScreenWidth()) - menuWidth) / 2
-	menuY := (float32(rl.GetScreenHeight()) - menuHeight) / 2
+	menuWidth := float32(m.screenWidth) * 0.8
+	menuHeight := float32(m.screenHeight) * 0.8
+	menuX := (float32(m.screenWidth) - menuWidth) / 2
+	menuY := (float32(m.screenHeight) - menuHeight) / 2
 
 	rl.DrawRectangleRounded(
 		rl.NewRectangle(menuX, menuY, menuWidth, menuHeight),
 		0.05, 10, rl.DarkGray,
 	)
 
-	playerPreviewX := menuX
-	playerPreviewY := menuY * 2
-	sourceRec := rl.NewRectangle(0, 0, float32(m.PlayerSprite.SpriteWidth), float32(m.PlayerSprite.SpriteHeight))
+	m.drawPlayerPreview(menuX, menuY)
 
+	m.drawEquipmentSlots()
+
+	if m.hasValidSelection() {
+		m.drawItemStats(menuX, menuY, menuWidth)
+	}
+
+	m.drawInstructions(menuWidth, menuHeight)
+}
+
+func (m *Menu) drawPlayerPreview(x, y float32) {
+	playerPreviewY := y * 2
+	sourceRec := rl.NewRectangle(0, 0,
+		float32(m.PlayerSprite.SpriteWidth),
+		float32(m.PlayerSprite.SpriteHeight))
+
+	scale := float32(m.PlayerReference.Object.Scale * 3)
 	destinationRec := rl.NewRectangle(
-		playerPreviewX,
+		x,
 		playerPreviewY,
-		float32(m.PlayerSprite.SpriteWidth)*float32(m.PlayerReference.Object.Scale*3),
-		float32(m.PlayerSprite.SpriteHeight)*float32(m.PlayerReference.Object.Scale*3),
+		float32(m.PlayerSprite.SpriteWidth)*scale,
+		float32(m.PlayerSprite.SpriteHeight)*scale,
 	)
 
 	origin := rl.NewVector2(0, 0)
@@ -188,90 +209,198 @@ func (m *Menu) Draw() {
 			rl.White,
 		)
 	}
+}
 
+func (m *Menu) drawEquipmentSlots() {
 	for i, slot := range m.EquipmentSlots {
 		color := rl.Gray
 		textColor := rl.White
-
 		if i == m.SelectedSlot {
 			color = rl.White
-			textColor = rl.White
 		}
-
-		if slot.Item == nil {
+		if slot.IsEmpty {
 			color = rl.Fade(rl.Gray, 0.3)
 			textColor = rl.Fade(rl.White, 0.5)
 		}
 
 		rl.DrawRectangleRounded(slot.Rect, 0.1, 5, color)
 
-		if slot.Item != nil {
-			var texture rl.Texture2D
+		if !slot.IsEmpty {
+			texture := m.IconSheet
 			if slot.Item.Type == "consumable" {
 				texture = m.ConsumableSheet
-			} else {
-				texture = m.IconSheet
 			}
+
+			iconRect := rl.NewRectangle(
+				slot.Rect.X+slot.Rect.Width/2-42.5,
+				slot.Rect.Y+slot.Rect.Height/2-42.5,
+				85,
+				85,
+			)
 
 			rl.DrawTexturePro(
 				texture,
 				slot.IconPos,
-				rl.NewRectangle(
-					slot.Rect.X+slot.Rect.Width/2-42.5,
-					slot.Rect.Y+slot.Rect.Height/2-42.5,
-					85,
-					85,
-				),
+				iconRect,
 				rl.NewVector2(0, 0),
 				0,
 				rl.White,
 			)
 
-			rl.DrawText(slot.Item.Name, int32(slot.Rect.X+2), int32(slot.Rect.Y-20), 20, textColor)
+			rl.DrawText(slot.Item.Name,
+				int32(slot.Rect.X+2),
+				int32(slot.Rect.Y-20),
+				20, textColor)
 		} else {
-			rl.DrawText("Empty", int32(slot.Rect.X+2), int32(slot.Rect.Y-20), 20, textColor)
+			rl.DrawText("Empty",
+				int32(slot.Rect.X+2),
+				int32(slot.Rect.Y-20),
+				20, textColor)
 		}
 	}
+}
 
+func (m *Menu) drawItemStats(x, y, width float32) {
+	item := m.EquipmentSlots[m.SelectedSlot].Item
+	statsX := x + width - 250
+	statsY := y + 50
+
+	rl.DrawRectangleRounded(
+		rl.NewRectangle(statsX, statsY, 200, 150),
+		0.1, 5, rl.Fade(rl.Black, 0.7),
+	)
+
+	rl.DrawText(item.Name, int32(statsX+10), int32(statsY+35), 20, rl.Gold)
+
+	yOffset := int32(60)
+	m.drawStat("Health: ", item.Stats.Life, statsX, statsY, &yOffset)
+	m.drawStat("Damage: ", item.Stats.Damage, statsX, statsY, &yOffset)
+	m.drawStat("Speed: ", item.Stats.Speed, statsX, statsY, &yOffset)
+
+	if item.Type == "consumable" {
+		rl.DrawText("Heal: "+strconv.Itoa(int(item.Stats.Heal)),
+			int32(statsX+10), int32(statsY)+yOffset+50, 20, rl.Green)
+	}
+}
+
+func (m *Menu) drawStat(label string, value int32, x, y float32, yOffset *int32) {
+	if value != 0 {
+		rl.DrawText(label, int32(x+10), int32(y)+*yOffset, 18, rl.White)
+		rl.DrawText(formatStat(int(value)),
+			int32(x+100), int32(y)+*yOffset, 18,
+			getStatColor(int(value)))
+		*yOffset += 25
+	}
+}
+
+func (m *Menu) drawInstructions(width, height float32) {
 	if m.PlayerReference.HasEquipment() {
-		rl.DrawText("Press U to unequip", int32(menuWidth)/5, int32(menuHeight), 20, rl.White)
+		rl.DrawText("Press U to unequip",
+			int32(width)/5, int32(height), 20, rl.White)
 	}
-	if m.SelectedSlot >= 0 && m.SelectedSlot < len(m.EquipmentSlots) && m.EquipmentSlots[m.SelectedSlot].Item != nil {
-		item := m.EquipmentSlots[m.SelectedSlot].Item
-		statsX := menuX + menuWidth - 250
-		statsY := menuY + 50
 
-		rl.DrawRectangleRounded(
-			rl.NewRectangle(statsX, statsY, 200, 150),
-			0.1, 5, rl.Fade(rl.Black, 0.7),
-		)
+	rl.DrawText("ESC to close",
+		int32(width)/5, int32(height)+30, 20, rl.White)
+}
 
-		rl.DrawText(item.Name, int32(statsX+10), int32(statsY+35), 20, rl.Gold)
+func (m *Menu) Update() {
+	if rl.IsKeyPressed(rl.KeyEscape) {
+		m.toggleVisibility()
+	}
 
-		yOffset := int32(60)
-		if item.Stats.Life != 0 {
-			rl.DrawText("Health: ", int32(statsX+10), int32(int32(statsY)+yOffset), 18, rl.White)
-			rl.DrawText(formatStat(int(item.Stats.Life)), int32(statsX+100), int32(int32(statsY)+yOffset), 18, getStatColor(int(item.Stats.Life)))
-			yOffset += 25
+	if !m.IsVisible {
+		return
+	}
+
+	m.handleNavigation()
+
+	if rl.IsKeyPressed(rl.KeyEnter) && m.hasValidSelection() {
+		m.handleItemSelection()
+	}
+
+	if rl.IsKeyPressed(rl.KeyU) && m.PlayerReference.HasEquipment() {
+		m.PlayerReference.Unequip()
+		rl.PlaySound(m.menuSelectSound)
+	}
+}
+
+func (m *Menu) toggleVisibility() {
+	m.IsVisible = !m.IsVisible
+	if m.IsVisible {
+		m.Refresh()
+	}
+}
+
+func (m *Menu) handleNavigation() {
+	prevSelected := m.SelectedSlot
+
+	if rl.IsKeyPressed(rl.KeyRight) {
+		m.findNextValidSlot(1)
+	} else if rl.IsKeyPressed(rl.KeyLeft) {
+		m.findNextValidSlot(-1)
+	} else if rl.IsKeyPressed(rl.KeyDown) {
+		m.findNextValidSlot(m.Columns)
+	} else if rl.IsKeyPressed(rl.KeyUp) {
+		m.findNextValidSlot(-m.Columns)
+	}
+
+	if prevSelected != m.SelectedSlot && m.SelectedSlot >= 0 {
+		rl.PlaySound(m.menuMoveSound)
+	}
+}
+
+func (m *Menu) handleItemSelection() {
+	item := m.EquipmentSlots[m.SelectedSlot].Item
+
+	if item.Type == "consumable" {
+		m.PlayerReference.UseConsumable(m.SelectedSlot)
+		m.Refresh()
+		rl.PlaySound(m.menuSelectSound)
+	} else {
+		if m.PlayerReference.Equipped != item {
+			m.PlayerReference.Unequip()
 		}
-
-		if item.Stats.Damage != 0 {
-			rl.DrawText("Damage: ", int32(statsX+10), int32(int32(statsY)+yOffset), 18, rl.White)
-			rl.DrawText(formatStat(int(item.Stats.Damage)), int32(statsX+100), int32(int32(statsY)+yOffset), 18, getStatColor(int(item.Stats.Damage)))
-			yOffset += 25
-		}
-
-		if item.Stats.Speed != 0 {
-			rl.DrawText("Speed: ", int32(statsX+10), int32(int32(statsY)+yOffset), 18, rl.White)
-			rl.DrawText(formatStat(int(item.Stats.Speed)), int32(statsX+100), int32(int32(statsY)+yOffset), 18, getStatColor(int(item.Stats.Speed)))
-			yOffset += 25
-		}
-
-		if item.Type == "consumable" {
-			rl.DrawText("Heal: "+strconv.Itoa(int(item.Stats.Heal)),
-				int32(statsX+10), int32(statsY)+yOffset+50, 20, rl.Green)
+		if m.PlayerReference.Equipped != item {
+			m.PlayerReference.Equip(item)
+			rl.PlaySound(m.menuSelectSound)
 		}
 	}
+}
+
+func (m *Menu) findNextValidSlot(step int) {
+	if len(m.EquipmentSlots) == 0 {
+		m.SelectedSlot = -1
+		return
+	}
+
+	start := max(m.SelectedSlot, 0)
+	slotCount := len(m.EquipmentSlots)
+
+	for i := 1; i <= slotCount; i++ {
+		next := (start + i*step) % slotCount
+		if next < 0 {
+			next += slotCount
+		}
+
+		if !m.EquipmentSlots[next].IsEmpty {
+			m.SelectedSlot = next
+			return
+		}
+	}
+
+	m.SelectedSlot = -1
+}
+
+func (m *Menu) hasValidSelection() bool {
+	return m.SelectedSlot >= 0 &&
+		m.SelectedSlot < len(m.EquipmentSlots) &&
+		!m.EquipmentSlots[m.SelectedSlot].IsEmpty
+}
+
+func (m *Menu) Refresh() {
+	m.screenWidth = rl.GetScreenWidth()
+	m.screenHeight = rl.GetScreenHeight()
+	m.initEquipmentSlots()
 }
 
 func formatStat(value int) string {
@@ -288,88 +417,4 @@ func getStatColor(value int) rl.Color {
 		return rl.Red
 	}
 	return rl.White
-}
-
-func (m *Menu) Update() {
-	if rl.IsKeyPressed(rl.KeyEscape) {
-		m.IsVisible = !m.IsVisible
-		m.Refresh()
-	}
-
-	if !m.IsVisible {
-		return
-	}
-
-	prevSelected := m.SelectedSlot
-
-	if rl.IsKeyPressed(rl.KeyRight) {
-		m.findNextValidSlot(1)
-	} else if rl.IsKeyPressed(rl.KeyLeft) {
-		m.findNextValidSlot(-1)
-	} else if rl.IsKeyPressed(rl.KeyDown) {
-		m.findNextValidSlot(m.Columns)
-	} else if rl.IsKeyPressed(rl.KeyUp) {
-		m.findNextValidSlot(-m.Columns)
-	}
-
-	if prevSelected != m.SelectedSlot && m.SelectedSlot >= 0 {
-		menu_move_sound := rl.LoadSound("assets/sounds/menu_move.mp3")
-		rl.PlaySound(menu_move_sound)
-	}
-
-	if rl.IsKeyPressed(rl.KeyEnter) && m.SelectedSlot >= 0 {
-		item := m.EquipmentSlots[m.SelectedSlot].Item
-		if item != nil {
-			if item.Type == "consumable" {
-				m.PlayerReference.UseConsumable(m.SelectedSlot)
-				m.Refresh()
-				menu_select_sound := rl.LoadSound("assets/sounds/menu_selected.mp3")
-				rl.PlaySound(menu_select_sound)
-			} else {
-				if m.PlayerReference.Equipped != m.EquipmentSlots[m.SelectedSlot].Item {
-					m.PlayerReference.Unequip()
-				}
-				if m.PlayerReference.Equipped != m.EquipmentSlots[m.SelectedSlot].Item {
-					m.PlayerReference.Equip(item)
-					menu_select_sound := rl.LoadSound("assets/sounds/menu_selected.mp3")
-					rl.PlaySound(menu_select_sound)
-				}
-			}
-		}
-	}
-
-	if rl.IsKeyPressed(rl.KeyU) && m.PlayerReference.HasEquipment() {
-		m.PlayerReference.Unequip()
-		menu_select_sound := rl.LoadSound("assets/sounds/menu_selected.mp3")
-		rl.PlaySound(menu_select_sound)
-	}
-}
-
-func (m *Menu) findNextValidSlot(step int) {
-	if len(m.EquipmentSlots) == 0 {
-		m.SelectedSlot = -1
-		return
-	}
-
-	start := max(m.SelectedSlot, 0)
-
-	for i := 1; i <= len(m.EquipmentSlots); i++ {
-		next := (start + i*step) % len(m.EquipmentSlots)
-		if next < 0 {
-			next += len(m.EquipmentSlots)
-		}
-
-		if m.EquipmentSlots[next].Item != nil {
-			m.SelectedSlot = next
-			return
-		}
-	}
-
-	if m.SelectedSlot >= len(m.EquipmentSlots) || m.EquipmentSlots[m.SelectedSlot].Item == nil {
-		m.SelectedSlot = -1
-	}
-}
-
-func (m *Menu) Refresh() {
-	m.initEquipmentSlots()
 }

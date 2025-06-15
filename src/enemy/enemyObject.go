@@ -127,12 +127,8 @@ func (e *Enemy) Draw() {
 		width = -float32(width)
 	}
 
-	sourceRec := rl.NewRectangle(
-		float32(e.Object.FrameX)*float32(e.Object.Sprite.SpriteWidth),
-		float32(e.Object.FrameY)*float32(e.Object.Sprite.SpriteWidth),
-		width,
-		float32(e.Object.Sprite.SpriteHeight),
-	)
+
+	sourceRec := e.Object.Sprite.GetSpriteByCoordinates(e.Object.FrameX, e.Object.FrameY, int32(width), e.Object.Sprite.SpriteHeight)
 
 	destinationRec := rl.NewRectangle(
 		float32(e.Object.X),

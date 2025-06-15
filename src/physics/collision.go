@@ -1,6 +1,9 @@
 package physics
 
-import "otaviocosta2110/vincitorrado/src/system"
+import (
+	"math"
+	"otaviocosta2110/vincitorrado/src/system"
+)
 
 func CheckCollision(obj1, obj2 system.Object) bool {
 	return obj1.X-obj1.Width/2 < obj2.X+obj2.Width/2 &&
@@ -10,8 +13,8 @@ func CheckCollision(obj1, obj2 system.Object) bool {
 }
 
 func ResolveCollision(a, b *system.Object) {
-	overlapX := (a.Width/2 + b.Width/2) - abs(a.X-b.X)
-	overlapY := (a.Height/2 + b.Height/2) - abs(a.Y-b.Y)
+	overlapX := float64(a.Width/2 + b.Width/2) - math.Abs(float64(a.X-b.X))
+	overlapY := float64(a.Height/2 + b.Height/2) - math.Abs(float64(a.Y-b.Y))
 
 	if overlapX <= 0 || overlapY <= 0 {
 		return
@@ -19,25 +22,19 @@ func ResolveCollision(a, b *system.Object) {
 
 	if overlapX < overlapY {
 		if a.X < b.X {
-			a.X -= overlapX
-			b.X += overlapX
+			a.X -= int32(overlapX)
+			b.X += int32(overlapX)
 		} else {
-			a.X += overlapX
-			b.X -= overlapX
+			a.X += int32(overlapX)
+			b.X -= int32(overlapX)
 		}
 	} else {
 		if a.Y < b.Y {
-			a.Y -= overlapY
-			b.Y += overlapY
+			a.Y -= int32(overlapY)
+			b.Y += int32(overlapY)
 		} else {
-			a.Y += overlapY
-			b.Y -= overlapY
+			a.Y += int32(overlapY)
+			b.Y -= int32(overlapY)
 		}
 	}
-}
-func abs(x int32) int32 {
-	if x < 0 {
-		return -x
-	}
-	return x
 }

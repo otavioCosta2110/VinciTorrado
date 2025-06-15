@@ -47,6 +47,7 @@ func (p *Player) Draw() {
 
 
 	sourceRec := p.Object.Sprite.GetSpriteByCoordinates(p.Object.FrameX, p.Object.FrameY, int32(playerWidth), p.Object.Sprite.SpriteHeight)
+
 	destinationRec := rl.NewRectangle(
 		float32(p.Object.X),
 		float32(p.Object.Y),
