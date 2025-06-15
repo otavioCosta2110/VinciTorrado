@@ -21,27 +21,33 @@ type Object struct {
 	Flipped        bool
 }
 
-func (obj *Object) UpdateAnimation(animationDelay int, framesX, framesY []int) {
-	if time.Since(obj.LastFrameTime).Milliseconds() > int64(animationDelay) {
-		currentIndex := -1
-		for i := range framesX {
-			if obj.FrameX == int32(framesX[i]) && obj.FrameY == int32(framesY[i]) {
-				currentIndex = i
-				break
-			}
-		}
-
-		if currentIndex == -1 {
-			obj.FrameX = int32(framesX[0])
-			obj.FrameY = int32(framesY[0])
-		} else {
-			nextIndex := (currentIndex + 1) % len(framesX)
-			obj.FrameX = int32(framesX[nextIndex])
-			obj.FrameY = int32(framesY[nextIndex])
-		}
-
-		obj.LastFrameTime = time.Now()
+func (obj *Object) UpdateAnimation(animationDelay int32, framesX, framesY []int32) {
+	if len(framesX) == 0 || len(framesY) == 0 || len(framesX) != len(framesY) {
+		return // invalid frame data
 	}
+
+	if time.Since(obj.LastFrameTime) < time.Duration(animationDelay)*time.Millisecond {
+		return
+	}
+
+	// Find current position in animation sequence
+	var found bool
+	for i := range framesX {
+		if obj.FrameX == framesX[i] && obj.FrameY == framesY[i] {
+			next := (i + 1) % len(framesX)
+			obj.FrameX = framesX[next]
+			obj.FrameY = framesY[next]
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		obj.FrameX = framesX[0]
+		obj.FrameY = framesY[0]
+	}
+
+	obj.LastFrameTime = time.Now()
 }
 
 func (obj *Object) SetKnockback(attackingObj Object) {

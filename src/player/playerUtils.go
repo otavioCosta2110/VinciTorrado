@@ -42,7 +42,7 @@ func (p *Player) Draw() {
 		}
 	}
 
-	var playerWidth float32 = float32(p.Object.Sprite.SpriteWidth)
+	var playerWidth = float32(p.Object.Sprite.SpriteWidth)
 	if p.Object.Flipped {
 		playerWidth = -playerWidth
 	}
@@ -126,26 +126,26 @@ func (p *Player) adjustKnockbackToScreenBounds() {
 	}
 }
 
-func (p *Player) isInvincible(duration int) bool {
+func (p *Player) isInvincible(duration int32) bool {
 	return time.Since(p.LastDamageTaken).Milliseconds() <= int64(duration)
 }
 
 func (p *Player) UpdateAnimation(animationName string) {
 	switch animationName {
 	case "walk":
-		p.runAnimation(300, []int{0, 1}, []int{0, 0})
+		p.runAnimation(300, []int32{0, 1}, []int32{0, 0})
 	case "punch":
-		p.runAnimation(50, []int{0, 1}, []int{1, 1})
+		p.runAnimation(50, []int32{0, 1}, []int32{1, 1})
 	case "kick":
-		p.runAnimation(50, []int{0}, []int{3})
+		p.runAnimation(50, []int32{0}, []int32{3})
 	case "hit":
-		p.runAnimation(100, []int{0, 1}, []int{2, 2})
+		p.runAnimation(100, []int32{0, 1}, []int32{2, 2})
 	case "default":
-		p.runAnimation(int(animationDelay), []int{0}, []int{0})
+		p.runAnimation(int32(animationDelay), []int32{0}, []int32{0})
 	}
 }
 
-func (p *Player) runAnimation(animationDelay int, framesX, framesY []int) {
+func (p *Player) runAnimation(animationDelay int32, framesX, framesY []int32) {
 	p.Object.UpdateAnimation(animationDelay, framesX, framesY)
 	if p.Weapon != nil {
 		p.Weapon.Object.UpdateAnimation(animationDelay, framesX, framesY)

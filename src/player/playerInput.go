@@ -18,12 +18,12 @@ const (
 )
 
 var (
-	framesWalkingX = []int{0, 1}
-	framesWalkingY = []int{0, 0}
-	framesAttackX  = []int{0, 1}
-	framesAttackY  = []int{1, 1}
-	frameKickX     = []int{0}
-	frameKickY     = []int{3}
+	framesWalkingX = []int32{0, 1}
+	framesWalkingY = []int32{0, 0}
+	framesAttackX  = []int32{0, 1}
+	framesAttackY  = []int32{1, 1}
+	frameKickX     = []int32{0}
+	frameKickY     = []int32{3}
 )
 
 func (player *Player) CheckMovement(screen screen.Screen) {
@@ -110,7 +110,7 @@ func (p *Player) CheckKick(kickables []physics.Kickable, items *[]*equipment.Equ
 		p.LastKickTime = time.Now()
 		p.Object.FrameY = 3
 		p.Object.FrameX = 0
-		p.Object.UpdateAnimation(50, []int{0}, []int{3})
+		p.Object.UpdateAnimation(50, []int32{0}, []int32{3})
 
 		kickWidth := p.Object.Width
 		kickHeight := p.Object.Height

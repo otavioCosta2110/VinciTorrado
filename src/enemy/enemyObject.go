@@ -30,7 +30,7 @@ type Enemy struct {
 	IsStunned                 bool
 	Active                    bool
 	StunEndTime               time.Time
-	Layer                     int
+	Layer                     int32
 	CanMove                   bool
 	WindUpTime                int64
 	isSpawning                bool
@@ -296,8 +296,10 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen, prps []*props.Prop
 
 	if e.IsStunned && time.Now().After(e.StunEndTime) {
 		e.IsStunned = false
-		if e.EnemyType == "gf_monster" {
-		}
+	}
+
+	if e.EnemyType == "gf_monster" {
+		e.UpdateGirlfriendHealth()
 	}
 
 	physics.TakeKnockback(&e.Object)
@@ -385,31 +387,31 @@ func (e *Enemy) TakeDamageFromBox(box system.Object) {
 func (e *Enemy) UpdateAnimation(animationName string) {
 	switch animationName {
 	case "walk":
-		e.runAnimation(300, []int{0, 1}, []int{0, 0})
+		e.runAnimation(300, []int32{0, 1}, []int32{0, 0})
 	case "punch":
-		e.runAnimation(50, []int{0, 1}, []int{1, 1})
+		e.runAnimation(50, []int32{0, 1}, []int32{1, 1})
 	case "kick":
-		e.runAnimation(50, []int{0}, []int{3})
+		e.runAnimation(50, []int32{0}, []int32{3})
 	case "hit":
-		e.runAnimation(100, []int{0, 1}, []int{2, 2})
+		e.runAnimation(100, []int32{0, 1}, []int32{2, 2})
 	case "fb_charge":
-		e.runAnimation(100, []int{0}, []int{1})
+		e.runAnimation(100, []int32{0}, []int32{1})
 	case "fb_attack":
-		e.runAnimation(0, []int{1}, []int{1})
+		e.runAnimation(0, []int32{1}, []int32{1})
 	case "fb_hit":
-		e.runAnimation(100, []int{1, 1}, []int{2, 2})
+		e.runAnimation(100, []int32{1, 1}, []int32{2, 2})
 	case "fb_walk_with_girl":
-		e.runAnimation(300, []int{0, 1}, []int{4, 4})
+		e.runAnimation(300, []int32{0, 1}, []int32{4, 4})
 	case "gf_running":
-		e.runAnimation(300, []int{1, 2}, []int{0, 0})
+		e.runAnimation(300, []int32{1, 2}, []int32{0, 0})
 	case "gf_stunned":
-		e.runAnimation(300, []int{0, 1}, []int{1, 1})
+		e.runAnimation(300, []int32{0, 1}, []int32{1, 1})
 	case "default":
-		e.runAnimation(int(animationDelay), []int{0}, []int{0})
+		e.runAnimation(int32(animationDelay), []int32{0}, []int32{0})
 	}
 }
 
-func (e *Enemy) runAnimation(animationDelay int, framesX, framesY []int) {
+func (e *Enemy) runAnimation(animationDelay int32, framesX, framesY []int32) {
 	e.Object.UpdateAnimation(animationDelay, framesX, framesY)
 	if e.Weapon != nil {
 		e.Weapon.Object.UpdateAnimation(animationDelay, framesX, framesY)

@@ -37,10 +37,10 @@ const (
 	// feature flags
 	playerInfiniteLife bool   = false
 	oneHealthEnemies   bool   = false
-	enableMusic        bool   = false
+	enableMusic        bool   = true
 	enableSoundFxs     bool   = true
 	skipCutscenes      bool   = false
-	startingMap        string = "bar"
+	startingMap        string = "city"
 )
 
 type GameState struct {
@@ -354,11 +354,6 @@ func update(gs *GameState) {
 		}
 	}
 
-	for _, e := range gs.EnemyManager.Enemies {
-		if e.EnemyType == "gf_monster" {
-			e.UpdateGirlfriendHealth()
-		}
-	}
 }
 
 func draw(gs *GameState) {
