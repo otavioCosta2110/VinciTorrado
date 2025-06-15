@@ -5,6 +5,7 @@ import (
 	"otaviocosta2110/vincitorrado/src/cutscene"
 	"otaviocosta2110/vincitorrado/src/enemy"
 	"otaviocosta2110/vincitorrado/src/equipment"
+	"otaviocosta2110/vincitorrado/src/gamestate"
 	"otaviocosta2110/vincitorrado/src/girlfriend"
 	"otaviocosta2110/vincitorrado/src/maps"
 	"otaviocosta2110/vincitorrado/src/objects"
@@ -44,26 +45,27 @@ const (
 )
 
 type GameState struct {
-	CurrentState int
-	NeedsRestart bool
-	StartMenu    *ui.StartMenu
-	Player       *player.Player
-	EnemyManager *enemy.EnemyManager
-	Screen       *screen.Screen
-	Kickables    []physics.Kickable
-	Items        []*equipment.Equipment
-	Props        []*props.Prop
-	Weapons      []*weapon.Weapon
-	Menu         ui.Menu
-	Music        *string
-	Cutscene     *cutscene.Cutscene
-	Girlfriend   *girlfriend.Girlfriend
-	Doors        []*props.Door
-	MapManager   *maps.MapManager
-	Buildings    *rl.Texture2D
-	Chao         rl.Texture2D
-	FloorPath    string
-	CurrentMap   string
+	CurrentState      int
+	NeedsRestart      bool
+	StartMenu         *ui.StartMenu
+	Player            *player.Player
+	EnemyManager      *enemy.EnemyManager
+	Screen            *screen.Screen
+	Kickables         []physics.Kickable
+	Items             []*equipment.Equipment
+	Props             []*props.Prop
+	Weapons           []*weapon.Weapon
+	Menu              ui.Menu
+	Music             *string
+	Cutscene          *cutscene.Cutscene
+	Girlfriend        *girlfriend.Girlfriend
+	Doors             []*props.Door
+	MapManager        *maps.MapManager
+	Buildings         *rl.Texture2D
+	Chao              rl.Texture2D
+	FloorPath         string
+	CurrentMap        string
+	TransitionHandler *gamestate.TransitionHandler
 }
 
 func main() {
@@ -215,7 +217,27 @@ func main() {
 		StartMenu:    startMenu,
 	}
 
-	transitionMap(&gameState, startingMap)
+	transitionHandler := gamestate.NewTransitionHandler(
+		gameState.Player,
+		gameState.EnemyManager,
+		gameState.Screen,
+		&gameState.Kickables,
+		&gameState.Items,
+		&gameState.Props,
+		&gameState.Doors,
+		gameState.MapManager,
+		&gameState.Buildings,
+		&gameState.Chao,
+		&gameState.CurrentMap,
+		&gameState.Music,
+		&gameState.Cutscene,
+		gameState.Girlfriend,
+		skipCutscenes,
+	)
+
+	transitionHandler.TransitionMap(startingMap)
+
+	gameState.TransitionHandler = transitionHandler
 	gameLoop(&gameState)
 }
 
@@ -348,7 +370,7 @@ func update(gs *GameState) {
 
 	for _, door := range gs.Doors {
 		if door.CheckTransition(gs.Player.GetObject(), canAdvance) {
-			transitionMap(gs, door.NextMap)
+			gs.TransitionHandler.TransitionMap(door.NextMap)
 			break
 		}
 	}
@@ -435,79 +457,6 @@ func drawBuildings(texture rl.Texture2D) {
 	rl.DrawTexture(texture, 0, 0, rl.White)
 }
 
-func transitionMap(gs *GameState, mapName string) {
-	if gs.Buildings.ID != 0 {
-		rl.UnloadTexture(*gs.Buildings)
-	}
-	if gs.Chao.ID != 0 {
-		rl.UnloadTexture(gs.Chao)
-	}
-	rl.UnloadTexture(*gs.Buildings)
-	rl.UnloadTexture(gs.Chao)
-
-	gs.Player.Object.FrameX = 0
-	gs.Player.Object.FrameY = 0
-	gs.Player.IsKicking = false
-	gs.Player.LastKickTime = time.Now().Add(-time.Hour)
-	gs.Player.RecordInitialEquipment()
-
-	newMap := gs.MapManager.Maps[mapName]
-	gs.CurrentMap = mapName
-
-	*gs.Buildings = system.LoadScaledTexture(newMap.Buildings, playerScale)
-	gs.Chao = system.LoadScaledTexture(newMap.Floor, playerScale)
-
-	enemies, err := enemy.LoadEnemiesFromJSON(newMap.EnemiesPath, playerScale)
-	if err != nil {
-		panic("Failed to load enemies: " + err.Error())
-	}
-
-	gs.EnemyManager = &enemy.EnemyManager{
-		CurrentMap: mapName,
-	}
-	for _, e := range enemies {
-		if oneHealthEnemies {
-			e.Health = 0
-		}
-		gs.EnemyManager.AddEnemy(e)
-	}
-	gs.Cutscene = cutscene.NewCutscene()
-
-	switch gs.CurrentMap {
-	case "city":
-		music := "mission1"
-		gs.Music = &music
-		if !skipCutscenes {
-			gs.Cutscene.IntroCutscenes(gs.Player, gs.Girlfriend, gs.EnemyManager)
-			gs.Cutscene.Start()
-		}
-	case "bar":
-		music := "mission2"
-		if !skipCutscenes {
-			gs.Cutscene.BarIntroCutscene(gs.Player, gs.Girlfriend, gs.EnemyManager)
-			gs.Cutscene.Start()
-		}
-		gs.Music = &music
-		audio.StopMusic()
-		audio.PlayMission2Music()
-	}
-
-	props, doors, err := props.LoadPropsFromJSON(newMap.PropsPath, gs.Items)
-	if err != nil {
-		panic("Failed to load props: " + err.Error())
-	}
-	gs.Props = props
-	gs.Doors = doors
-
-	gs.Player.Object.X = newMap.PlayerStartX
-	gs.Player.Object.Y = newMap.PlayerStartY
-	gs.Screen.ResetCamera()
-
-	gs.Kickables = nil
-	for _, prop := range gs.Props {
-		gs.Kickables = append(gs.Kickables, prop)
-	}
-}
 func (gs *GameState) RestartGame() {
 	gs.Player.Reset()
 
