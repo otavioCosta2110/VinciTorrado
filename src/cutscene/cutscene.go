@@ -143,7 +143,6 @@ func (a *ObjectMoveAction) Update() bool {
 	dx = dx / distance * a.speed
 	dy = dy / distance * a.speed
 
-	println("Moving object to target:", int32(a.object.GetObject().X + int32(dx),), int32(a.object.GetObject().Y))
 	a.object.SetObject(
 		system.Object{
 			X:              a.object.GetObject().X + int32(dx),
