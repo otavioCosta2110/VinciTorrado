@@ -104,7 +104,7 @@ func (th *TransitionHandler) TransitionMap(mapName string) {
 		CurrentMap: mapName,
 	}
 	for _, e := range enemies {
-		e.Health = 0 // Assuming oneHealthEnemies is always true based on your code
+		e.Health = 0 
 		th.EnemyManager.AddEnemy(e)
 	}
 	*th.Cutscene = cutscene.NewCutscene()
