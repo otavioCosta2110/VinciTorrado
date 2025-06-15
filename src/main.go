@@ -39,7 +39,7 @@ const (
 	enableMusic        bool   = false
 	enableSoundFxs     bool   = true
 	skipCutscenes      bool   = true
-	playerInfiniteLife bool   = true
+	playerInfiniteLife bool   = false
 	startingMap        string = "city"
 )
 
@@ -405,6 +405,7 @@ func draw(gs *GameState) {
 	rl.EndMode2D()
 
 	if system.GameOverFlag {
+		gs.Player.Object.Destroyed = true
 		system.DrawGameOver(gs.Screen)
 	}
 

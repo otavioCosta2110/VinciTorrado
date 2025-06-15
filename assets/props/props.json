@@ -24,6 +24,97 @@
     ]
   },
   {
+    "X": 1000,
+    "Y": 500,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/Lixo.png",
+    "kicked_texture": "assets/props/Lixeira_Tombada.png",
+    "loot": [
+      "Hamburgão",
+      "Saunduiche"
+    ]
+  },
+  {
+    "X": 1000,
+    "Y": 500,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/Lixo.png",
+    "kicked_texture": "assets/props/Lixeira_Tombada.png",
+    "loot": [
+      "Hamburgão",
+      "Saunduiche"
+    ]
+  },
+  {
+    "X": 1000,
+    "Y": 500,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/Lixo.png",
+    "kicked_texture": "assets/props/Lixeira_Tombada.png",
+    "loot": [
+      "Hamburgão",
+      "Saunduiche"
+    ]
+  },
+  {
+    "X": 1000,
+    "Y": 500,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/Lixo.png",
+    "kicked_texture": "assets/props/Lixeira_Tombada.png",
+    "loot": [
+      "Hamburgão",
+      "Saunduiche"
+    ]
+  },
+  {
+    "X": 1000,
+    "Y": 500,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/Lixo.png",
+    "kicked_texture": "assets/props/Lixeira_Tombada.png",
+    "loot": [
+      "Hamburgão",
+      "Saunduiche"
+    ]
+  },
+  {
+    "X": 1000,
+    "Y": 500,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/Lixo.png",
+    "kicked_texture": "assets/props/Lixeira_Tombada.png",
+    "loot": [
+      "Hamburgão",
+      "Saunduiche"
+    ]
+  },
+  {
+    "X": 1000,
+    "Y": 500,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/Lixo.png",
+    "kicked_texture": "assets/props/Lixeira_Tombada.png",
+    "loot": [
+      "Hamburgão",
+      "Saunduiche"
+    ]
+  },
+  {
     "X": 1300,
     "Y": 300,
     "width": 48,

@@ -14,6 +14,9 @@ var (
 )
 
 func DrawLife(s screen.Screen, p *player.Player) {
+	if p.Object.Destroyed {
+		return
+	}
 	if !textureLoaded {
 		heartTexture = rl.LoadTexture("assets/ui/heart.png")
 		textureLoaded = true

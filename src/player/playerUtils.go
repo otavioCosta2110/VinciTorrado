@@ -159,6 +159,7 @@ func (p *Player) IsActive() bool {
 func (p *Player) SetActive(bool) {}
 
 func (p *Player) Reset() {
+	p.Object.Destroyed = false
 	p.Health = p.MaxHealth
 	p.IsAttacking = false
 	p.IsKicking = false

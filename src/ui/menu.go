@@ -33,6 +33,9 @@ type Menu struct {
 	EquipmentSlots []EquipmentSlot
 	SelectedSlot   int
 	Columns        int
+	Rows           int
+	VisibleRows    int
+	ScrollOffset   int
 
 	IconSheet       rl.Texture2D
 	ConsumableSheet rl.Texture2D
@@ -56,6 +59,9 @@ func NewMenu(player *player.Player, sprite *sprites.Sprite) *Menu {
 		PlayerReference: player,
 		SelectedSlot:    -1,
 		Columns:         2,
+		Rows:            0,
+		VisibleRows:     3,
+		ScrollOffset:    0,
 		SlotWidth:       120,
 		SlotHeight:      120,
 		SlotSpacing:     50,
@@ -88,28 +94,46 @@ func (m *Menu) initEquipmentSlots() {
 	startY := float32(m.screenHeight / 5)
 
 	m.EquipmentSlots = make([]EquipmentSlot, 0, len(m.PlayerReference.Equipment))
+	m.Rows = (len(m.PlayerReference.Equipment) + m.Columns - 1) / m.Columns
+
+	if m.SelectedSlot >= 0 {
+		selectedRow := m.SelectedSlot / m.Columns
+		if selectedRow < m.ScrollOffset {
+			m.ScrollOffset = selectedRow
+		} else if selectedRow >= m.ScrollOffset+m.VisibleRows {
+			m.ScrollOffset = selectedRow - m.VisibleRows + 1
+		}
+	}
+
+	maxScroll := max(0, m.Rows-m.VisibleRows)
+	m.ScrollOffset = min(m.ScrollOffset, maxScroll)
 
 	for i, item := range m.PlayerReference.Equipment {
 		row := i / m.Columns
 		col := i % m.Columns
 
-		m.EquipmentSlots = append(m.EquipmentSlots, EquipmentSlot{
-			Rect: rl.NewRectangle(
-				startX+float32(col)*(m.SlotWidth+m.SlotSpacing),
-				startY+float32(row)*(m.SlotHeight+m.SlotSpacing),
-				m.SlotWidth,
-				m.SlotHeight,
-			),
-			IconPos: m.getItemIconPos(item),
-			Item:    item,
-			IsEmpty: false,
-		})
+		if row >= m.ScrollOffset && row < m.ScrollOffset+m.VisibleRows {
+			m.EquipmentSlots = append(m.EquipmentSlots, EquipmentSlot{
+				Rect: rl.NewRectangle(
+					startX+float32(col)*(m.SlotWidth+m.SlotSpacing),
+					startY+float32(row-m.ScrollOffset)*(m.SlotHeight+m.SlotSpacing),
+					m.SlotWidth,
+					m.SlotHeight,
+				),
+				IconPos: m.getItemIconPos(item),
+				Item:    item,
+				IsEmpty: false,
+			})
+		}
 	}
 
-	for i, slot := range m.EquipmentSlots {
-		if !slot.IsEmpty {
-			m.SelectedSlot = i
-			break
+	if m.SelectedSlot >= len(m.EquipmentSlots) || m.SelectedSlot < 0 {
+		m.SelectedSlot = -1
+		for i, slot := range m.EquipmentSlots {
+			if !slot.IsEmpty {
+				m.SelectedSlot = i
+				break
+			}
 		}
 	}
 }
@@ -172,6 +196,7 @@ func (m *Menu) Draw() {
 	}
 
 	m.drawInstructions(menuWidth, menuHeight)
+	m.drawScrollBar(menuX, menuY, menuWidth, menuHeight)
 }
 
 func (m *Menu) drawPlayerPreview(x, y float32) {
@@ -303,6 +328,30 @@ func (m *Menu) drawInstructions(width, height float32) {
 		int32(width)/5, int32(height)+30, 20, rl.White)
 }
 
+func (m *Menu) drawScrollBar(x, y, width, height float32) {
+	if m.Rows <= m.VisibleRows {
+		return
+	}
+
+	barWidth := float32(20)
+	barHeight := height * 0.8
+	barX := x + width - barWidth - 10
+	barY := y + (height-barHeight)/2
+
+	rl.DrawRectangleRounded(
+		rl.NewRectangle(barX, barY, barWidth, barHeight),
+		0.5, 10, rl.Fade(rl.Black, 0.5),
+	)
+
+	thumbHeight := barHeight * float32(m.VisibleRows) / float32(m.Rows)
+	thumbY := barY + (barHeight-thumbHeight)*float32(m.ScrollOffset)/float32(m.Rows-m.VisibleRows)
+
+	rl.DrawRectangleRounded(
+		rl.NewRectangle(barX, thumbY, barWidth, thumbHeight),
+		0.5, 10, rl.White,
+	)
+}
+
 func (m *Menu) Update() {
 	if rl.IsKeyPressed(rl.KeyEscape) {
 		m.toggleVisibility()
@@ -321,6 +370,16 @@ func (m *Menu) Update() {
 	if rl.IsKeyPressed(rl.KeyU) && m.PlayerReference.HasEquipment() {
 		m.PlayerReference.Unequip()
 		rl.PlaySound(m.menuSelectSound)
+	}
+
+	if rl.IsKeyPressed(rl.KeyPageUp) {
+		m.ScrollOffset = max(0, m.ScrollOffset-m.VisibleRows)
+		m.Refresh()
+	}
+
+	if rl.IsKeyPressed(rl.KeyPageDown) {
+		m.ScrollOffset = min(m.Rows-m.VisibleRows, m.ScrollOffset+m.VisibleRows)
+		m.Refresh()
 	}
 }
 
@@ -373,22 +432,68 @@ func (m *Menu) findNextValidSlot(step int) {
 		return
 	}
 
-	start := max(m.SelectedSlot, 0)
-	slotCount := len(m.EquipmentSlots)
+	currentPos := max(m.SelectedSlot, 0)
+	currentCol := currentPos % m.Columns
+	currentRow := currentPos / m.Columns
 
-	for i := 1; i <= slotCount; i++ {
-		next := (start + i*step) % slotCount
-		if next < 0 {
-			next += slotCount
-		}
+	if step == 1 || step == -1 {
+		next := currentPos + step
 
-		if !m.EquipmentSlots[next].IsEmpty {
-			m.SelectedSlot = next
-			return
+		if next >= 0 && next < len(m.EquipmentSlots) && (next/m.Columns) == currentRow {
+			for i := next; i >= 0 && i < len(m.EquipmentSlots) && (i/m.Columns) == currentRow; i += step {
+				if !m.EquipmentSlots[i].IsEmpty {
+					m.SelectedSlot = i
+					rl.PlaySound(m.menuMoveSound)
+					return
+				}
+			}
 		}
+		return
 	}
 
-	m.SelectedSlot = -1
+	if step == m.Columns || step == -m.Columns {
+		next := currentPos + step
+		nextRow := next / m.Columns
+		if next < 0 {
+			if m.ScrollOffset > 0 {
+				m.ScrollOffset--
+				m.Refresh()
+				m.SelectedSlot = m.ScrollOffset*m.Columns + currentCol
+				if m.SelectedSlot >= len(m.EquipmentSlots) {
+					m.SelectedSlot = len(m.EquipmentSlots) + 1
+				}
+				rl.PlaySound(m.menuMoveSound)
+			}
+			return
+		} else if next >= len(m.EquipmentSlots) {
+			if m.ScrollOffset < m.Rows-m.VisibleRows {
+				m.ScrollOffset++
+				m.Refresh()
+				m.SelectedSlot = min((m.ScrollOffset+m.VisibleRows-1)*m.Columns+currentCol, len(m.EquipmentSlots)-1)
+				newPos := nextRow*m.Columns + currentCol
+				if newPos < len(m.EquipmentSlots)+1 {
+					m.SelectedSlot = newPos - 2
+				}
+				rl.PlaySound(m.menuMoveSound)
+			}
+			return
+		}
+
+		if nextRow < m.ScrollOffset {
+			if m.ScrollOffset > 0 {
+				m.ScrollOffset = nextRow + 1
+				m.Refresh()
+			}
+		}
+
+		for i := next; i >= 0 && i < len(m.EquipmentSlots); i += step {
+			if !m.EquipmentSlots[i].IsEmpty && (i%m.Columns) == currentCol {
+				m.SelectedSlot = i
+				rl.PlaySound(m.menuMoveSound)
+				return
+			}
+		}
+	}
 }
 
 func (m *Menu) hasValidSelection() bool {
