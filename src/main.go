@@ -457,6 +457,12 @@ func (gs *GameState) RestartGame() {
 		kik.Reset()
 	}
 
+	for _, weapon := range gs.Weapons {
+		if weapon.IsDropped {
+			weapon.IsDropped = false
+		}
+	}
+
 	system.GameOverFlag = false
 	gs.NeedsRestart = false
 
