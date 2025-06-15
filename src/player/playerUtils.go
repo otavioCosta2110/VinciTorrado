@@ -185,6 +185,12 @@ func (p *Player) Reset() {
 		}
 	}
 
+	if p.InitialEquipped != nil {
+		p.Equip(p.InitialEquipped)
+	} else {
+		p.Unequip()
+	}
+
 	if p.InitialWeapon != nil {
 		newWeapon := *p.InitialWeapon
 		p.PickUp(newWeapon)
@@ -195,6 +201,13 @@ func (p *Player) Reset() {
 func (p *Player) RecordInitialEquipment() {
 	p.InitialItems = make([]*equipment.Equipment, len(p.Equipment))
 	copy(p.InitialItems, p.Equipment)
+
+	if p.Equipped != nil {
+		p.InitialEquipped = &equipment.Equipment{}
+		*p.InitialEquipped = *p.Equipped
+	} else {
+		p.InitialEquipped = nil
+	}
 
 	if p.Weapon != nil {
 		p.InitialWeapon = &weapon.Weapon{}

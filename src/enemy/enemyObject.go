@@ -127,7 +127,6 @@ func (e *Enemy) Draw() {
 		width = -float32(width)
 	}
 
-
 	sourceRec := e.Object.Sprite.GetSpriteByCoordinates(e.Object.FrameX, e.Object.FrameY, int32(width), e.Object.Sprite.SpriteHeight)
 
 	destinationRec := rl.NewRectangle(
@@ -499,6 +498,9 @@ func (e *Enemy) Explode(p system.Player) {
 		Width:  explosionRadius,
 		Height: explosionRadius,
 	}
+
+	e.Object.FrameX = 1
+	e.Object.FrameY = 3
 
 	if physics.CheckCollision(explosionBox, p.GetObject()) {
 		p.TakeDamage(3, e.Object)

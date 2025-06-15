@@ -12,7 +12,7 @@
   },
   {
     "X": 300,
-    "Y": 450,
+    "Y": 350,
     "width": 32,
     "height": 32,
     "scale": 4,
@@ -35,8 +35,18 @@
     "type": "trash"
   },
   {
-    "X": 1500,
-    "Y": 400,
+    "X": 1700,
+    "Y": 600,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/mesa.png",
+    "kicked_texture": "assets/props/mesa_tombada.png",
+    "type": "table"
+  },
+  {
+    "X": 2300,
+    "Y": 300,
     "width": 32,
     "height": 32,
     "scale": 4,
@@ -49,21 +59,7 @@
     "type": "trash"
   },
   {
-    "X": 2000,
-    "Y": 500,
-    "width": 32,
-    "height": 32,
-    "scale": 4,
-    "normal_texture": "assets/props/mesa.png",
-    "kicked_texture": "assets/props/mesa_tombada.png",
-    "loot": [
-      "Hamburguer",
-      "Sandwich"
-    ],
-    "type": "trash"
-  },
-  {
-    "X": 2500,
+    "X": 2700,
     "Y": 400,
     "width": 32,
     "height": 32,
@@ -73,8 +69,18 @@
     "type": "table"
   },
   {
-    "X": 3000,
-    "Y": 500,
+    "X": 3500,
+    "Y": 300,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/mesa.png",
+    "kicked_texture": "assets/props/mesa_tombada.png",
+    "type": "table"
+  },
+  {
+    "X": 4500,
+    "Y": 600,
     "width": 32,
     "height": 32,
     "scale": 4,

@@ -13,19 +13,20 @@ import (
 
 type Player struct {
 	system.LiveObject
-	IsKicking      bool
-	IsAttacking    bool
-	LastKickTime   time.Time
-	KickCooldown   time.Duration
-	KickPower      int32
-	Equipped       *equipment.Equipment
-	Equipment      []*equipment.Equipment
-	Consumables    []*equipment.Equipment
-	Screen         *screen.Screen
-	Weapon         *weapon.Weapon
-	LastAttackTime time.Time
-	InitialItems   []*equipment.Equipment
-	InitialWeapon  *weapon.Weapon
+	IsKicking       bool
+	IsAttacking     bool
+	LastKickTime    time.Time
+	KickCooldown    time.Duration
+	KickPower       int32
+	Equipped        *equipment.Equipment
+	Equipment       []*equipment.Equipment
+	Consumables     []*equipment.Equipment
+	Screen          *screen.Screen
+	Weapon          *weapon.Weapon
+	LastAttackTime  time.Time
+	InitialItems    []*equipment.Equipment
+	InitialEquipped *equipment.Equipment
+	InitialWeapon   *weapon.Weapon
 }
 
 func NewPlayer(x, y, width, height, speed, maxHealth, scale int32, sprite sprites.Sprite, s *screen.Screen) *Player {

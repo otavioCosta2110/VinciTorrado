@@ -76,7 +76,6 @@ func (g *Girlfriend) UpdateAnimation(animationName string) {
 		g.runAnimation(300, []int{0, 1}, []int{0, 0})
 	case "invisible":
 		g.runAnimation(0, []int{0}, []int{1})
-
 	}
 }
 
