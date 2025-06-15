@@ -46,13 +46,10 @@ func (c *Cutscene) BarIntroCutscene(player system.Live, gf system.Live, enemyMan
 	mafiaBoss.Object.Y = 400
 	mafiaBoss.Weapon = nil
 
-	println(player.GetObject().Y)
-	println(mafiaBoss.Object.X)
-
-		gf.SetActive(false)
-		mafiaBoss.Object.FrameY=4
-		mafiaBoss.UpdateAnimation("fb_walk_with_girl")
-		c.AddAction(NewObjectMoveAction(mafiaBoss, 1300, float32(mafiaBoss.GetObject().Y), 2, "fb_walk_with_girl"))
+	gf.SetActive(false)
+	mafiaBoss.Object.FrameY = 4
+	mafiaBoss.UpdateAnimation("fb_walk_with_girl")
+	c.AddAction(NewObjectMoveAction(mafiaBoss, 1300, float32(mafiaBoss.GetObject().Y), 2, "fb_walk_with_girl"))
 
 	c.AddAction(NewCallbackAction(func() {
 		mafiaBoss.Object.X = posXMafia

@@ -30,16 +30,23 @@ const (
 	playerScale  int32  = 4
 	playerSizeX  int32  = 32
 	playerSizeY  int32  = 32
+	MenuState           = iota
+	GameOverState
+	GameRunningState
 
 	// feature flags
-	oneHealthEnemies bool   = true
-	enableMusic      bool   = false
-	enableSoundFxs   bool   = true
-	skipCutscenes    bool   = true
-	startingMap      string = "bar"
+	oneHealthEnemies   bool   = true
+	enableMusic        bool   = false
+	enableSoundFxs     bool   = true
+	skipCutscenes      bool   = true
+	playerInfiniteLife bool   = true
+	startingMap        string = "city"
 )
 
 type GameState struct {
+	CurrentState int
+	NeedsRestart bool
+	StartMenu    *ui.StartMenu
 	Player       *player.Player
 	EnemyManager *enemy.EnemyManager
 	Screen       *screen.Screen
@@ -98,6 +105,9 @@ func main() {
 	}
 	defer audio.UnloadSounds()
 
+	startMenu := ui.NewStartMenu()
+	defer rl.UnloadTexture(startMenu.BgTexture)
+
 	screen := screen.NewScreen(windowWidth, windowHeight, buildings.Width, buildings.Height, windowTitle)
 
 	playerSprite := sprites.Sprite{
@@ -106,7 +116,15 @@ func main() {
 		Texture:      rl.LoadTexture("assets/player/player.png"),
 	}
 
-	player := player.NewPlayer(currentMap.PlayerStartX, currentMap.PlayerStartY, playerSizeX, playerSizeY, 4, playerScale, playerSprite, screen)
+	var playerHealth int32
+
+	if playerInfiniteLife {
+		playerHealth = 9999
+	} else {
+		playerHealth = 5
+	}
+
+	player := player.NewPlayer(currentMap.PlayerStartX, currentMap.PlayerStartY, playerSizeX, playerSizeY, 4, playerHealth, playerScale, playerSprite, screen)
 	weaponSprite := sprites.Sprite{
 		SpriteWidth:  playerSizeX,
 		SpriteHeight: playerSizeY,
@@ -194,6 +212,7 @@ func main() {
 		Doors:        doors,
 		MapManager:   mapManager,
 		CurrentMap:   startingMap,
+		StartMenu:    startMenu,
 	}
 
 	transitionMap(&gameState, startingMap)
@@ -201,16 +220,50 @@ func main() {
 }
 
 func gameLoop(gs *GameState) {
+	gs.CurrentState = MenuState
+
 	for !rl.WindowShouldClose() {
-		audio.UpdateMusic(*gs.Music)
-		gs.Menu.Update()
+		switch gs.CurrentState {
+		case MenuState:
+			if gs.StartMenu.DrawStartMenu(gs.Screen) {
+				gs.CurrentState = GameRunningState
+				if enableMusic {
+					audio.PlayMissionMusic()
+				}
+			}
 
-		if gs.Cutscene != nil && gs.Cutscene.IsPlaying() {
-			gs.Cutscene.Update()
+		case GameRunningState:
+			audio.UpdateMusic(*gs.Music)
+			gs.Menu.Update()
+
+			if gs.Cutscene != nil && gs.Cutscene.IsPlaying() {
+				gs.Cutscene.Update()
+			}
+			update(gs)
+
+			draw(gs)
+
+			if system.GameOverFlag {
+				gs.CurrentState = GameOverState
+			}
+
+		case GameOverState:
+			system.DrawGameOver(gs.Screen)
+			if rl.IsKeyPressed(rl.KeyR) {
+				gs.RestartGame()
+			}
+			if rl.IsKeyPressed(rl.KeyEscape) {
+				rl.CloseWindow()
+				break
+			}
+
+			if gs.Cutscene != nil && gs.Cutscene.IsPlaying() {
+				gs.Cutscene.Update()
+			}
+			update(gs)
+
+			draw(gs)
 		}
-		update(gs)
-
-		draw(gs)
 	}
 }
 
@@ -319,6 +372,9 @@ func draw(gs *GameState) {
 	for _, prop := range gs.Props {
 		prop.Draw()
 	}
+	for _, door := range gs.Doors {
+		door.Draw()
+	}
 	gs.EnemyManager.Draw()
 	gs.Player.Draw()
 
@@ -329,9 +385,6 @@ func draw(gs *GameState) {
 	}
 	if gs.Girlfriend.IsActive() {
 		gs.Girlfriend.Draw()
-	}
-	for _, door := range gs.Doors {
-		door.Draw()
 	}
 
 	for _, weapon := range gs.Weapons {
@@ -352,7 +405,7 @@ func draw(gs *GameState) {
 	rl.EndMode2D()
 
 	if system.GameOverFlag {
-		system.GameOver(gs.Screen)
+		system.DrawGameOver(gs.Screen)
 	}
 
 	ui.DrawLife(*gs.Screen, gs.Player)
@@ -395,6 +448,7 @@ func transitionMap(gs *GameState, mapName string) {
 	gs.Player.Object.FrameY = 0
 	gs.Player.IsKicking = false
 	gs.Player.LastKickTime = time.Now().Add(-time.Hour)
+	gs.Player.RecordInitialEquipment()
 
 	newMap := gs.MapManager.Maps[mapName]
 	gs.CurrentMap = mapName
@@ -452,4 +506,34 @@ func transitionMap(gs *GameState, mapName string) {
 	for _, prop := range gs.Props {
 		gs.Kickables = append(gs.Kickables, prop)
 	}
+}
+func (gs *GameState) RestartGame() {
+	gs.Player.Reset()
+
+	currentMap := gs.MapManager.Maps[gs.CurrentMap]
+	enemies, err := enemy.LoadEnemiesFromJSON(currentMap.EnemiesPath, playerScale)
+	if err != nil {
+		panic("Failed to load enemies: " + err.Error())
+	}
+
+	gs.EnemyManager = &enemy.EnemyManager{}
+	for _, e := range enemies {
+		if oneHealthEnemies {
+			e.Health = 0
+		}
+		gs.EnemyManager.AddEnemy(e)
+	}
+
+	for _, kik := range gs.Kickables {
+		kik.Reset()
+	}
+
+	system.GameOverFlag = false
+	gs.NeedsRestart = false
+
+	gs.Screen.ResetCamera()
+	gs.Player.Object.X = currentMap.PlayerStartX
+	gs.Player.Object.Y = currentMap.PlayerStartY
+
+	gs.CurrentState = GameRunningState
 }

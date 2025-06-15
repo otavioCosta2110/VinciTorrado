@@ -181,7 +181,7 @@ func (t *Prop) HandleKick(items *[]*equipment.Equipment, kicker system.Object) {
 	*items = append(*items, item)
 }
 
-func (t *Prop) GetObject() system.Object { //pra mexer com a hitbox da mesa
+func (t *Prop) GetObject() system.Object {
 	obj := t.Object
 
 	if t.Kicked && t.Type == PropTypeTable {
@@ -191,4 +191,12 @@ func (t *Prop) GetObject() system.Object { //pra mexer com a hitbox da mesa
 	}
 
 	return obj
+}
+
+func (t *Prop) Reset() {
+	t.Kicked = false
+	t.Object.Sprite.Texture = t.NormalTexture
+	t.Object.Y = t.OriginalY
+	t.Object.Height = t.OriginalHeight
+	t.Object.Width = t.OriginalWidth
 }
