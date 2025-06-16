@@ -23,14 +23,13 @@ type Object struct {
 
 func (obj *Object) UpdateAnimation(animationDelay int32, framesX, framesY []int32) {
 	if len(framesX) == 0 || len(framesY) == 0 || len(framesX) != len(framesY) {
-		return // invalid frame data
+		return 
 	}
 
 	if time.Since(obj.LastFrameTime) < time.Duration(animationDelay)*time.Millisecond {
 		return
 	}
 
-	// Find current position in animation sequence
 	var found bool
 	for i := range framesX {
 		if obj.FrameX == framesX[i] && obj.FrameY == framesY[i] {
