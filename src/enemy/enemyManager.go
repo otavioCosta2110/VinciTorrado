@@ -1,9 +1,7 @@
 package enemy
 
 import (
-	// "math/rand"
 	"otaviocosta2110/vincitorrado/src/audio"
-	"otaviocosta2110/vincitorrado/src/physics"
 	"otaviocosta2110/vincitorrado/src/props"
 	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/system"
@@ -23,7 +21,16 @@ type EnemyManager struct {
 	CurrentMap      string
 }
 
-func (em *EnemyManager) Update(p system.Player, s screen.Screen, m *string, prps []*props.Prop, buildings *rl.Texture2D) {
+func (em *EnemyManager) Update(p system.Player, s screen.Screen, m *string, prps []*props.Prop, buildings *rl.Texture2D, isPaused *bool) {
+	for _, enemy := range em.Enemies {
+		if enemy.Object.Destroyed && enemy.EnemyType == "mafia_boss" {
+			em.updateBossExplosion(enemy, p, isPaused, buildings)
+		}
+	}
+
+	if *isPaused {
+		return
+	}
 	cameraBounds := rl.Rectangle{
 		X:      s.Camera.Target.X - float32(s.Width)/2,
 		Y:      s.Camera.Target.Y - float32(s.Height)/2,
@@ -51,24 +58,6 @@ func (em *EnemyManager) Update(p system.Player, s screen.Screen, m *string, prps
 			em.ActiveEnemies = slices.Delete(em.ActiveEnemies, i, i+1)
 		}
 	}
-	for _, enemy := range em.Enemies {
-		if enemy.Object.Destroyed && enemy.EnemyType == "mafia_boss" {
-			if !enemy.Exploded {
-				if !enemy.HasExplosionPlayedSound {
-					audio.PlayBombBippingSound()
-					enemy.ExplosionStart = time.Now()
-					enemy.HasExplosionPlayedSound = true
-				}
-
-				if enemy.HasExplosionPlayedSound && time.Since(enemy.ExplosionStart) >= time.Duration(5.071*float64(time.Second)) && !enemy.Exploded {
-					enemy.Explode(p)
-					enemy.Exploded = true
-					explodedBuildingsPath := "assets/scenes/bar_exploded.png"
-					*buildings = system.LoadScaledTexture(explodedBuildingsPath, enemy.Object.Scale)
-				}
-			}
-		}
-	}
 }
 
 func isInCameraBounds(enemy *Enemy, cameraBounds rl.Rectangle) bool {
@@ -91,16 +80,16 @@ func (em *EnemyManager) RemoveActiveEnemy(enemy *Enemy) {
 }
 
 func (em *EnemyManager) Draw() {
-	enemies := em.Enemies
-	sort.Slice(enemies, func(i, j int) bool {
-		return enemies[i].Layer < enemies[j].Layer
+	sort.Slice(em.Enemies, func(i, j int) bool {
+		return em.Enemies[i].Layer < em.Enemies[j].Layer
 	})
-	for _, enemy := range enemies {
+	for _, enemy := range em.Enemies {
 		if !enemy.Object.Destroyed {
 			enemy.Draw()
 		}
 	}
 }
+
 func (em *EnemyManager) DrawDead() {
 	enemies := em.Enemies
 	sort.Slice(enemies, func(i, j int) bool {
@@ -119,19 +108,33 @@ func (em *EnemyManager) AddEnemy(e *Enemy) {
 	em.NumEnemies++
 }
 
-func (em *EnemyManager) CheckBoxCollisions(box system.Object) {
-	for _, e := range em.ActiveEnemies {
-		if physics.CheckCollision(box, e.GetObject()) {
-			if abs(box.KnockbackX) > 5 || abs(box.KnockbackY) > 5 {
-				e.TakeDamageFromBox(box)
+func (em *EnemyManager) updateBossExplosion(enemy *Enemy, p system.Player, isPaused *bool, buildings *rl.Texture2D) {
+	if !enemy.Exploded {
+		if !enemy.HasExplosionPlayedSound {
+			audio.PlayBombBippingSound()
+			enemy.ExplosionStart = time.Now()
+			enemy.HasExplosionPlayedSound = true
+			enemy.ExplosionElapsed = 0
+		}
+
+		if *isPaused && !enemy.ExplosionPaused {
+			enemy.ExplosionPaused = true
+			enemy.ExplosionPauseTime = time.Now()
+			audio.PauseBombBippingSound()
+		} else if !*isPaused && enemy.ExplosionPaused {
+			enemy.ExplosionPaused = false
+			enemy.ExplosionElapsed += time.Since(enemy.ExplosionPauseTime)
+			audio.ResumeBombBippingSound()
+		}
+
+		if !*isPaused {
+			elapsed := time.Since(enemy.ExplosionStart) - enemy.ExplosionElapsed
+			if elapsed >= time.Duration(5.071*float64(time.Second)) && !enemy.Exploded {
+				enemy.Explode(p)
+				enemy.Exploded = true
+				explodedBuildingsPath := "assets/scenes/bar_exploded.png"
+				*buildings = system.LoadScaledTexture(explodedBuildingsPath, enemy.Object.Scale)
 			}
 		}
 	}
-}
-
-func abs(x int32) int32 {
-	if x < 0 {
-		return -x
-	}
-	return x
 }

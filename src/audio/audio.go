@@ -82,6 +82,26 @@ func PlayExplosionSound() {
 	rl.PlaySound(ExplosionSound)
 }
 
+func PauseBombBippingSound() {
+    rl.PauseSound(BombBippingSound)
+}
+
+func ResumeBombBippingSound() {
+    rl.ResumeSound(BombBippingSound)
+}
+
+func PlayGfRunningSound() {
+	rl.PlaySound(GfRunningSound)
+}
+
+func PlayGfHittingWall() {
+	rl.PlaySound(GfHittingWall)
+}
+
+func StopGfRunningSound() {
+	rl.StopSound(GfRunningSound)
+}
+
 func SetVolume(volume float32) {
 	rl.SetSoundVolume(PunchSound, volume)
 	rl.SetSoundVolume(KickSound, volume)

@@ -110,16 +110,24 @@
     "width": 32,
     "height": 32,
     "health": 15,
-    "damage": 4,
-    "speed": 1,
+    "damage": 2,
+    "speed": 4,
     "windUpTime": 800,
-    "scale": 4
+    "scale": 4,
+    "drops": {
+      "name": "Shoes",
+      "sprite": "assets/player/playerShoes.png",
+      "stats": {
+        "health": 0,
+        "speed": 3,
+        "damage": 1
+      }
+    }
   },
   {
     "sprite": "assets/enemies/mafia_unc.png",
     "X": 2800,
     "Y": 600,
-    "activate_pos_X": 2800,
     "width": 32,
     "height": 32,
     "health": 5,
@@ -132,6 +140,7 @@
     "sprite": "assets/enemies/mafia_boy.png",
     "X": 3200,
     "Y": 300,
+    "activate_pos_X": 2800,
     "width": 32,
     "height": 32,
     "health": 6,
@@ -160,7 +169,7 @@
     "sprite": "assets/enemies/mafia_boy.png",
     "X": 3350,
     "Y": 425,
-    "activate_pos_X": 3200,
+    "activate_pos_X": 2800,
     "width": 32,
     "height": 32,
     "health": 6,
@@ -189,7 +198,7 @@
     "sprite": "assets/enemies/mafia_unc.png",
     "X": 3500,
     "Y": 500,
-    "activate_pos_X": 3200,
+    "activate_pos_X": 2800,
     "width": 32,
     "height": 32,
     "health": 5,
@@ -202,7 +211,7 @@
     "sprite": "assets/enemies/mafia_boy.png",
     "X": 3800,
     "Y": 300,
-    "activate_pos_X": 3200,
+    "activate_pos_X": 2800,
     "width": 32,
     "height": 32,
     "health": 6,
@@ -231,7 +240,7 @@
     "sprite": "assets/enemies/mafia_unc.png",
     "X": 4000,
     "Y": 500,
-    "activate_pos_X": 3200,
+    "activate_pos_X": 2800,
     "activate_pos_Y": 0,
     "width": 32,
     "height": 32,
@@ -240,6 +249,176 @@
     "speed": 2,
     "windUpTime": 500,
     "scale": 4
+  },
+  {
+    "sprite": "assets/enemies/mafia_unc.png",
+    "X": 4000,
+    "Y": 549,
+    "width": 32,
+    "height": 32,
+    "health": 5,
+    "damage": 1,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4
+  },
+  {
+    "sprite": "assets/enemies/mafia_boy.png",
+    "X": 4500,
+    "Y": 600,
+    "activate_pos_X": 4000,
+    "width": 32,
+    "height": 32,
+    "health": 6,
+    "damage": 2,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4,
+    "weapon": {
+      "sprite": "assets/weapons/crowbar.png",
+      "hitbox_X": 30,
+      "hitbox_Y": 20,
+      "offset_X": 9,
+      "offset_Y": 0,
+      "width": 32,
+      "height": 32,
+      "stats": {
+        "health": 0,
+        "speed": 0,
+        "damage": 1
+      },
+      "health": 12,
+      "scale": 4
+    }
+  },
+  {
+    "sprite": "assets/enemies/mafia_unc.png",
+    "X": 4300,
+    "Y": 632,
+    "activate_pos_X": 4000,
+    "activate_pos_Y": 0,
+    "width": 32,
+    "height": 32,
+    "health": 5,
+    "damage": 1,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4
+  },
+  {
+    "sprite": "assets/enemies/mafia_boy.png",
+    "X": 4800,
+    "Y": 300,
+    "activate_pos_X": 4000,
+    "width": 32,
+    "height": 32,
+    "health": 6,
+    "damage": 2,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4,
+    "weapon": {
+      "sprite": "assets/weapons/crowbar.png",
+      "hitbox_X": 30,
+      "hitbox_Y": 20,
+      "offset_X": 9,
+      "offset_Y": 0,
+      "width": 32,
+      "height": 32,
+      "stats": {
+        "health": 0,
+        "speed": 0,
+        "damage": 1
+      },
+      "health": 12,
+      "scale": 4
+    }
+  },
+  {
+    "sprite": "assets/enemies/mafia_unc.png",
+    "X": 4800,
+    "Y": 300,
+    "width": 32,
+    "height": 32,
+    "health": 6,
+    "damage": 2,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4,
+    "weapon": {
+      "sprite": "assets/weapons/crowbar.png",
+      "hitbox_X": 30,
+      "hitbox_Y": 20,
+      "offset_X": 9,
+      "offset_Y": 0,
+      "width": 32,
+      "height": 32,
+      "stats": {
+        "health": 0,
+        "speed": 0,
+        "damage": 1
+      },
+      "health": 12,
+      "scale": 4
+    }
+  },
+  {
+    "sprite": "assets/enemies/mafia_unc.png",
+    "X": 5200,
+    "Y": 300,
+    "activate_pos_X": 4800,
+    "width": 32,
+    "height": 32,
+    "health": 6,
+    "damage": 2,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4,
+    "weapon": {
+      "sprite": "assets/weapons/crowbar.png",
+      "hitbox_X": 30,
+      "hitbox_Y": 20,
+      "offset_X": 9,
+      "offset_Y": 0,
+      "width": 32,
+      "height": 32,
+      "stats": {
+        "health": 0,
+        "speed": 0,
+        "damage": 1
+      },
+      "health": 12,
+      "scale": 4
+    }
+  },
+  {
+    "sprite": "assets/enemies/mafia_unc.png",
+    "X": 5500,
+    "Y": 300,
+    "activate_pos_X": 4800,
+    "width": 32,
+    "height": 32,
+    "health": 6,
+    "damage": 2,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4,
+    "weapon": {
+      "sprite": "assets/weapons/crowbar.png",
+      "hitbox_X": 30,
+      "hitbox_Y": 20,
+      "offset_X": 9,
+      "offset_Y": 0,
+      "width": 32,
+      "height": 32,
+      "stats": {
+        "health": 0,
+        "speed": 0,
+        "damage": 1
+      },
+      "health": 12,
+      "scale": 4
+    }
   },
   {
     "sprite": "assets/enemies/mafia_boss.png",
@@ -274,6 +453,15 @@
       "is_gun": true,
       "ammo": 100,
       "maxAmmo": 100
+    },
+    "drops": {
+      "name": "Suit",
+      "sprite": "assets/player/playerSuit.png",
+      "stats": {
+        "health": 2,
+        "speed": 0,
+        "damage": 0
+      }
     }
   }
 ]

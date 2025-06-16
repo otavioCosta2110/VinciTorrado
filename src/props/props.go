@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"math/rand"
 	"os"
+	"otaviocosta2110/vincitorrado/src/audio"
 	"otaviocosta2110/vincitorrado/src/equipment"
 	"otaviocosta2110/vincitorrado/src/sprites"
 	"otaviocosta2110/vincitorrado/src/system"
@@ -14,9 +15,10 @@ import (
 type PropType string
 
 const (
-	PropTypeTrash PropType = "trash"
-	PropTypeDoor  PropType = "door"
-	PropTypeTable PropType = "table"
+	PropTypeTrash   PropType = "trash"
+	PropTypeDoor    PropType = "door"
+	PropTypeTable   PropType = "table"
+	PropTypeJukebox PropType = "jukebox"
 )
 
 type PropConfig struct {
@@ -149,7 +151,11 @@ func (t *Prop) HandleKick(items *[]*equipment.Equipment, kicker system.Object) {
 	t.Kicked = true
 	t.Object.Sprite.Texture = t.KickedTexture
 
-	if t.Type == PropTypeTable {
+	switch t.Type {
+	case PropTypeTable:
+		return
+	case PropTypeJukebox:
+		audio.StopMusic()
 		return
 	}
 
@@ -175,7 +181,7 @@ func (t *Prop) HandleKick(items *[]*equipment.Equipment, kicker system.Object) {
 	*items = append(*items, item)
 }
 
-func (t *Prop) GetObject() system.Object { //pra mexer com a hitbox da mesa
+func (t *Prop) GetObject() system.Object {
 	obj := t.Object
 
 	if t.Kicked && t.Type == PropTypeTable {
@@ -185,4 +191,12 @@ func (t *Prop) GetObject() system.Object { //pra mexer com a hitbox da mesa
 	}
 
 	return obj
+}
+
+func (t *Prop) Reset() {
+	t.Kicked = false
+	t.Object.Sprite.Texture = t.NormalTexture
+	t.Object.Y = t.OriginalY
+	t.Object.Height = t.OriginalHeight
+	t.Object.Width = t.OriginalWidth
 }

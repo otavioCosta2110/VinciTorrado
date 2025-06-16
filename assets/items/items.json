@@ -1,6 +1,6 @@
 [
   {
-    "name": "Hamburgão",
+    "name": "Hamburguer",
     "sprite": "assets/items/hamburgao.png",
     "width": 32,
     "height": 32,
@@ -14,7 +14,7 @@
     }
   },
   {
-    "name": "Saunduiche",
+    "name": "Sandwich",
     "sprite": "assets/items/saunduiche.png",
     "width": 32,
     "height": 32,
@@ -36,6 +36,34 @@
     "type": "consumable",
     "stats": {
       "heal": 2,
+      "life": 0,
+      "damage": 0,
+      "speed": 0
+    }
+  },
+  {
+    "name": "coke",
+    "sprite": "assets/items/coke.png",
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "type": "consumable",
+    "stats": {
+      "heal": 1,
+      "life": 0,
+      "damage": 0,
+      "speed": 0
+    }
+    },
+  {
+    "name": "Soda",
+    "sprite": "assets/items/bottle.png",
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "type": "consumable",
+    "stats": {
+      "heal": 1,
       "life": 0,
       "damage": 0,
       "speed": 0

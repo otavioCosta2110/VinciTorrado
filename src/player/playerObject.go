@@ -9,29 +9,27 @@ import (
 	"time"
 
 	"slices"
-
-	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 type Player struct {
 	system.LiveObject
-	IsKicking      bool
-	IsAttacking    bool
-	LastKickTime   time.Time
-	KickCooldown   time.Duration
-	KickPower      int32
-	Equipped       *equipment.Equipment
-	Equipment      []*equipment.Equipment
-	Consumables    []*equipment.Equipment
-	HatSprite      sprites.Sprite
-	Screen         *screen.Screen
-	Weapon         *weapon.Weapon
-	LastAttackTime time.Time
-	// Projectiles []*weapon.Projectile
+	IsKicking       bool
+	IsAttacking     bool
+	LastKickTime    time.Time
+	KickCooldown    time.Duration
+	KickPower       int32
+	Equipped        *equipment.Equipment
+	Equipment       []*equipment.Equipment
+	Consumables     []*equipment.Equipment
+	Screen          *screen.Screen
+	Weapon          *weapon.Weapon
+	LastAttackTime  time.Time
+	InitialItems    []*equipment.Equipment
+	InitialEquipped *equipment.Equipment
+	InitialWeapon   *weapon.Weapon
 }
 
-func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite, s *screen.Screen) *Player {
-
+func NewPlayer(x, y, width, height, speed, maxHealth, scale int32, sprite sprites.Sprite, s *screen.Screen) *Player {
 	return &Player{
 		LiveObject: system.LiveObject{
 			Object: system.Object{
@@ -49,17 +47,19 @@ func NewPlayer(x, y, width, height, speed, scale int32, sprite sprites.Sprite, s
 				Flipped:       false,
 			},
 			Speed:           speed,
-			MaxHealth:       5,
-			Health:          5,
+			MaxHealth:       maxHealth,
+			Health:          maxHealth,
 			LastDamageTaken: time.Now(),
 			Damage:          1,
 		},
-		IsKicking:    false,
-		IsAttacking:  false,
-		LastKickTime: time.Now(),
-		KickCooldown: 500 * time.Millisecond,
-		KickPower:    15,
-		Screen:       s,
+		IsKicking:     false,
+		IsAttacking:   false,
+		LastKickTime:  time.Now(),
+		KickCooldown:  500 * time.Millisecond,
+		KickPower:     15,
+		Screen:        s,
+		InitialItems:  make([]*equipment.Equipment, 0),
+		InitialWeapon: nil,
 	}
 }
 
@@ -81,8 +81,6 @@ func (p *Player) Equip(item *equipment.Equipment) {
 	p.MaxHealth += p.Equipped.Stats.Life
 	p.Damage += p.Equipped.Stats.Damage
 	p.Speed += p.Equipped.Stats.Speed
-
-	p.HatSprite = item.Object.Sprite
 }
 
 func (p *Player) Unequip() {
@@ -101,10 +99,6 @@ func (p *Player) Unequip() {
 }
 func (p *Player) HasEquipment() bool {
 	return p.Equipped != nil
-}
-
-func (p *Player) Cleanup() {
-	rl.UnloadTexture(p.HatSprite.Texture)
 }
 
 func (p *Player) UseConsumable(index int) {

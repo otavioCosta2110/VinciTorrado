@@ -73,14 +73,13 @@ func (g *Girlfriend) Draw() {
 func (g *Girlfriend) UpdateAnimation(animationName string) {
 	switch animationName {
 	case "walk":
-		g.runAnimation(300, []int{0, 1}, []int{0, 0})
+		g.runAnimation(300, []int32{0, 1}, []int32{0, 0})
 	case "invisible":
-		g.runAnimation(0, []int{0}, []int{1})
-
+		g.runAnimation(0, []int32{0}, []int32{1})
 	}
 }
 
-func (g *Girlfriend) runAnimation(animationDelay int, framesX, framesY []int) {
+func (g *Girlfriend) runAnimation(animationDelay int32, framesX, framesY []int32) {
 	g.Object.UpdateAnimation(animationDelay, framesX, framesY)
 }
 

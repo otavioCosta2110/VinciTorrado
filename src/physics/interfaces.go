@@ -7,6 +7,7 @@ import (
 
 type Kickable interface {
 	IsKicked() bool
+	Reset()
 	HandleKick(items *[]*equipment.Equipment, playerObject system.Object)
 	GetObject() system.Object
 }

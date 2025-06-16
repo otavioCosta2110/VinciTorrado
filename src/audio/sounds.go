@@ -14,6 +14,8 @@ var (
 	BulletHittingTableSound rl.Sound
 	BombBippingSound        rl.Sound
 	ExplosionSound          rl.Sound
+	GfRunningSound          rl.Sound
+	GfHittingWall           rl.Sound
 
 	FullBellyMusic rl.Music
 	Mission2Music  rl.Music
@@ -30,6 +32,8 @@ func LoadSounds() {
 	BulletHittingTableSound = rl.LoadSound("assets/sounds/bullet_hitting_table.mp3")
 	BombBippingSound = rl.LoadSound("assets/sounds/bipping_bomb.mp3")
 	ExplosionSound = rl.LoadSound("assets/sounds/explosion.mp3")
+	GfRunningSound = rl.LoadSound("assets/sounds/gf_running.mp3")
+	GfHittingWall = rl.LoadSound("assets/sounds/gf_hitting_wall.mp3")
 
 	Mission1Music = rl.LoadMusicStream("assets/sounds/mission1.mp3")
 	FullBellyMusic = rl.LoadMusicStream("assets/sounds/music_fullbelly.mp3")
@@ -46,7 +50,8 @@ func UnloadSounds() {
 	rl.UnloadSound(Shot)
 	rl.UnloadSound(BulletHittingTableSound)
 	rl.UnloadSound(BombBippingSound)
-	rl.UnloadSound(BombBippingSound)
+	rl.UnloadSound(GfRunningSound)
+	rl.UnloadSound(GfHittingWall)
 
 	rl.UnloadMusicStream(Mission1Music)
 	rl.UnloadMusicStream(Mission2Music)

@@ -30,7 +30,7 @@ type Enemy struct {
 	IsStunned                 bool
 	Active                    bool
 	StunEndTime               time.Time
-	Layer                     int
+	Layer                     int32
 	CanMove                   bool
 	WindUpTime                int64
 	isSpawning                bool
@@ -47,6 +47,12 @@ type Enemy struct {
 	HasExplosionPlayedSound   bool
 	hasExplosionTextureLoaded bool
 	explosionDuration         time.Duration
+	ChargeDirection           rl.Vector2
+	MaxHealth                 int32
+	LastHealthDecrease        time.Time
+	ExplosionPauseTime        time.Time
+	ExplosionPaused           bool
+	ExplosionElapsed          time.Duration
 }
 
 func (e *Enemy) GetObject() system.Object {
@@ -121,12 +127,7 @@ func (e *Enemy) Draw() {
 		width = -float32(width)
 	}
 
-	sourceRec := rl.NewRectangle(
-		float32(e.Object.FrameX)*float32(e.Object.Sprite.SpriteWidth),
-		float32(e.Object.FrameY)*float32(e.Object.Sprite.SpriteWidth),
-		width,
-		float32(e.Object.Sprite.SpriteHeight),
-	)
+	sourceRec := e.Object.Sprite.GetSpriteByCoordinates(e.Object.FrameX, e.Object.FrameY, int32(width), e.Object.Sprite.SpriteHeight)
 
 	destinationRec := rl.NewRectangle(
 		float32(e.Object.X),
@@ -251,7 +252,7 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 				audio.PlayFullBellyAttack()
 				return true
 			}
-		} else {
+		} else if e.EnemyType == "full_belly" && e.IsCharging {
 			e.IsCharging = false
 			e.CanMove = true
 		}
@@ -273,6 +274,7 @@ func (e *Enemy) CheckAtk(player system.Object) bool {
 	}
 	return false
 }
+
 func (e *Enemy) Update(p system.Player, screen screen.Screen, prps []*props.Prop) {
 	if e.isSpawning {
 		e.isSpawning = false
@@ -280,7 +282,7 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen, prps []*props.Prop
 	if e.Object.Destroyed {
 		e.Object.FrameX = 0
 		e.Object.FrameY = 3
-		if e.EnemyType != "full_belly" {
+		if e.EnemyType != "full_belly" && e.EnemyType != "mafia_boss" {
 			e.DropWeapon()
 		} else {
 			e.Weapon = nil
@@ -288,13 +290,27 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen, prps []*props.Prop
 		return
 	}
 
+	if e.IsStunned && e.EnemyType == "gf_monster" {
+		e.UpdateAnimation("gf_stunned")
+	}
+
 	if e.IsStunned && time.Now().After(e.StunEndTime) {
 		e.IsStunned = false
+	}
+
+	if e.EnemyType == "gf_monster" {
+		e.UpdateGirlfriendHealth()
 	}
 
 	physics.TakeKnockback(&e.Object)
 
 	if !e.IsStunned {
+		if e.EnemyType == "gf_monster" && e.IsCharging {
+			e.handleCharge(p)
+			e.UpdateAnimation("gf_running")
+			return
+		}
+
 		if e.CheckAtk(p.GetObject()) {
 			p.TakeDamage(e.Damage, e.Object)
 			return
@@ -302,6 +318,10 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen, prps []*props.Prop
 
 		if (e.Object.KnockbackX == 0 || e.Object.KnockbackY == 0) && !e.IsCharging {
 			*e = MoveEnemyTowardPlayer(p, *e, screen)
+
+			if e.EnemyType == "gf_monster" && !e.IsCharging {
+				e.startCharge(p)
+			}
 		}
 	}
 	e.UpdateProjectiles(p, prps)
@@ -367,27 +387,31 @@ func (e *Enemy) TakeDamageFromBox(box system.Object) {
 func (e *Enemy) UpdateAnimation(animationName string) {
 	switch animationName {
 	case "walk":
-		e.runAnimation(300, []int{0, 1}, []int{0, 0})
+		e.runAnimation(300, []int32{0, 1}, []int32{0, 0})
 	case "punch":
-		e.runAnimation(50, []int{0, 1}, []int{1, 1})
+		e.runAnimation(50, []int32{0, 1}, []int32{1, 1})
 	case "kick":
-		e.runAnimation(50, []int{0}, []int{3})
+		e.runAnimation(50, []int32{0}, []int32{3})
 	case "hit":
-		e.runAnimation(100, []int{0, 1}, []int{2, 2})
+		e.runAnimation(100, []int32{0, 1}, []int32{2, 2})
 	case "fb_charge":
-		e.runAnimation(100, []int{0}, []int{1})
+		e.runAnimation(100, []int32{0}, []int32{1})
 	case "fb_attack":
-		e.runAnimation(0, []int{1}, []int{1})
+		e.runAnimation(0, []int32{1}, []int32{1})
 	case "fb_hit":
-		e.runAnimation(100, []int{1, 1}, []int{2, 2})
+		e.runAnimation(100, []int32{1, 1}, []int32{2, 2})
 	case "fb_walk_with_girl":
-		e.runAnimation(300, []int{0, 1}, []int{4, 4})
+		e.runAnimation(300, []int32{0, 1}, []int32{4, 4})
+	case "gf_running":
+		e.runAnimation(300, []int32{1, 2}, []int32{0, 0})
+	case "gf_stunned":
+		e.runAnimation(300, []int32{0, 1}, []int32{1, 1})
 	case "default":
-		e.runAnimation(int(animationDelay), []int{0}, []int{0})
+		e.runAnimation(int32(animationDelay), []int32{0}, []int32{0})
 	}
 }
 
-func (e *Enemy) runAnimation(animationDelay int, framesX, framesY []int) {
+func (e *Enemy) runAnimation(animationDelay int32, framesX, framesY []int32) {
 	e.Object.UpdateAnimation(animationDelay, framesX, framesY)
 	if e.Weapon != nil {
 		e.Weapon.Object.UpdateAnimation(animationDelay, framesX, framesY)
@@ -477,6 +501,9 @@ func (e *Enemy) Explode(p system.Player) {
 		Height: explosionRadius,
 	}
 
+	e.Object.FrameX = 1
+	e.Object.FrameY = 3
+
 	if physics.CheckCollision(explosionBox, p.GetObject()) {
 		p.TakeDamage(3, e.Object)
 	}
@@ -485,3 +512,36 @@ func (e *Enemy) Explode(p system.Player) {
 
 	audio.PlayExplosionSound()
 }
+
+// girlfriendMonster json
+// {
+//   "sprite": "assets/enemies/gf_monster.png",
+//   "X": 500,
+//   "Y": 400,
+//   "activate_pos_X": 0,
+//   "activate_pos_Y": 0,
+//   "width": 64,
+//   "height": 64,
+//   "health": 6,
+//   "damage": 1,
+//   "speed": 9,
+//   "windUpTime": 200,
+//   "scale": 4,
+//   "type": "gf_monster",
+//   "weapon": {
+//     "sprite": "assets/weapons/knife.png",
+//     "hitbox_X": 30,
+//     "hitbox_Y": 0,
+//     "offset_X": 9,
+//     "offset_Y": 0,
+//     "width": 32,
+//     "height": 32,
+//     "stats": {
+//       "health": 0,
+//       "speed": 0,
+//       "damage": 1
+//     },
+//     "health": 8,
+//     "scale": 4
+//   }
+// },
