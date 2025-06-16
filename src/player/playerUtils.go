@@ -194,6 +194,8 @@ func (p *Player) Reset() {
 	if p.InitialWeapon != nil {
 		newWeapon := *p.InitialWeapon
 		p.PickUp(newWeapon)
+	} else {
+		p.DropWeapon()
 	}
 
 }
@@ -212,5 +214,7 @@ func (p *Player) RecordInitialEquipment() {
 	if p.Weapon != nil {
 		p.InitialWeapon = &weapon.Weapon{}
 		*p.InitialWeapon = *p.Weapon
+	} else {
+		p.InitialWeapon = nil
 	}
 }
