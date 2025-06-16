@@ -265,7 +265,7 @@
   {
     "sprite": "assets/enemies/mafia_boy.png",
     "X": 4500,
-    "Y": 727,
+    "Y": 600,
     "activate_pos_X": 4000,
     "width": 32,
     "height": 32,
