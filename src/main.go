@@ -543,7 +543,7 @@ func transitionMap(gs *GameState, mapName string) {
 		music := "mission1"
 		if !skipCutscenes {
 			var nextMap string
-			gs.Cutscene.Transition(gs.Player, gs.Girlfriend, gs.EnemyManager, &nextMap)
+			gs.Cutscene.Transition(gs.Player, gs.Girlfriend, gs.EnemyManager)
 			gs.Cutscene.Start()
 			if nextMap != ""{
 				transitionMap(gs, nextMap)
@@ -553,14 +553,10 @@ func transitionMap(gs *GameState, mapName string) {
 		audio.StopMusic()
 		audio.PlayMission2Music()
 	case "lab":
-		music := "mission2"
-		if !skipCutscenes {
-			gs.Cutscene.BarIntroCutscene(gs.Player, gs.Girlfriend, gs.EnemyManager)
-			gs.Cutscene.Start()
-		}
+		music := "mission3"
 		gs.Music = &music
 		audio.StopMusic()
-		audio.PlayMission2Music()
+		audio.PlayMission3Music()
 	}
 
 	props, doors, err := props.LoadPropsFromJSON(newMap.PropsPath, gs.Items)

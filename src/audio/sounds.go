@@ -19,6 +19,7 @@ var (
 
 	FullBellyMusic rl.Music
 	Mission2Music  rl.Music
+	Mission3Music  rl.Music
 )
 
 func LoadSounds() {
@@ -38,6 +39,7 @@ func LoadSounds() {
 	Mission1Music = rl.LoadMusicStream("assets/sounds/mission1.mp3")
 	FullBellyMusic = rl.LoadMusicStream("assets/sounds/music_fullbelly.mp3")
 	Mission2Music = rl.LoadMusicStream("assets/sounds/mission2.mp3")
+	Mission3Music = rl.LoadMusicStream("assets/sounds/mission3.mp3")
 }
 
 func UnloadSounds() {
@@ -55,6 +57,7 @@ func UnloadSounds() {
 
 	rl.UnloadMusicStream(Mission1Music)
 	rl.UnloadMusicStream(Mission2Music)
+	rl.UnloadMusicStream(Mission3Music)
 	rl.UnloadMusicStream(FullBellyMusic)
 }
 
@@ -62,4 +65,5 @@ func UnloadMusic() {
 	rl.UnloadMusicStream(Mission1Music)
 	rl.UnloadMusicStream(FullBellyMusic)
 	rl.UnloadMusicStream(Mission2Music)
+	rl.UnloadMusicStream(Mission3Music)
 }

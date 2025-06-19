@@ -7,6 +7,6 @@
     "scale": 4,
     "type": "door",
     "normal_texture": "assets/props/transparent.png",
-    "next_map": "bar"
+    "next_map": "lab"
   }
 ]

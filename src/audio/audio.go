@@ -24,12 +24,19 @@ func PlayMission2Music() {
 	rl.SetMusicVolume(Mission2Music, 0.5)
 }
 
+func PlayMission3Music() {
+	rl.PlayMusicStream(Mission3Music)
+	rl.SetMusicVolume(Mission3Music, 0.5)
+}
+
 func UpdateMusic(music string) {
 	switch music {
 	case "mission1":
 		rl.UpdateMusicStream(Mission1Music)
 	case "mission2":
 		rl.UpdateMusicStream(Mission2Music)
+	case "mission3":
+		rl.UpdateMusicStream(Mission3Music)
 	case "full_belly":
 		rl.UpdateMusicStream(FullBellyMusic)
 	}
