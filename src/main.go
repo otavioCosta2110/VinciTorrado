@@ -35,12 +35,12 @@ const (
 	GameRunningState
 
 	// feature flags
-	playerInfiniteLife bool   = true
-	oneHealthEnemies   bool   = true
+	playerInfiniteLife bool   = false
+	oneHealthEnemies   bool   = false
 	enableMusic        bool   = false
 	enableSoundFxs     bool   = false
 	skipCutscenes      bool   = false
-	startingMap        string = "lab"
+	startingMap        string = "gf_monster"
 )
 
 type GameState struct {
@@ -104,6 +104,14 @@ func main() {
 		Floor:        "assets/scenes/chao_lab.png",
 		EnemiesPath:  "assets/enemies/enemyInfo/3_00 enemyInfo.json",
 		PropsPath:    "assets/props/lab_props.json",
+		PlayerStartX: 100,
+		PlayerStartY: 650,
+	}
+	mapManager.Maps["gf_monster"] = &maps.GameMap{
+		Buildings:    "assets/scenes/gf_monster_scene.png",
+		Floor:        "assets/scenes/chao_lab.png",
+		EnemiesPath:  "assets/enemies/enemyInfo/gf_monster.json",
+		PropsPath:    "assets/props/gf_monster_props.json",
 		PlayerStartX: 100,
 		PlayerStartY: 650,
 	}
@@ -549,6 +557,12 @@ func transitionMap(gs *GameState, mapName string) {
 		audio.StopMusic()
 		audio.PlayMission2Music()
 	case "lab":
+		music := "mission3"
+		gs.Music = &music
+		gs.Girlfriend.SetActive(false)
+		audio.StopMusic()
+		audio.PlayMission3Music()
+	case "gf_monster":
 		music := "mission3"
 		gs.Music = &music
 		gs.Girlfriend.SetActive(false)

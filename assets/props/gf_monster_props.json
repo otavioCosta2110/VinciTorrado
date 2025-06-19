@@ -1,0 +1,12 @@
+[
+  {
+    "X": 1200,
+    "Y": 350,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "type": "door",
+    "normal_texture": "assets/props/transparent.png",
+    "next_map": "lab"
+  }
+]

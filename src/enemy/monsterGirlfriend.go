@@ -1,17 +1,18 @@
-// TODO: grunidos, som de bater na parede
+// TODO: grunidos
 package enemy
 
 import (
 	"math"
 	"otaviocosta2110/vincitorrado/src/audio"
 	"otaviocosta2110/vincitorrado/src/physics"
+	"otaviocosta2110/vincitorrado/src/screen"
 	"otaviocosta2110/vincitorrado/src/system"
 	"time"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-func (e *Enemy) startCharge(p system.Player) {
+func (e *Enemy) startCharge(p system.Player, s screen.Screen) {
 	if e.EnemyType != "gf_monster" {
 		return
 	}
@@ -20,10 +21,13 @@ func (e *Enemy) startCharge(p system.Player) {
 
 	e.IsCharging = true
 
-	e.Speed = 9
-
 	dirX := float32(p.GetObject().X - e.Object.X)
-	dirY := float32(p.GetObject().Y - e.Object.Y)
+
+	dirY := float32((p.GetObject().Y + p.GetObject().Height/2) - e.Object.Y)
+	if p.GetObject().Y > s.Height/2 {
+		dirY = float32((p.GetObject().Y - p.GetObject().Height/2) - e.Object.Y)
+	}
+
 	length := float32(math.Sqrt(float64(dirX*dirX + dirY*dirY)))
 
 	if dirX > 0 {
@@ -55,7 +59,7 @@ func (e *Enemy) handleCharge(p system.Player) {
 	enemyBottom := e.Object.Y
 
 	hitWall := false
-	if enemyLeft <= 0 || enemyRight >= screenWidth-e.Object.Width/2 {
+	if enemyLeft <= 0 || enemyRight >= screenWidth-e.Object.Width/e.Object.Scale {
 		hitWall = true
 	}
 	if enemyTop <= 0 || enemyBottom >= screenHeight-e.Object.Height/2 {
@@ -82,7 +86,7 @@ func (e *Enemy) UpdateGirlfriendHealth() {
 	}
 
 	if time.Since(e.LastHealthDecrease) > 5*time.Second {
-		e.Health -= 1
+		e.Health -= 4
 		e.LastHealthDecrease = time.Now()
 
 		if e.Health <= 0 {

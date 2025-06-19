@@ -300,9 +300,13 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen, prps []*props.Prop
 
 	if e.EnemyType == "gf_monster" {
 		e.UpdateGirlfriendHealth()
-	}
+		if physics.CheckCollision(e.Object, p.GetObject()) {
+			p.TakeDamage(e.Damage, e.Object)
+		}
+	} else {
+		physics.TakeKnockback(&e.Object)
 
-	physics.TakeKnockback(&e.Object)
+	}
 
 	if !e.IsStunned {
 		if e.EnemyType == "gf_monster" && e.IsCharging {
@@ -320,7 +324,7 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen, prps []*props.Prop
 			*e = MoveEnemyTowardPlayer(p, *e, screen)
 
 			if e.EnemyType == "gf_monster" && !e.IsCharging {
-				e.startCharge(p)
+				e.startCharge(p, screen)
 			}
 		}
 	}
@@ -352,18 +356,21 @@ func (e *Enemy) TakeDamage(damage int32, obj system.Object) {
 		e.HitCount = 0
 	}
 
+	if e.EnemyType == "gf_monster" {
+		damage = 1
+	}
 	e.Health -= damage
 	e.LastHitTime = time.Now()
 	e.HitCount++
 
-	if e.EnemyType != "full_belly" {
+	if e.EnemyType != "full_belly" && e.EnemyType != "gf_monster" {
 		if e.HitCount >= 3 {
 			e.UpdateAnimation("fb_hit")
 			e.setKnockback(obj.X)
 			e.HitCount = 0
 			e.IsStunned = true
 			e.StunEndTime = time.Now().Add(700 * time.Millisecond)
-		} else {
+		} else if e.EnemyType != "gf_monster" {
 			e.UpdateAnimation("hit")
 		}
 	}
@@ -512,36 +519,3 @@ func (e *Enemy) Explode(p system.Player) {
 
 	audio.PlayExplosionSound()
 }
-
-// girlfriendMonster json
-// {
-//   "sprite": "assets/enemies/gf_monster.png",
-//   "X": 500,
-//   "Y": 400,
-//   "activate_pos_X": 0,
-//   "activate_pos_Y": 0,
-//   "width": 64,
-//   "height": 64,
-//   "health": 6,
-//   "damage": 1,
-//   "speed": 9,
-//   "windUpTime": 200,
-//   "scale": 4,
-//   "type": "gf_monster",
-//   "weapon": {
-//     "sprite": "assets/weapons/knife.png",
-//     "hitbox_X": 30,
-//     "hitbox_Y": 0,
-//     "offset_X": 9,
-//     "offset_Y": 0,
-//     "width": 32,
-//     "height": 32,
-//     "stats": {
-//       "health": 0,
-//       "speed": 0,
-//       "damage": 1
-//     },
-//     "health": 8,
-//     "scale": 4
-//   }
-// },
