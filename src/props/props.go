@@ -66,8 +66,8 @@ func LoadPropsFromJSON(path string, items []*equipment.Equipment) ([]*Prop, []*D
 			door := NewDoor(
 				cfg.X,
 				cfg.Y,
-				cfg.Width,
-				cfg.Height,
+				cfg.Width*cfg.Scale,
+				cfg.Height*cfg.Scale,
 				cfg.Scale,
 				cfg.NormalTexture,
 				cfg.NextMap,
@@ -159,6 +159,9 @@ func (t *Prop) HandleKick(items *[]*equipment.Equipment, kicker system.Object) {
 		return
 	}
 
+	if len(t.LootTable) == 0 {
+		return
+	}
 	proto := t.LootTable[rand.Intn(len(t.LootTable))]
 	item := &equipment.Equipment{
 		Name:      proto.Name,

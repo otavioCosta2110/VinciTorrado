@@ -35,12 +35,12 @@ const (
 	GameRunningState
 
 	// feature flags
-	playerInfiniteLife bool   = false
+	playerInfiniteLife bool   = true
 	oneHealthEnemies   bool   = true
 	enableMusic        bool   = false
 	enableSoundFxs     bool   = false
 	skipCutscenes      bool   = false
-	startingMap        string = "transition"
+	startingMap        string = "lab"
 )
 
 type GameState struct {
@@ -103,7 +103,7 @@ func main() {
 		Buildings:    "assets/scenes/crazy_lab.png",
 		Floor:        "assets/scenes/chao_lab.png",
 		EnemiesPath:  "assets/enemies/enemyInfo/3_00 enemyInfo.json",
-		PropsPath:    "assets/props/bar_props.json",
+		PropsPath:    "assets/props/lab_props.json",
 		PlayerStartX: 100,
 		PlayerStartY: 650,
 	}
@@ -542,12 +542,8 @@ func transitionMap(gs *GameState, mapName string) {
 	case "transition":
 		music := "mission1"
 		if !skipCutscenes {
-			var nextMap string
 			gs.Cutscene.Transition(gs.Player, gs.Girlfriend, gs.EnemyManager)
 			gs.Cutscene.Start()
-			if nextMap != ""{
-				transitionMap(gs, nextMap)
-			}
 		}
 		gs.Music = &music
 		audio.StopMusic()
@@ -555,6 +551,7 @@ func transitionMap(gs *GameState, mapName string) {
 	case "lab":
 		music := "mission3"
 		gs.Music = &music
+		gs.Girlfriend.SetActive(false)
 		audio.StopMusic()
 		audio.PlayMission3Music()
 	}
