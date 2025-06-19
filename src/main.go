@@ -39,31 +39,31 @@ const (
 	oneHealthEnemies   bool   = true
 	enableMusic        bool   = false
 	enableSoundFxs     bool   = false
-	skipCutscenes      bool   = true
-	startingMap        string = "city"
+	skipCutscenes      bool   = false
+	startingMap        string = "transition"
 )
 
 type GameState struct {
-	CurrentState      int
-	NeedsRestart      bool
-	StartMenu         *ui.StartMenu
-	Player            *player.Player
-	EnemyManager      *enemy.EnemyManager
-	Screen            *screen.Screen
-	Kickables         []physics.Kickable
-	Items             []*equipment.Equipment
-	Props             []*props.Prop
-	Weapons           []*weapon.Weapon
-	Menu              ui.Menu
-	Music             *string
-	Cutscene          *cutscene.Cutscene
-	Girlfriend        *girlfriend.Girlfriend
-	Doors             []*props.Door
-	MapManager        *maps.MapManager
-	Buildings         *rl.Texture2D
-	Chao              rl.Texture2D
-	FloorPath         string
-	CurrentMap        string
+	CurrentState int
+	NeedsRestart bool
+	StartMenu    *ui.StartMenu
+	Player       *player.Player
+	EnemyManager *enemy.EnemyManager
+	Screen       *screen.Screen
+	Kickables    []physics.Kickable
+	Items        []*equipment.Equipment
+	Props        []*props.Prop
+	Weapons      []*weapon.Weapon
+	Menu         ui.Menu
+	Music        *string
+	Cutscene     *cutscene.Cutscene
+	Girlfriend   *girlfriend.Girlfriend
+	Doors        []*props.Door
+	MapManager   *maps.MapManager
+	Buildings    *rl.Texture2D
+	Chao         rl.Texture2D
+	FloorPath    string
+	CurrentMap   string
 }
 
 func main() {
@@ -87,6 +87,22 @@ func main() {
 		Buildings:    "assets/scenes/bar.png",
 		Floor:        "assets/scenes/chao_bar.png",
 		EnemiesPath:  "assets/enemies/enemyInfo/2_00 enemyInfo.json",
+		PropsPath:    "assets/props/bar_props.json",
+		PlayerStartX: 100,
+		PlayerStartY: 650,
+	}
+	mapManager.Maps["transition"] = &maps.GameMap{
+		Buildings:    "assets/scenes/predio_exploded.png",
+		Floor:        "assets/scenes/chao.png",
+		EnemiesPath:  "assets/enemies/enemyInfo/transition_enemies.json",
+		PropsPath:    "assets/props/transition_props.json",
+		PlayerStartX: 100,
+		PlayerStartY: 350,
+	}
+	mapManager.Maps["lab"] = &maps.GameMap{
+		Buildings:    "assets/scenes/crazy_lab.png",
+		Floor:        "assets/scenes/chao_lab.png",
+		EnemiesPath:  "assets/enemies/enemyInfo/3_00 enemyInfo.json",
 		PropsPath:    "assets/props/bar_props.json",
 		PlayerStartX: 100,
 		PlayerStartY: 650,
@@ -523,6 +539,28 @@ func transitionMap(gs *GameState, mapName string) {
 		gs.Music = &music
 		audio.StopMusic()
 		audio.PlayMission2Music()
+	case "transition":
+		music := "mission1"
+		if !skipCutscenes {
+			var nextMap string
+			gs.Cutscene.Transition(gs.Player, gs.Girlfriend, gs.EnemyManager, &nextMap)
+			gs.Cutscene.Start()
+			if nextMap != ""{
+				transitionMap(gs, nextMap)
+			}
+		}
+		gs.Music = &music
+		audio.StopMusic()
+		audio.PlayMission2Music()
+	case "lab":
+		music := "mission2"
+		if !skipCutscenes {
+			gs.Cutscene.BarIntroCutscene(gs.Player, gs.Girlfriend, gs.EnemyManager)
+			gs.Cutscene.Start()
+		}
+		gs.Music = &music
+		audio.StopMusic()
+		audio.PlayMission2Music()
 	}
 
 	props, doors, err := props.LoadPropsFromJSON(newMap.PropsPath, gs.Items)
@@ -541,4 +579,3 @@ func transitionMap(gs *GameState, mapName string) {
 		gs.Kickables = append(gs.Kickables, prop)
 	}
 }
-

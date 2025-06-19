@@ -57,3 +57,15 @@ func (c *Cutscene) BarIntroCutscene(player system.Live, gf system.Live, enemyMan
 		mafiaBoss.Weapon = weaponMafia
 	}))
 }
+
+func (c *Cutscene) Transition(player system.Live, gf system.Live, enemyManager *enemy.EnemyManager) {
+	monterMan := enemyManager.Enemies[0]
+
+	monterMan.Object.X = 600
+	monterMan.Object.Y = 400
+	monterMan.Weapon = nil
+
+	gf.SetActive(false)
+	c.AddAction(NewObjectMoveAction(monterMan, 1500, float32(monterMan.GetObject().Y), 4, "fb_walk_with_girl"))
+	c.AddAction(NewObjectMoveAction(player, 1200, float32(player.GetObject().Y), 4, "walk"))
+}

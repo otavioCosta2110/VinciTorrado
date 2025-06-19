@@ -1,0 +1,402 @@
+[
+  {
+    "sprite": "assets/enemies/bird_man.png",
+    "X": 1350,
+    "Y": 425,
+    "activate_pos_X": 0,
+    "activate_pos_Y": 0,
+    "width": 32,
+    "height": 32,
+    "health": 6,
+    "damage": 2,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4,
+    "weapon": {
+      "sprite": "assets/weapons/bone.png",
+      "hitbox_X": 30,
+      "hitbox_Y": 20,
+      "offset_X": 9,
+      "offset_Y": 0,
+      "width": 32,
+      "height": 32,
+      "stats": {
+        "health": 0,
+        "speed": 0,
+        "damage": 1
+      },
+      "health": 12,
+      "scale": 4
+    }
+  },
+  {
+    "sprite": "assets/enemies/monster_man.png",
+    "X": 1500,
+    "Y": 500,
+    "activate_pos_X": 0,
+    "activate_pos_Y": 0,
+    "width": 32,
+    "height": 32,
+    "health": 5,
+    "damage": 1,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4,
+    "weapon": {
+      "sprite": "assets/weapons/lightsaber.png",
+      "X": 500,
+      "Y": 500,
+      "width": 32,
+      "height": 32,
+      "scale": 4,
+      "offset_X": 9,
+      "offset_Y": 0,
+      "hitbox_X": 40,
+      "hitbox_Y": 0,
+      "stats": {
+        "damage": 3
+      },
+      "health": 3
+    }
+  },
+  {
+    "sprite": "assets/enemies/bird_man.png",
+    "X": 1800,
+    "Y": 300,
+    "activate_pos_X": 0,
+    "activate_pos_Y": 0,
+    "width": 32,
+    "height": 32,
+    "health": 6,
+    "damage": 2,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4,
+    "weapon": {
+      "sprite": "assets/weapons/lightsaber.png",
+      "hitbox_X": 30,
+      "hitbox_Y": 20,
+      "offset_X": 9,
+      "offset_Y": 0,
+      "width": 32,
+      "height": 32,
+      "stats": {
+        "health": 0,
+        "speed": 0,
+        "damage": 1
+      },
+      "health": 12,
+      "scale": 4
+    }
+  },
+  {
+    "sprite": "assets/enemies/monster_man.png",
+    "X": 2000,
+    "Y": 500,
+    "activate_pos_X": 0,
+    "activate_pos_Y": 0,
+    "width": 32,
+    "height": 32,
+    "health": 5,
+    "damage": 1,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4
+  },
+  {
+    "sprite": "assets/enemies/monster_man.png",
+    "X": 2800,
+    "Y": 600,
+    "width": 32,
+    "height": 32,
+    "health": 5,
+    "damage": 1,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4
+  },
+  {
+    "sprite": "assets/enemies/bird_man.png",
+    "X": 3200,
+    "Y": 300,
+    "activate_pos_X": 2800,
+    "width": 32,
+    "height": 32,
+    "health": 6,
+    "damage": 2,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4,
+    "weapon": {
+      "sprite": "assets/weapons/bone.png",
+      "hitbox_X": 30,
+      "hitbox_Y": 20,
+      "offset_X": 9,
+      "offset_Y": 0,
+      "width": 32,
+      "height": 32,
+      "stats": {
+        "health": 0,
+        "speed": 0,
+        "damage": 1
+      },
+      "health": 12,
+      "scale": 4
+    }
+  },
+  {
+    "sprite": "assets/enemies/bird_man.png",
+    "X": 3350,
+    "Y": 425,
+    "activate_pos_X": 2800,
+    "width": 32,
+    "height": 32,
+    "health": 6,
+    "damage": 2,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4,
+    "weapon": {
+      "sprite": "assets/weapons/bone.png",
+      "hitbox_X": 30,
+      "hitbox_Y": 20,
+      "offset_X": 9,
+      "offset_Y": 0,
+      "width": 32,
+      "height": 32,
+      "stats": {
+        "health": 0,
+        "speed": 0,
+        "damage": 1
+      },
+      "health": 12,
+      "scale": 4
+    }
+  },
+  {
+    "sprite": "assets/enemies/monster_man.png",
+    "X": 3500,
+    "Y": 500,
+    "activate_pos_X": 2800,
+    "width": 32,
+    "height": 32,
+    "health": 5,
+    "damage": 1,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4
+  },
+  {
+    "sprite": "assets/enemies/bird_man.png",
+    "X": 3800,
+    "Y": 300,
+    "activate_pos_X": 2800,
+    "width": 32,
+    "height": 32,
+    "health": 6,
+    "damage": 2,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4,
+    "weapon": {
+      "sprite": "assets/weapons/bone.png",
+      "hitbox_X": 30,
+      "hitbox_Y": 20,
+      "offset_X": 9,
+      "offset_Y": 0,
+      "width": 32,
+      "height": 32,
+      "stats": {
+        "health": 0,
+        "speed": 0,
+        "damage": 1
+      },
+      "health": 12,
+      "scale": 4
+    }
+  },
+  {
+    "sprite": "assets/enemies/monster_man.png",
+    "X": 4000,
+    "Y": 500,
+    "activate_pos_X": 2800,
+    "activate_pos_Y": 0,
+    "width": 32,
+    "height": 32,
+    "health": 5,
+    "damage": 1,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4
+  },
+  {
+    "sprite": "assets/enemies/monster_man.png",
+    "X": 4000,
+    "Y": 549,
+    "width": 32,
+    "height": 32,
+    "health": 5,
+    "damage": 1,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4
+  },
+  {
+    "sprite": "assets/enemies/bird_man.png",
+    "X": 4500,
+    "Y": 600,
+    "activate_pos_X": 4000,
+    "width": 32,
+    "height": 32,
+    "health": 6,
+    "damage": 2,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4,
+    "weapon": {
+      "sprite": "assets/weapons/bone.png",
+      "hitbox_X": 30,
+      "hitbox_Y": 20,
+      "offset_X": 9,
+      "offset_Y": 0,
+      "width": 32,
+      "height": 32,
+      "stats": {
+        "health": 0,
+        "speed": 0,
+        "damage": 1
+      },
+      "health": 12,
+      "scale": 4
+    }
+  },
+  {
+    "sprite": "assets/enemies/monster_man.png",
+    "X": 4300,
+    "Y": 632,
+    "activate_pos_X": 4000,
+    "activate_pos_Y": 0,
+    "width": 32,
+    "height": 32,
+    "health": 5,
+    "damage": 1,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4
+  },
+  {
+    "sprite": "assets/enemies/bird_man.png",
+    "X": 4800,
+    "Y": 300,
+    "activate_pos_X": 4000,
+    "width": 32,
+    "height": 32,
+    "health": 6,
+    "damage": 2,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4,
+    "weapon": {
+      "sprite": "assets/weapons/bone.png",
+      "hitbox_X": 30,
+      "hitbox_Y": 20,
+      "offset_X": 9,
+      "offset_Y": 0,
+      "width": 32,
+      "height": 32,
+      "stats": {
+        "health": 0,
+        "speed": 0,
+        "damage": 1
+      },
+      "health": 12,
+      "scale": 4
+    }
+  },
+  {
+    "sprite": "assets/enemies/monster_man.png",
+    "X": 4800,
+    "Y": 300,
+    "width": 32,
+    "height": 32,
+    "health": 6,
+    "damage": 2,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4,
+    "weapon": {
+      "sprite": "assets/weapons/bone.png",
+      "hitbox_X": 30,
+      "hitbox_Y": 20,
+      "offset_X": 9,
+      "offset_Y": 0,
+      "width": 32,
+      "height": 32,
+      "stats": {
+        "health": 0,
+        "speed": 0,
+        "damage": 1
+      },
+      "health": 12,
+      "scale": 4
+    }
+  },
+  {
+    "sprite": "assets/enemies/monster_man.png",
+    "X": 5200,
+    "Y": 300,
+    "activate_pos_X": 4800,
+    "width": 32,
+    "height": 32,
+    "health": 6,
+    "damage": 2,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4,
+    "weapon": {
+      "sprite": "assets/weapons/bone.png",
+      "hitbox_X": 30,
+      "hitbox_Y": 20,
+      "offset_X": 9,
+      "offset_Y": 0,
+      "width": 32,
+      "height": 32,
+      "stats": {
+        "health": 0,
+        "speed": 0,
+        "damage": 1
+      },
+      "health": 12,
+      "scale": 4
+    }
+  },
+  {
+    "sprite": "assets/enemies/monster_man.png",
+    "X": 5500,
+    "Y": 300,
+    "activate_pos_X": 4800,
+    "width": 32,
+    "height": 32,
+    "health": 6,
+    "damage": 2,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4,
+    "weapon": {
+      "sprite": "assets/weapons/bone.png",
+      "hitbox_X": 30,
+      "hitbox_Y": 20,
+      "offset_X": 9,
+      "offset_Y": 0,
+      "width": 32,
+      "height": 32,
+      "stats": {
+        "health": 0,
+        "speed": 0,
+        "damage": 1
+      },
+      "health": 12,
+      "scale": 4
+    }
+  }
+]
