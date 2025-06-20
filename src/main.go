@@ -39,8 +39,8 @@ const (
 	oneHealthEnemies   bool   = false
 	enableMusic        bool   = false
 	enableSoundFxs     bool   = true
-	skipCutscenes      bool   = false
-	startingMap        string = "gf_monster"
+	skipCutscenes      bool   = true
+	startingMap        string = "city"
 )
 
 type GameState struct {

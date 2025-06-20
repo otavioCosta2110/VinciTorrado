@@ -181,7 +181,7 @@ func (t *Prop) HandleKick(items *[]*equipment.Equipment, kicker system.Object) {
 		Stats:     proto.Stats,
 		IsDropped: true,
 		Object: system.Object{
-			X:      t.Object.X + (t.Object.Width*t.Object.Scale)/2,
+			X:      t.Object.X + (t.Object.Width)/2,
 			Y:      t.Object.Y,
 			Width:  proto.Object.Width / 2,
 			Height: proto.Object.Height,
