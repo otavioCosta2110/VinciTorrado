@@ -300,9 +300,6 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen, prps []*props.Prop
 
 	if e.EnemyType == "gf_monster" {
 		e.UpdateGirlfriendHealth()
-		if physics.CheckCollision(e.Object, p.GetObject()) {
-			p.TakeDamage(e.Damage, e.Object)
-		}
 	} else {
 		physics.TakeKnockback(&e.Object)
 
@@ -315,7 +312,7 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen, prps []*props.Prop
 			return
 		}
 
-		if e.CheckAtk(p.GetObject()) {
+		if e.CheckAtk(p.GetObject()) && e.EnemyType != "gf_monster" {
 			p.TakeDamage(e.Damage, e.Object)
 			return
 		}

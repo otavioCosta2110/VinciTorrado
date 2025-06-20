@@ -90,11 +90,11 @@ func PlayExplosionSound() {
 }
 
 func PauseBombBippingSound() {
-    rl.PauseSound(BombBippingSound)
+	rl.PauseSound(BombBippingSound)
 }
 
 func ResumeBombBippingSound() {
-    rl.ResumeSound(BombBippingSound)
+	rl.ResumeSound(BombBippingSound)
 }
 
 func PlayGfRunningSound() {
@@ -103,6 +103,10 @@ func PlayGfRunningSound() {
 
 func PlayGfHittingWall() {
 	rl.PlaySound(GfHittingWall)
+}
+
+func PlayGlassBreakingSound() {
+	rl.PlaySound(GlassBreakingSound)
 }
 
 func StopGfRunningSound() {

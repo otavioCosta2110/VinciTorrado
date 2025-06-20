@@ -1,12 +1,12 @@
 [
   {
-    "X": 1200,
-    "Y": 350,
+    "X": 1000,
+    "Y": 150,
     "width": 32,
-    "height": 32,
+    "height": 64,
     "scale": 4,
-    "type": "door",
-    "normal_texture": "assets/props/transparent.png",
-    "next_map": "lab"
+    "normal_texture": "assets/props/tube.png",
+    "kicked_texture": "assets/props/tube_busted.png",
+    "type": "trash"
   }
 ]

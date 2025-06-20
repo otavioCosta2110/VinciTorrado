@@ -1,7 +1,9 @@
 package cutscene
 
 import (
+	"otaviocosta2110/vincitorrado/src/audio"
 	"otaviocosta2110/vincitorrado/src/enemy"
+	"otaviocosta2110/vincitorrado/src/props"
 	"otaviocosta2110/vincitorrado/src/system"
 )
 
@@ -68,4 +70,31 @@ func (c *Cutscene) Transition(player system.Live, gf system.Live, enemyManager *
 	gf.SetActive(false)
 	c.AddAction(NewObjectMoveAction(monterMan, 1500, float32(monterMan.GetObject().Y), 4, "fb_walk_with_girl"))
 	c.AddAction(NewObjectMoveAction(player, 1200, float32(player.GetObject().Y), 4, "walk"))
+}
+
+func (c *Cutscene) GfMonster(player system.Live, gf system.Live, enemyManager *enemy.EnemyManager, prs []*props.Prop) {
+	monsterGf := enemyManager.Enemies[0]
+
+	monsterGf.Object.X = 5000
+	monsterGf.Object.Y = 5000
+
+	gf.SetActive(false)
+
+	c.AddAction(NewWaitAction(1.0))
+
+	c.AddAction(NewCallbackAction(func() {
+		audio.PlayGlassBreakingSound()
+		c.DrawBlackScreen = true
+	}))
+
+	c.AddAction(NewWaitAction(1.0))
+
+	c.AddAction(NewCallbackAction(func() {
+		c.DrawBlackScreen = false
+		prs[0].HandleKick(nil, player.GetObject())
+		monsterGf.Object.Flipped = true
+		monsterGf.Object.X = 1100
+		monsterGf.Object.Y = 500
+	}))
+	c.AddAction(NewWaitAction(1.0))
 }

@@ -72,9 +72,17 @@ func (e *Enemy) handleCharge(p system.Player) {
 		return
 	}
 
-	if physics.CheckCollision(e.Object, p.GetObject()) {
+	gfMonsterHitbox := system.Object{
+		X:         e.Object.X,
+		Y:         e.Object.Y + e.Object.Height/4,
+		Width:     e.Object.Width,
+		Height:    e.Object.Height / 2,
+		Flipped:   e.Object.Flipped,
+		Scale:     e.Object.Scale,
+		Destroyed: e.Object.Destroyed,
+	}
+	if physics.CheckCollision(gfMonsterHitbox, p.GetObject()) {
 		p.TakeDamage(e.Damage, e.Object)
-		e.onChargeCollision()
 		return
 	}
 

@@ -38,7 +38,7 @@ const (
 	playerInfiniteLife bool   = false
 	oneHealthEnemies   bool   = false
 	enableMusic        bool   = false
-	enableSoundFxs     bool   = false
+	enableSoundFxs     bool   = true
 	skipCutscenes      bool   = false
 	startingMap        string = "gf_monster"
 )
@@ -395,8 +395,8 @@ func draw(gs *GameState) {
 	for _, door := range gs.Doors {
 		door.Draw()
 	}
-	gs.EnemyManager.Draw()
 	gs.Player.Draw()
+	gs.EnemyManager.Draw()
 
 	for _, item := range gs.Items {
 		if item.IsDropped {
@@ -431,6 +431,9 @@ func draw(gs *GameState) {
 
 	ui.DrawLife(*gs.Screen, gs.Player)
 	gs.Menu.Draw()
+	if gs.Cutscene != nil && gs.Cutscene.IsPlaying() && gs.Cutscene.DrawBlackScreen {
+		rl.DrawRectangle(0, 0, gs.Screen.Width, gs.Screen.Height, rl.Black)
+	}
 
 	rl.EndDrawing()
 }
@@ -530,6 +533,13 @@ func transitionMap(gs *GameState, mapName string) {
 	}
 	gs.Cutscene = cutscene.NewCutscene()
 
+	props, doors, err := props.LoadPropsFromJSON(newMap.PropsPath, gs.Items)
+	if err != nil {
+		panic("Failed to load props: " + err.Error())
+	}
+	gs.Props = props
+	gs.Doors = doors
+
 	switch gs.CurrentMap {
 	case "city":
 		music := "mission1"
@@ -564,18 +574,15 @@ func transitionMap(gs *GameState, mapName string) {
 		audio.PlayMission3Music()
 	case "gf_monster":
 		music := "mission3"
+		if !skipCutscenes {
+			gs.Cutscene.GfMonster(gs.Player, gs.Girlfriend, gs.EnemyManager, gs.Props)
+			gs.Cutscene.Start()
+		}
 		gs.Music = &music
 		gs.Girlfriend.SetActive(false)
 		audio.StopMusic()
 		audio.PlayMission3Music()
 	}
-
-	props, doors, err := props.LoadPropsFromJSON(newMap.PropsPath, gs.Items)
-	if err != nil {
-		panic("Failed to load props: " + err.Error())
-	}
-	gs.Props = props
-	gs.Doors = doors
 
 	gs.Player.Object.X = newMap.PlayerStartX
 	gs.Player.Object.Y = newMap.PlayerStartY

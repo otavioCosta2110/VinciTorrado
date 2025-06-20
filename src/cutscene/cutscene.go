@@ -12,9 +12,10 @@ type CutsceneAction interface {
 }
 
 type Cutscene struct {
-	actions []CutsceneAction
-	current int
-	playing bool
+	actions         []CutsceneAction
+	current         int
+	playing         bool
+	DrawBlackScreen bool
 }
 
 func NewCutscene() *Cutscene {
