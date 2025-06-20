@@ -99,6 +99,8 @@ func (e *Enemy) UpdateGirlfriendHealth() {
 
 		if e.Health <= 0 {
 			e.Object.Destroyed = true
+			e.Object.FrameX = 0
+			e.Object.FrameY = 2
 		}
 	}
 }

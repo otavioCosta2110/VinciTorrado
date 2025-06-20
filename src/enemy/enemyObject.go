@@ -280,8 +280,10 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen, prps []*props.Prop
 		e.isSpawning = false
 	}
 	if e.Object.Destroyed {
-		e.Object.FrameX = 0
-		e.Object.FrameY = 3
+		if e.EnemyType != "gf_monster" {
+			e.Object.FrameX = 0
+			e.Object.FrameY = 3
+		}
 		if e.EnemyType != "full_belly" && e.EnemyType != "mafia_boss" {
 			e.DropWeapon()
 		} else {
@@ -343,6 +345,11 @@ func (e *Enemy) setKnockback(pX int32) {
 
 func (e *Enemy) TakeDamage(damage int32, obj system.Object) {
 	if e.Health <= 0 {
+		if e.EnemyType == "gf_monster" {
+			e.Object.FrameX = 0
+			e.Object.FrameY = 2
+			audio.StopGfRunningSound()
+		}
 		e.Object.Destroyed = true
 		e.Layer = -1
 		return

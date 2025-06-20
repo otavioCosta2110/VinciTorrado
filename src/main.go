@@ -35,12 +35,12 @@ const (
 	GameRunningState
 
 	// feature flags
-	playerInfiniteLife bool   = false
-	oneHealthEnemies   bool   = false
+	playerInfiniteLife bool   = true
+	oneHealthEnemies   bool   = true
 	enableMusic        bool   = false
 	enableSoundFxs     bool   = true
 	skipCutscenes      bool   = true
-	startingMap        string = "city"
+	startingMap        string = "gf_monster" // "city", "bar", "transition", "lab", "gf_monster"
 )
 
 type GameState struct {
@@ -119,6 +119,7 @@ func main() {
 	currentMap := mapManager.Maps[startingMap]
 
 	buildings := system.LoadScaledTexture(currentMap.Buildings, playerScale)
+	println(buildings.Width)
 	chao := system.LoadScaledTexture(currentMap.Floor, playerScale)
 
 	if enableSoundFxs {

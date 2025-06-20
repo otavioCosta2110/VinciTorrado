@@ -75,6 +75,8 @@ func (c *Cutscene) Transition(player system.Live, gf system.Live, enemyManager *
 func (c *Cutscene) GfMonster(player system.Live, gf system.Live, enemyManager *enemy.EnemyManager, prs []*props.Prop) {
 	monsterGf := enemyManager.Enemies[0]
 
+	originalX := monsterGf.Object.X
+	originalY := monsterGf.Object.Y
 	monsterGf.Object.X = 5000
 	monsterGf.Object.Y = 5000
 
@@ -93,8 +95,8 @@ func (c *Cutscene) GfMonster(player system.Live, gf system.Live, enemyManager *e
 		c.DrawBlackScreen = false
 		prs[0].HandleKick(nil, player.GetObject())
 		monsterGf.Object.Flipped = true
-		monsterGf.Object.X = 1100
-		monsterGf.Object.Y = 500
+		monsterGf.Object.X = originalX
+		monsterGf.Object.Y = originalY
 	}))
 	c.AddAction(NewWaitAction(1.0))
 }

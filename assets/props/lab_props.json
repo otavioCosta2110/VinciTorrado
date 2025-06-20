@@ -38,20 +38,6 @@
     "type": "trash"
   },
   {
-    "X": 3987,
-    "Y": 450,
-    "width": 32,
-    "height": 32,
-    "scale": 4,
-    "normal_texture": "assets/props/prop_box.png",
-    "kicked_texture": "assets/props/prop_box_tombada.png",
-    "loot": [
-      "Hamburguer",
-      "Sandwich"
-    ],
-    "type": "trash"
-  },
-  {
     "X": 845,
     "Y": 580,
     "width": 32,
@@ -161,6 +147,6 @@
     "scale": 4,
     "type": "door",
     "normal_texture": "assets/props/lab_door.png",
-    "next_map": "gf_boss"
+    "next_map": "gf_monster"
   }
 ]

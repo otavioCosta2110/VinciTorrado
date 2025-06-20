@@ -1,8 +1,8 @@
 [
   {
     "sprite": "assets/enemies/gf_monster.png",
-    "X": 500,
-    "Y": 400,
+    "X": 1100,
+    "Y": 500,
     "activate_pos_X": 0,
     "activate_pos_Y": 0,
     "width": 64,
@@ -12,6 +12,15 @@
     "speed": 7,
     "windUpTime": 200,
     "scale": 4,
-    "type": "gf_monster"
+    "type": "gf_monster",
+    "drops": {
+      "name": "Bracelet",
+      "sprite": "assets/player/playerBracelet.png",
+      "stats": {
+        "health": 1,
+        "speed": 0,
+        "damage": 2
+      }
+    }
   }
 ]
