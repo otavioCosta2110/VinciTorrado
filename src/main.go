@@ -38,11 +38,11 @@ const (
 
 	// feature flags
 	playerInfiniteLife bool   = true
-	oneHealthEnemies   bool   = true
+	oneHealthEnemies   bool   = false
 	enableMusic        bool   = true
 	enableSoundFxs     bool   = true
 	skipCutscenes      bool   = false
-	startingMap        string = "last" // "city", "bar", "transition", "lab", "gf_monster"
+	startingMap        string = "gf_monster" // "city", "bar", "transition", "lab", "gf_monster"
 )
 
 type GameState struct {
@@ -577,7 +577,7 @@ func transitionMap(gs *GameState, mapName string) {
 		audio.StopMusic()
 		audio.PlayMission3Music()
 	case "gf_monster":
-		music := "mission3"
+		music := "gf_battle"
 		if !skipCutscenes {
 			gs.Cutscene.GfMonster(gs.Player, gs.Girlfriend, gs.EnemyManager, gs.Props)
 			gs.Cutscene.Start()
@@ -585,7 +585,7 @@ func transitionMap(gs *GameState, mapName string) {
 		gs.Music = &music
 		gs.Girlfriend.SetActive(false)
 		audio.StopMusic()
-		audio.PlayMission3Music()
+		audio.PlayGfBattleMusic()
 	case "last":
 		music := "ending"
 		if !skipCutscenes {

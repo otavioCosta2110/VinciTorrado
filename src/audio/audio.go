@@ -34,6 +34,11 @@ func PlayEndingMusic() {
 	rl.SetMusicVolume(EndingMusic, 0.5)
 }
 
+func PlayGfBattleMusic() {
+	rl.PlayMusicStream(GfBattleMusic)
+	rl.SetMusicVolume(GfBattleMusic, 0.5)
+}
+
 func UpdateMusic(music string) {
 	switch music {
 	case "mission1":
@@ -44,6 +49,8 @@ func UpdateMusic(music string) {
 		rl.UpdateMusicStream(Mission3Music)
 	case "ending":
 		rl.UpdateMusicStream(EndingMusic)
+	case "gf_battle":
+		rl.UpdateMusicStream(GfBattleMusic)
 	case "full_belly":
 		rl.UpdateMusicStream(FullBellyMusic)
 	}
