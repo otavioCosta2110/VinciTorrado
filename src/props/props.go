@@ -212,6 +212,4 @@ func (t *Prop) Reset() {
 	t.Kicked = false
 	t.Object.Sprite.Texture = t.NormalTexture
 	t.Object.Y = t.OriginalY
-	// t.Object.Height = t.OriginalHeight
-	// t.Object.Width = t.OriginalWidth
 }

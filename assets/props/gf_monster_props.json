@@ -8,5 +8,15 @@
     "normal_texture": "assets/props/tube.png",
     "kicked_texture": "assets/props/tube_busted.png",
     "type": "trash"
+  },
+  {
+    "X": 1200,
+    "Y": 165,
+    "width": 23,
+    "height": 54,
+    "scale": 4,
+    "type": "door",
+    "normal_texture": "assets/props/lab_door_small.png",
+    "next_map": "last"
   }
 ]

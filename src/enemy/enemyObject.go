@@ -30,7 +30,6 @@ type Enemy struct {
 	IsStunned                 bool
 	Active                    bool
 	StunEndTime               time.Time
-	Layer                     int32
 	CanMove                   bool
 	WindUpTime                int64
 	isSpawning                bool
@@ -85,6 +84,7 @@ func NewEnemy(x, y, aX, aY, speed, width, height, scale int32, sprite sprites.Sp
 				Scale:     scale,
 				Destroyed: false,
 				Flipped:   false,
+				Layer:     0,
 			},
 			MaxHealth: 5,
 			Health:    5,
@@ -93,7 +93,6 @@ func NewEnemy(x, y, aX, aY, speed, width, height, scale int32, sprite sprites.Sp
 		Activate_pos_X:            aX,
 		Activate_pos_Y:            aY,
 		Active:                    false,
-		Layer:                     0,
 		CanMove:                   true,
 		WindUpTime:                windUpTime,
 		isSpawning:                true,
@@ -351,7 +350,7 @@ func (e *Enemy) TakeDamage(damage int32, obj system.Object) {
 			audio.StopGfRunningSound()
 		}
 		e.Object.Destroyed = true
-		e.Layer = -1
+		e.Object.Layer = -1
 		return
 	}
 

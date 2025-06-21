@@ -1,4 +1,3 @@
-// TODO: grunidos
 package enemy
 
 import (
@@ -60,9 +59,11 @@ func (e *Enemy) handleCharge(p system.Player) {
 
 	hitWall := false
 	if enemyLeft <= 0 || enemyRight >= screenWidth-e.Object.Width/e.Object.Scale {
+		e.Object.X = e.Object.X - int32(e.ChargeDirection.X*float32(e.Speed))
 		hitWall = true
 	}
 	if enemyTop <= 0 || enemyBottom >= screenHeight-e.Object.Height/2 {
+		e.Object.Y = e.Object.Y - int32(e.ChargeDirection.Y*float32(e.Speed))
 		hitWall = true
 	}
 

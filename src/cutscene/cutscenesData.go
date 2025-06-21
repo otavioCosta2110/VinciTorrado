@@ -100,3 +100,25 @@ func (c *Cutscene) GfMonster(player system.Live, gf system.Live, enemyManager *e
 	}))
 	c.AddAction(NewWaitAction(1.0))
 }
+
+func (c *Cutscene) Doctor(player system.Live, gf system.Live, enemyManager *enemy.EnemyManager, state *int) {
+	jideao := enemyManager.Enemies[0]
+
+	jideao.Object.Flipped = true
+	gf.SetActive(false)
+
+	speed := 3
+	c.AddAction(NewObjectMoveAction(player, float32(player.GetObject().X), float32(jideao.Object.Y), float32(speed), "walk"))
+	c.AddAction(NewObjectMoveAction(player, float32(jideao.Object.X)-float32(jideao.Object.Width)*2, float32(jideao.Object.Y), float32(speed), "walk"))
+	c.AddAction(NewCallbackAction(func() {
+		player.UpdateAnimation("punch")
+		jideao.Object.FrameY = 1
+		jideao.Object.FrameX = 0
+		jideao.Object.Destroyed = true
+	}))
+	c.AddAction(NewWaitAction(1.0))
+	c.AddAction(NewObjectMoveAction(player, -100, 501, 2, "walk"))
+	c.AddAction(NewCallbackAction(func() {
+		*state = 7
+	}))
+}

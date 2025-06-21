@@ -23,6 +23,16 @@ type EnemyManager struct {
 
 func (em *EnemyManager) Update(p system.Player, s screen.Screen, m *string, prps []*props.Prop, buildings *rl.Texture2D, isPaused *bool) {
 	for _, enemy := range em.Enemies {
+		if !enemy.Object.Destroyed {
+			enemyMidpoint := enemy.Object.Y + (enemy.Object.Height / 2)
+
+			if p.GetObject().Y < enemyMidpoint {
+				enemy.Object.Layer = 2 
+			} else {
+				enemy.Object.Layer = 0 
+			}
+		}
+
 		if enemy.Object.Destroyed && enemy.EnemyType == "mafia_boss" {
 			em.updateBossExplosion(enemy, p, isPaused, buildings)
 		}
@@ -81,7 +91,7 @@ func (em *EnemyManager) RemoveActiveEnemy(enemy *Enemy) {
 
 func (em *EnemyManager) Draw() {
 	sort.Slice(em.Enemies, func(i, j int) bool {
-		return em.Enemies[i].Layer < em.Enemies[j].Layer
+		return em.Enemies[i].Object.Layer < em.Enemies[j].Object.Layer
 	})
 	for _, enemy := range em.Enemies {
 		if !enemy.Object.Destroyed {
@@ -93,7 +103,7 @@ func (em *EnemyManager) Draw() {
 func (em *EnemyManager) DrawDead() {
 	enemies := em.Enemies
 	sort.Slice(enemies, func(i, j int) bool {
-		return enemies[i].Layer < enemies[j].Layer
+		return enemies[i].Object.Layer < enemies[j].Object.Layer
 	})
 	for _, enemy := range enemies {
 		if enemy.Object.Destroyed {
