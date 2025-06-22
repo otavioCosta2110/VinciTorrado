@@ -2,6 +2,30 @@
 
 **Vinci Torrado** é um jogo do gênero *Beat-'em-Up* em desenvolvimento, feito com a linguagem Go (Golang) e a biblioteca Raylib. Inspirado por clássicos como *Streets of Rage* e *Final Fight*, o projeto propõe uma narrativa envolvente e combates intensos em uma cidade fictícia dominada por criminosos carismáticos.
 
+## Build do Projeto
+### ⚙️ Pré-requisitos
+- [Go](https://go.dev/)
+- [Git](https://git-scm.com/)
+### 💻 Passos para o Build
+```bash
+git clone https://github.com/otavioCosta2110/VinciTorrado.git
+cd VinciTorrado
+go mod tidy
+go build -o vinci-torrado ./src/main.go
+```
+### 🔥 Para Executar
+> Para ser executado, o binário deve estar no mesmo diretorio da pasta assets (se estiver no windows, também deve estar no mesmo diretorio do arquivo raylib.dll)
+
+No Linux/macOS:
+```bash
+./vinci-torrado
+```
+No Windows:
+
+```bash
+.\vinci-torrado.exe
+```
+
 ## 📜 Enredo
 
 Na decadente cidade de **Jaminaro**, o protagonista **Vinci** inicia uma jornada frenética após o sequestro de sua namorada por um criminoso local chamado **Pança Cheia**. Conforme avança pelos níveis do jogo, Vinci enfrenta diversos vilões com estilos únicos, passando por bares mafiosos e até um laboratório secreto cheio de mutantes, sempre tentando resgatar sua amada.
