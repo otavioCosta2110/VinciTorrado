@@ -42,7 +42,7 @@ const (
 	enableMusic        bool   = true
 	enableSoundFxs     bool   = true
 	skipCutscenes      bool   = true
-	startingMap        string = "gf_monster" // "city", "bar", "transition", "lab", "gf_monster"
+	startingMap        string = "city" // "city", "bar", "transition", "lab", "gf_monster"
 )
 
 type GameState struct {
