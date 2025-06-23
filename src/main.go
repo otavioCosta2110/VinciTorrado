@@ -41,7 +41,7 @@ const (
 	oneHealthEnemies   bool   = false
 	enableMusic        bool   = true
 	enableSoundFxs     bool   = true
-	skipCutscenes      bool   = true
+	skipCutscenes      bool   = false
 	startingMap        string = "city" // "city", "bar", "transition", "lab", "gf_monster"
 )
 
