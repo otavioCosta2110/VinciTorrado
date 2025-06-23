@@ -147,6 +147,7 @@ func (m *Menu) getItemIconPos(item *equipment.Equipment) rl.Rectangle {
 		"Turban": rl.NewRectangle(32, 32, 32, 32),
 		"Suit":     rl.NewRectangle(64, 32, 32, 32),
 		"Shoes":    rl.NewRectangle(96, 32, 32, 32),
+		"Bracelet":     rl.NewRectangle(128, 32, 32, 32),
 	}
 
 	consumableMap := map[string]rl.Rectangle{

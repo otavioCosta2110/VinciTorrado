@@ -1,7 +1,9 @@
 package cutscene
 
 import (
+	"otaviocosta2110/vincitorrado/src/audio"
 	"otaviocosta2110/vincitorrado/src/enemy"
+	"otaviocosta2110/vincitorrado/src/props"
 	"otaviocosta2110/vincitorrado/src/system"
 )
 
@@ -55,5 +57,68 @@ func (c *Cutscene) BarIntroCutscene(player system.Live, gf system.Live, enemyMan
 		mafiaBoss.Object.X = posXMafia
 		mafiaBoss.Object.Y = posYMafia
 		mafiaBoss.Weapon = weaponMafia
+	}))
+}
+
+func (c *Cutscene) Transition(player system.Live, gf system.Live, enemyManager *enemy.EnemyManager) {
+	monterMan := enemyManager.Enemies[0]
+
+	monterMan.Object.X = 600
+	monterMan.Object.Y = 400
+	monterMan.Weapon = nil
+
+	gf.SetActive(false)
+	c.AddAction(NewObjectMoveAction(monterMan, 1500, float32(monterMan.GetObject().Y), 4, "fb_walk_with_girl"))
+	c.AddAction(NewObjectMoveAction(player, 1200, float32(player.GetObject().Y), 4, "walk"))
+}
+
+func (c *Cutscene) GfMonster(player system.Live, gf system.Live, enemyManager *enemy.EnemyManager, prs []*props.Prop) {
+	monsterGf := enemyManager.Enemies[0]
+
+	originalX := monsterGf.Object.X
+	originalY := monsterGf.Object.Y
+	monsterGf.Object.X = 5000
+	monsterGf.Object.Y = 5000
+
+	gf.SetActive(false)
+
+	c.AddAction(NewWaitAction(1.0))
+
+	c.AddAction(NewCallbackAction(func() {
+		audio.PlayGlassBreakingSound()
+		c.DrawBlackScreen = true
+	}))
+
+	c.AddAction(NewWaitAction(1.0))
+
+	c.AddAction(NewCallbackAction(func() {
+		c.DrawBlackScreen = false
+		prs[0].HandleKick(nil, player.GetObject())
+		monsterGf.Object.Flipped = true
+		monsterGf.Object.X = originalX
+		monsterGf.Object.Y = originalY
+	}))
+	c.AddAction(NewWaitAction(1.0))
+}
+
+func (c *Cutscene) Doctor(player system.Live, gf system.Live, enemyManager *enemy.EnemyManager, state *int) {
+	jideao := enemyManager.Enemies[0]
+
+	jideao.Object.Flipped = true
+	gf.SetActive(false)
+
+	speed := 3
+	c.AddAction(NewObjectMoveAction(player, float32(player.GetObject().X), float32(jideao.Object.Y), float32(speed), "walk"))
+	c.AddAction(NewObjectMoveAction(player, float32(jideao.Object.X)-float32(jideao.Object.Width)*2, float32(jideao.Object.Y), float32(speed), "walk"))
+	c.AddAction(NewCallbackAction(func() {
+		player.UpdateAnimation("punch")
+		jideao.Object.FrameY = 1
+		jideao.Object.FrameX = 0
+		jideao.Object.Destroyed = true
+	}))
+	c.AddAction(NewWaitAction(1.0))
+	c.AddAction(NewObjectMoveAction(player, -100, 501, 2, "walk"))
+	c.AddAction(NewCallbackAction(func() {
+		*state = 7
 	}))
 }

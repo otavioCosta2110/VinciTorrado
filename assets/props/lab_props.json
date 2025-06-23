@@ -1,0 +1,152 @@
+[
+  {
+    "X": 3000,
+    "Y": 380,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/prop_box.png",
+    "kicked_texture": "assets/props/prop_box_tombada.png",
+    "loot": [
+      "Hamburguer",
+      "Sandwich"
+    ],
+    "type": "trash"
+  },
+  {
+    "X": 1876,
+    "Y": 420,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/rollers.png",
+    "kicked_texture": "assets/props/rollers_tombado.png",
+    "type": "trash"
+  },
+  {
+    "X": 567,
+    "Y": 300,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/rollers.png",
+    "kicked_texture": "assets/props/rollers_tombado.png",
+    "loot": [
+      "Hamburguer",
+      "Sandwich"
+    ],
+    "type": "trash"
+  },
+  {
+    "X": 845,
+    "Y": 580,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/rollers.png",
+    "kicked_texture": "assets/props/rollers_tombado.png",
+    "type": "trash"
+  },
+  {
+    "X": 1000,
+    "Y": 350,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/prop_box.png",
+    "kicked_texture": "assets/props/prop_box_tombada.png",
+    "type": "trash"
+  },
+  {
+    "X": 1250,
+    "Y": 500,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/rollers.png",
+    "kicked_texture": "assets/props/rollers_tombado.png",
+    "loot": [
+      "Sandwich"
+    ],
+    "type": "trash"
+  },
+  {
+    "X": 1500,
+    "Y": 400,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/prop_box.png",
+    "kicked_texture": "assets/props/prop_box_tombada.png",
+    "type": "trash"
+  },
+  {
+    "X": 2100,
+    "Y": 500,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/rollers.png",
+    "kicked_texture": "assets/props/rollers_tombado.png",
+    "loot": [
+      "Hamburguer"
+    ],
+    "type": "trash"
+  },
+  {
+    "X": 2500,
+    "Y": 320,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/prop_box.png",
+    "kicked_texture": "assets/props/prop_box_tombada.png",
+    "type": "trash"
+  },
+  {
+    "X": 2800,
+    "Y": 570,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/rollers.png",
+    "kicked_texture": "assets/props/rollers_tombado.png",
+    "type": "trash"
+  },
+  {
+    "X": 3700,
+    "Y": 300,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/prop_box.png",
+    "kicked_texture": "assets/props/prop_box_tombada.png",
+    "loot": [
+      "Hamburguer"
+    ],
+    "type": "trash"
+  },
+  {
+    "X": 3700,
+    "Y": 500,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "normal_texture": "assets/props/rollers.png",
+    "kicked_texture": "assets/props/rollers_tombado.png",
+    "loot": [
+      "Sandwich"
+    ],
+    "type": "trash"
+  },
+  {
+    "X": 3348,
+    "Y": 181,
+    "width": 46,
+    "height": 55,
+    "scale": 4,
+    "type": "door",
+    "normal_texture": "assets/props/lab_door.png",
+    "next_map": "gf_monster"
+  }
+]

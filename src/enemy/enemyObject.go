@@ -30,7 +30,6 @@ type Enemy struct {
 	IsStunned                 bool
 	Active                    bool
 	StunEndTime               time.Time
-	Layer                     int32
 	CanMove                   bool
 	WindUpTime                int64
 	isSpawning                bool
@@ -85,6 +84,7 @@ func NewEnemy(x, y, aX, aY, speed, width, height, scale int32, sprite sprites.Sp
 				Scale:     scale,
 				Destroyed: false,
 				Flipped:   false,
+				Layer:     0,
 			},
 			MaxHealth: 5,
 			Health:    5,
@@ -93,7 +93,6 @@ func NewEnemy(x, y, aX, aY, speed, width, height, scale int32, sprite sprites.Sp
 		Activate_pos_X:            aX,
 		Activate_pos_Y:            aY,
 		Active:                    false,
-		Layer:                     0,
 		CanMove:                   true,
 		WindUpTime:                windUpTime,
 		isSpawning:                true,
@@ -280,8 +279,10 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen, prps []*props.Prop
 		e.isSpawning = false
 	}
 	if e.Object.Destroyed {
-		e.Object.FrameX = 0
-		e.Object.FrameY = 3
+		if e.EnemyType != "gf_monster" {
+			e.Object.FrameX = 0
+			e.Object.FrameY = 3
+		}
 		if e.EnemyType != "full_belly" && e.EnemyType != "mafia_boss" {
 			e.DropWeapon()
 		} else {
@@ -300,9 +301,10 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen, prps []*props.Prop
 
 	if e.EnemyType == "gf_monster" {
 		e.UpdateGirlfriendHealth()
-	}
+	} else {
+		physics.TakeKnockback(&e.Object)
 
-	physics.TakeKnockback(&e.Object)
+	}
 
 	if !e.IsStunned {
 		if e.EnemyType == "gf_monster" && e.IsCharging {
@@ -311,7 +313,7 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen, prps []*props.Prop
 			return
 		}
 
-		if e.CheckAtk(p.GetObject()) {
+		if e.CheckAtk(p.GetObject()) && e.EnemyType != "gf_monster" {
 			p.TakeDamage(e.Damage, e.Object)
 			return
 		}
@@ -320,7 +322,7 @@ func (e *Enemy) Update(p system.Player, screen screen.Screen, prps []*props.Prop
 			*e = MoveEnemyTowardPlayer(p, *e, screen)
 
 			if e.EnemyType == "gf_monster" && !e.IsCharging {
-				e.startCharge(p)
+				e.startCharge(p, screen)
 			}
 		}
 	}
@@ -342,8 +344,13 @@ func (e *Enemy) setKnockback(pX int32) {
 
 func (e *Enemy) TakeDamage(damage int32, obj system.Object) {
 	if e.Health <= 0 {
+		if e.EnemyType == "gf_monster" {
+			e.Object.FrameX = 0
+			e.Object.FrameY = 2
+			audio.StopGfRunningSound()
+		}
 		e.Object.Destroyed = true
-		e.Layer = -1
+		e.Object.Layer = -1
 		return
 	}
 
@@ -352,18 +359,21 @@ func (e *Enemy) TakeDamage(damage int32, obj system.Object) {
 		e.HitCount = 0
 	}
 
+	if e.EnemyType == "gf_monster" {
+		damage = 1
+	}
 	e.Health -= damage
 	e.LastHitTime = time.Now()
 	e.HitCount++
 
-	if e.EnemyType != "full_belly" {
+	if e.EnemyType != "full_belly" && e.EnemyType != "gf_monster" {
 		if e.HitCount >= 3 {
 			e.UpdateAnimation("fb_hit")
 			e.setKnockback(obj.X)
 			e.HitCount = 0
 			e.IsStunned = true
 			e.StunEndTime = time.Now().Add(700 * time.Millisecond)
-		} else {
+		} else if e.EnemyType != "gf_monster" {
 			e.UpdateAnimation("hit")
 		}
 	}
@@ -512,36 +522,3 @@ func (e *Enemy) Explode(p system.Player) {
 
 	audio.PlayExplosionSound()
 }
-
-// girlfriendMonster json
-// {
-//   "sprite": "assets/enemies/gf_monster.png",
-//   "X": 500,
-//   "Y": 400,
-//   "activate_pos_X": 0,
-//   "activate_pos_Y": 0,
-//   "width": 64,
-//   "height": 64,
-//   "health": 6,
-//   "damage": 1,
-//   "speed": 9,
-//   "windUpTime": 200,
-//   "scale": 4,
-//   "type": "gf_monster",
-//   "weapon": {
-//     "sprite": "assets/weapons/knife.png",
-//     "hitbox_X": 30,
-//     "hitbox_Y": 0,
-//     "offset_X": 9,
-//     "offset_Y": 0,
-//     "width": 32,
-//     "height": 32,
-//     "stats": {
-//       "health": 0,
-//       "speed": 0,
-//       "damage": 1
-//     },
-//     "health": 8,
-//     "scale": 4
-//   }
-// },

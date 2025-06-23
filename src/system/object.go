@@ -19,11 +19,12 @@ type Object struct {
 	Scale          int32
 	Destroyed      bool
 	Flipped        bool
+	Layer          int32
 }
 
 func (obj *Object) UpdateAnimation(animationDelay int32, framesX, framesY []int32) {
 	if len(framesX) == 0 || len(framesY) == 0 || len(framesX) != len(framesY) {
-		return 
+		return
 	}
 
 	if time.Since(obj.LastFrameTime) < time.Duration(animationDelay)*time.Millisecond {

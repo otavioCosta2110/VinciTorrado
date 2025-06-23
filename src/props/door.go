@@ -41,12 +41,12 @@ func (d *Door) CheckTransition(player system.Object, enemiesCleared bool) bool {
 func (d *Door) Draw() {
 	rl.DrawTexturePro(
 		d.Texture,
-		rl.NewRectangle(0, 0, float32(d.Object.Width), float32(d.Object.Height)),
+		rl.NewRectangle(0, 0, float32(d.Object.Width) / float32(d.Object.Scale), float32(d.Object.Height)/ float32(d.Object.Scale)),
 		rl.NewRectangle(
 			float32(d.Object.X),
 			float32(d.Object.Y),
-			float32(d.Object.Width)*float32(d.Object.Scale),
-			float32(d.Object.Height)*float32(d.Object.Scale),
+			float32(d.Object.Width),
+			float32(d.Object.Height),
 		),
 		rl.Vector2{},
 		0,

@@ -66,8 +66,8 @@ func LoadPropsFromJSON(path string, items []*equipment.Equipment) ([]*Prop, []*D
 			door := NewDoor(
 				cfg.X,
 				cfg.Y,
-				cfg.Width,
-				cfg.Height,
+				cfg.Width*cfg.Scale,
+				cfg.Height*cfg.Scale,
 				cfg.Scale,
 				cfg.NormalTexture,
 				cfg.NextMap,
@@ -88,8 +88,8 @@ func LoadPropsFromJSON(path string, items []*equipment.Equipment) ([]*Prop, []*D
 				cfg.X,
 				cfg.Y,
 				cfg.Scale,
-				cfg.Width,
-				cfg.Height,
+				cfg.Width*cfg.Scale,
+				cfg.Height*cfg.Scale,
 				cfg.NormalTexture,
 				cfg.KickedTexture,
 				loot,
@@ -130,12 +130,12 @@ func NewProp(x, y, scale, width, height int32, normalTexPath, kickedTexPath stri
 func (t *Prop) Draw() {
 	rl.DrawTexturePro(
 		t.Sprite.Texture,
-		rl.NewRectangle(0, 0, 32, 32),
+		rl.NewRectangle(0, 0, float32(t.Width)/float32(t.Scale), float32(t.Height)/float32(t.Scale)),
 		rl.NewRectangle(
 			float32(t.X),
 			float32(t.Y),
-			float32(t.Width)*float32(t.Scale),
-			float32(t.Height)*float32(t.Scale),
+			float32(t.Width),
+			float32(t.Height),
 		),
 		rl.Vector2{},
 		0,
@@ -147,9 +147,21 @@ func (t *Prop) IsKicked() bool {
 	return t.Kicked
 }
 
+func (t *Prop) SetKicked(kicked bool) {
+	if kicked {
+		t.Kicked = true
+		t.Object.Sprite.Texture = t.KickedTexture
+	} else {
+		t.Kicked = false
+		t.Object.Sprite.Texture = t.NormalTexture
+		t.Object.Y = t.OriginalY
+		t.Object.Height = t.OriginalHeight
+		t.Object.Width = t.OriginalWidth
+	}
+}
+
 func (t *Prop) HandleKick(items *[]*equipment.Equipment, kicker system.Object) {
-	t.Kicked = true
-	t.Object.Sprite.Texture = t.KickedTexture
+	t.SetKicked(true)
 
 	switch t.Type {
 	case PropTypeTable:
@@ -159,6 +171,9 @@ func (t *Prop) HandleKick(items *[]*equipment.Equipment, kicker system.Object) {
 		return
 	}
 
+	if len(t.LootTable) == 0 {
+		return
+	}
 	proto := t.LootTable[rand.Intn(len(t.LootTable))]
 	item := &equipment.Equipment{
 		Name:      proto.Name,
@@ -166,7 +181,7 @@ func (t *Prop) HandleKick(items *[]*equipment.Equipment, kicker system.Object) {
 		Stats:     proto.Stats,
 		IsDropped: true,
 		Object: system.Object{
-			X:      t.Object.X + (t.Object.Width*t.Object.Scale)/2,
+			X:      t.Object.X + (t.Object.Width)/2,
 			Y:      t.Object.Y,
 			Width:  proto.Object.Width / 2,
 			Height: proto.Object.Height,
@@ -197,6 +212,4 @@ func (t *Prop) Reset() {
 	t.Kicked = false
 	t.Object.Sprite.Texture = t.NormalTexture
 	t.Object.Y = t.OriginalY
-	t.Object.Height = t.OriginalHeight
-	t.Object.Width = t.OriginalWidth
 }

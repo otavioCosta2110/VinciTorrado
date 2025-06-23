@@ -1,0 +1,30 @@
+[
+  {
+    "sprite": "assets/enemies/monster_man.png",
+    "X": 5000,
+    "Y": 500,
+    "width": 32,
+    "height": 32,
+    "health": 5,
+    "damage": 1,
+    "speed": 2,
+    "windUpTime": 500,
+    "scale": 4,
+    "weapon": {
+      "sprite": "assets/weapons/lightsaber.png",
+      "X": 500,
+      "Y": 500,
+      "width": 32,
+      "height": 32,
+      "scale": 4,
+      "offset_X": 9,
+      "offset_Y": 0,
+      "hitbox_X": 40,
+      "hitbox_Y": 0,
+      "stats": {
+        "damage": 3
+      },
+      "health": 3
+    }
+  }
+]

@@ -91,5 +91,15 @@
       "Sandwich"
     ],
     "type": "trash"
+  },
+  {
+    "X": 5000,
+    "Y": 250,
+    "width": 32,
+    "height": 32,
+    "scale": 4,
+    "type": "door",
+    "normal_texture": "assets/props/transparent.png",
+    "next_map": "transition"
   }
 ]

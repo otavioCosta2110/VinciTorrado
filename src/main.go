@@ -16,6 +16,7 @@ import (
 	"otaviocosta2110/vincitorrado/src/system"
 	"otaviocosta2110/vincitorrado/src/ui"
 	"otaviocosta2110/vincitorrado/src/weapon"
+	"sort"
 	"time"
 
 	"slices"
@@ -31,39 +32,41 @@ const (
 	playerSizeX  int32  = 32
 	playerSizeY  int32  = 32
 	MenuState           = iota
+	EndingState
 	GameOverState
 	GameRunningState
 
 	// feature flags
 	playerInfiniteLife bool   = false
-	oneHealthEnemies   bool   = true
-	enableMusic        bool   = false
-	enableSoundFxs     bool   = false
+	oneHealthEnemies   bool   = false
+	enableMusic        bool   = true
+	enableSoundFxs     bool   = true
 	skipCutscenes      bool   = true
-	startingMap        string = "city"
+	startingMap        string = "city" // "city", "bar", "transition", "lab", "gf_monster"
 )
 
 type GameState struct {
-	CurrentState      int
-	NeedsRestart      bool
-	StartMenu         *ui.StartMenu
-	Player            *player.Player
-	EnemyManager      *enemy.EnemyManager
-	Screen            *screen.Screen
-	Kickables         []physics.Kickable
-	Items             []*equipment.Equipment
-	Props             []*props.Prop
-	Weapons           []*weapon.Weapon
-	Menu              ui.Menu
-	Music             *string
-	Cutscene          *cutscene.Cutscene
-	Girlfriend        *girlfriend.Girlfriend
-	Doors             []*props.Door
-	MapManager        *maps.MapManager
-	Buildings         *rl.Texture2D
-	Chao              rl.Texture2D
-	FloorPath         string
-	CurrentMap        string
+	CurrentState int
+	NeedsRestart bool
+	StartMenu    *ui.StartMenu
+	Ending       *ui.StartMenu
+	Player       *player.Player
+	EnemyManager *enemy.EnemyManager
+	Screen       *screen.Screen
+	Kickables    []physics.Kickable
+	Items        []*equipment.Equipment
+	Props        []*props.Prop
+	Weapons      []*weapon.Weapon
+	Menu         ui.Menu
+	Music        *string
+	Cutscene     *cutscene.Cutscene
+	Girlfriend   *girlfriend.Girlfriend
+	Doors        []*props.Door
+	MapManager   *maps.MapManager
+	Buildings    *rl.Texture2D
+	Chao         rl.Texture2D
+	FloorPath    string
+	CurrentMap   string
 }
 
 func main() {
@@ -91,6 +94,38 @@ func main() {
 		PlayerStartX: 100,
 		PlayerStartY: 650,
 	}
+	mapManager.Maps["transition"] = &maps.GameMap{
+		Buildings:    "assets/scenes/predio_exploded.png",
+		Floor:        "assets/scenes/chao.png",
+		EnemiesPath:  "assets/enemies/enemyInfo/transition_enemies.json",
+		PropsPath:    "assets/props/transition_props.json",
+		PlayerStartX: 100,
+		PlayerStartY: 350,
+	}
+	mapManager.Maps["lab"] = &maps.GameMap{
+		Buildings:    "assets/scenes/crazy_lab.png",
+		Floor:        "assets/scenes/chao_lab.png",
+		EnemiesPath:  "assets/enemies/enemyInfo/3_00 enemyInfo.json",
+		PropsPath:    "assets/props/lab_props.json",
+		PlayerStartX: 100,
+		PlayerStartY: 650,
+	}
+	mapManager.Maps["gf_monster"] = &maps.GameMap{
+		Buildings:    "assets/scenes/gf_monster_scene.png",
+		Floor:        "assets/scenes/chao_lab.png",
+		EnemiesPath:  "assets/enemies/enemyInfo/gf_monster.json",
+		PropsPath:    "assets/props/gf_monster_props.json",
+		PlayerStartX: 100,
+		PlayerStartY: 650,
+	}
+	mapManager.Maps["last"] = &maps.GameMap{
+		Buildings:    "assets/scenes/last_scene.png",
+		Floor:        "assets/scenes/chao_lab.png",
+		EnemiesPath:  "assets/enemies/enemyInfo/last_enemy.json",
+		PropsPath:    "assets/props/last_props.json",
+		PlayerStartX: 100,
+		PlayerStartY: 650,
+	}
 
 	currentMap := mapManager.Maps[startingMap]
 
@@ -106,7 +141,9 @@ func main() {
 	defer audio.UnloadSounds()
 
 	startMenu := ui.NewStartMenu()
+	endingMenu := ui.NewEndingMenu()
 	defer rl.UnloadTexture(startMenu.BgTexture)
+	defer rl.UnloadTexture(endingMenu.BgTexture)
 
 	screen := screen.NewScreen(windowWidth, windowHeight, buildings.Width, buildings.Height, windowTitle)
 
@@ -213,6 +250,7 @@ func main() {
 		MapManager:   mapManager,
 		CurrentMap:   startingMap,
 		StartMenu:    startMenu,
+		Ending:       endingMenu,
 	}
 
 	transitionMap(&gameState, startingMap)
@@ -225,6 +263,9 @@ func gameLoop(gs *GameState) {
 
 	for !rl.WindowShouldClose() {
 		switch gs.CurrentState {
+		case EndingState:
+			audio.UpdateMusic(*gs.Music)
+			gs.Ending.DrawEndingMenu(gs.Screen)
 		case MenuState:
 			if gs.StartMenu.DrawStartMenu(gs.Screen) {
 				gs.CurrentState = GameRunningState
@@ -364,29 +405,16 @@ func draw(gs *GameState) {
 	drawTiledBackground(gs.Chao, gs.Screen.Camera, gs.Screen.Width, gs.Screen.Height)
 	drawBuildings(*gs.Buildings)
 
+	renderables := collectRenderables(gs)
+
+	sort.Slice(renderables, func(i, j int) bool {
+		return renderables[i].Layer < renderables[j].Layer
+	})
+
 	gs.EnemyManager.DrawDead()
-	for _, prop := range gs.Props {
-		prop.Draw()
-	}
-	for _, door := range gs.Doors {
-		door.Draw()
-	}
-	gs.EnemyManager.Draw()
-	gs.Player.Draw()
 
-	for _, item := range gs.Items {
-		if item.IsDropped {
-			item.DrawAnimated(&item.Object)
-		}
-	}
-	if gs.Girlfriend.IsActive() {
-		gs.Girlfriend.Draw()
-	}
-
-	for _, weapon := range gs.Weapons {
-		if weapon.IsDropped {
-			weapon.DrawAnimated()
-		}
+	for _, obj := range renderables {
+		obj.Draw()
 	}
 
 	var girlfriendBoss *enemy.Enemy
@@ -407,6 +435,9 @@ func draw(gs *GameState) {
 
 	ui.DrawLife(*gs.Screen, gs.Player)
 	gs.Menu.Draw()
+	if gs.Cutscene != nil && gs.Cutscene.IsPlaying() && gs.Cutscene.DrawBlackScreen {
+		rl.DrawRectangle(0, 0, gs.Screen.Width, gs.Screen.Height, rl.Black)
+	}
 
 	rl.EndDrawing()
 }
@@ -490,6 +521,9 @@ func transitionMap(gs *GameState, mapName string) {
 	*gs.Buildings = system.LoadScaledTexture(newMap.Buildings, playerScale)
 	gs.Chao = system.LoadScaledTexture(newMap.Floor, playerScale)
 
+	gs.Screen.ScenaryWidth = gs.Buildings.Width
+	gs.Screen.ScenaryWidth = gs.Buildings.Width
+
 	enemies, err := enemy.LoadEnemiesFromJSON(newMap.EnemiesPath, playerScale)
 	if err != nil {
 		panic("Failed to load enemies: " + err.Error())
@@ -505,6 +539,13 @@ func transitionMap(gs *GameState, mapName string) {
 		gs.EnemyManager.AddEnemy(e)
 	}
 	gs.Cutscene = cutscene.NewCutscene()
+
+	props, doors, err := props.LoadPropsFromJSON(newMap.PropsPath, gs.Items)
+	if err != nil {
+		panic("Failed to load props: " + err.Error())
+	}
+	gs.Props = props
+	gs.Doors = doors
 
 	switch gs.CurrentMap {
 	case "city":
@@ -523,14 +564,42 @@ func transitionMap(gs *GameState, mapName string) {
 		gs.Music = &music
 		audio.StopMusic()
 		audio.PlayMission2Music()
+	case "transition":
+		music := "mission1"
+		if !skipCutscenes {
+			gs.Cutscene.Transition(gs.Player, gs.Girlfriend, gs.EnemyManager)
+			gs.Cutscene.Start()
+		}
+		gs.Music = &music
+		audio.StopMusic()
+		audio.PlayMission2Music()
+	case "lab":
+		music := "mission3"
+		gs.Music = &music
+		gs.Girlfriend.SetActive(false)
+		audio.StopMusic()
+		audio.PlayMission3Music()
+	case "gf_monster":
+		music := "gf_battle"
+		if !skipCutscenes {
+			gs.Cutscene.GfMonster(gs.Player, gs.Girlfriend, gs.EnemyManager, gs.Props)
+			gs.Cutscene.Start()
+		}
+		gs.Music = &music
+		gs.Girlfriend.SetActive(false)
+		audio.StopMusic()
+		audio.PlayGfBattleMusic()
+	case "last":
+		music := "ending"
+		if !skipCutscenes {
+			gs.Cutscene.Doctor(gs.Player, gs.Girlfriend, gs.EnemyManager, &gs.CurrentState)
+			gs.Cutscene.Start()
+		}
+		gs.Music = &music
+		gs.Girlfriend.SetActive(false)
+		audio.StopMusic()
+		audio.PlayEndingMusic()
 	}
-
-	props, doors, err := props.LoadPropsFromJSON(newMap.PropsPath, gs.Items)
-	if err != nil {
-		panic("Failed to load props: " + err.Error())
-	}
-	gs.Props = props
-	gs.Doors = doors
 
 	gs.Player.Object.X = newMap.PlayerStartX
 	gs.Player.Object.Y = newMap.PlayerStartY
@@ -542,3 +611,76 @@ func transitionMap(gs *GameState, mapName string) {
 	}
 }
 
+type renderableObject struct {
+	Object *system.Object
+	Draw   func()
+	Layer  int32
+}
+
+func collectRenderables(gs *GameState) []renderableObject {
+	var renderables []renderableObject
+
+	for _, prop := range gs.Props {
+		renderables = append(renderables, renderableObject{
+			Object: &prop.Object,
+			Draw:   prop.Draw,
+			Layer:  prop.Layer,
+		})
+	}
+
+	for _, door := range gs.Doors {
+		renderables = append(renderables, renderableObject{
+			Object: &door.Object,
+			Draw:   door.Draw,
+			Layer:  door.Layer,
+		})
+	}
+
+	if !gs.Player.Object.Destroyed {
+		renderables = append(renderables, renderableObject{
+			Object: &gs.Player.Object,
+			Draw:   gs.Player.Draw,
+			Layer:  gs.Player.Object.Layer,
+		})
+	}
+
+	for _, enemy := range gs.EnemyManager.Enemies {
+		if !enemy.Object.Destroyed {
+			renderables = append(renderables, renderableObject{
+				Object: &enemy.Object,
+				Draw:   enemy.Draw,
+				Layer:  enemy.Object.Layer,
+			})
+		}
+	}
+
+	if gs.Girlfriend.IsActive() {
+		renderables = append(renderables, renderableObject{
+			Object: &gs.Girlfriend.Object,
+			Draw:   gs.Girlfriend.Draw,
+			Layer:  gs.Girlfriend.Object.Layer,
+		})
+	}
+
+	for _, item := range gs.Items {
+		if item.IsDropped {
+			renderables = append(renderables, renderableObject{
+				Object: item.GetObject(),
+				Draw:   func() { item.DrawAnimated(item.GetObject()) },
+				Layer:  item.Object.Layer,
+			})
+		}
+	}
+
+	for _, weapon := range gs.Weapons {
+		if weapon.IsDropped {
+			renderables = append(renderables, renderableObject{
+				Object: weapon.Object,
+				Draw:   weapon.DrawAnimated,
+				Layer:  weapon.Object.Layer,
+			})
+		}
+	}
+
+	return renderables
+}

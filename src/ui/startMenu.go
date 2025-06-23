@@ -16,6 +16,12 @@ func NewStartMenu() *StartMenu {
 	}
 }
 
+func NewEndingMenu() *StartMenu {
+	return &StartMenu{
+		BgTexture: rl.LoadTexture("assets/ui/ending.png"),
+	}
+}
+
 func (sm *StartMenu) DrawStartMenu(screen *screen.Screen) bool {
 	rl.BeginDrawing()
 	defer rl.EndDrawing()
@@ -43,7 +49,7 @@ func (sm *StartMenu) DrawStartMenu(screen *screen.Screen) bool {
 	rl.DrawTexturePro(
 		sm.BgTexture,
 		cropRect,
-		rl.NewRectangle(0, 0, screenWidth, screenHeight), 
+		rl.NewRectangle(0, 0, screenWidth, screenHeight),
 		rl.NewVector2(0, 0),
 		0,
 		rl.White,
@@ -87,4 +93,55 @@ func (sm *StartMenu) DrawStartMenu(screen *screen.Screen) bool {
 		controlsFontSize, rl.LightGray)
 
 	return rl.IsKeyPressed(rl.KeyEnter)
+}
+
+func (sm *StartMenu) DrawEndingMenu(screen *screen.Screen) {
+	rl.BeginDrawing()
+	defer rl.EndDrawing()
+
+	rl.ClearBackground(rl.Black)
+
+	screenWidth := float32(screen.Width)
+	screenHeight := float32(screen.Height)
+
+	bgWidth := float32(sm.BgTexture.Width)
+	bgHeight := float32(sm.BgTexture.Height)
+
+	cropRect := rl.NewRectangle(0, 0, bgWidth, bgHeight)
+
+	if bgWidth > screenWidth {
+		cropRect.X = (bgWidth - screenWidth) / 2
+		cropRect.Width = screenWidth
+	}
+
+	if bgHeight > screenHeight {
+		cropRect.Y = (bgHeight - screenHeight) / 2
+		cropRect.Height = screenHeight
+	}
+
+	rl.DrawTexturePro(
+		sm.BgTexture,
+		cropRect,
+		rl.NewRectangle(0, 0, screenWidth, screenHeight),
+		rl.NewVector2(0, 0),
+		0,
+		rl.White,
+	)
+
+	rl.DrawRectangle(0, 0, int32(screenWidth), int32(screenHeight), rl.NewColor(0, 0, 0, 180))
+
+	title := "The End"
+
+	titleFontSize := int32(72)
+
+	titleWidth := rl.MeasureText(title, titleFontSize)
+
+	rl.DrawText(title,
+		screen.Width/2-titleWidth/2+2,
+		screen.Height/2-titleFontSize+2,
+		titleFontSize, rl.Black)
+	rl.DrawText(title,
+		screen.Width/2-titleWidth/2,
+		screen.Height/2-titleFontSize,
+		titleFontSize, rl.White)
 }

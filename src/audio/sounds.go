@@ -16,9 +16,13 @@ var (
 	ExplosionSound          rl.Sound
 	GfRunningSound          rl.Sound
 	GfHittingWall           rl.Sound
+	GlassBreakingSound      rl.Sound
 
 	FullBellyMusic rl.Music
 	Mission2Music  rl.Music
+	Mission3Music  rl.Music
+	GfBattleMusic  rl.Music
+	EndingMusic    rl.Music
 )
 
 func LoadSounds() {
@@ -34,10 +38,14 @@ func LoadSounds() {
 	ExplosionSound = rl.LoadSound("assets/sounds/explosion.mp3")
 	GfRunningSound = rl.LoadSound("assets/sounds/gf_running.mp3")
 	GfHittingWall = rl.LoadSound("assets/sounds/gf_hitting_wall.mp3")
+	GlassBreakingSound = rl.LoadSound("assets/sounds/glass_breaking.mp3")
 
 	Mission1Music = rl.LoadMusicStream("assets/sounds/mission1.mp3")
 	FullBellyMusic = rl.LoadMusicStream("assets/sounds/music_fullbelly.mp3")
 	Mission2Music = rl.LoadMusicStream("assets/sounds/mission2.mp3")
+	Mission3Music = rl.LoadMusicStream("assets/sounds/mission3.mp3")
+	EndingMusic = rl.LoadMusicStream("assets/sounds/ending.mp3")
+	GfBattleMusic = rl.LoadMusicStream("assets/sounds/gf_battle.mp3")
 }
 
 func UnloadSounds() {
@@ -52,14 +60,21 @@ func UnloadSounds() {
 	rl.UnloadSound(BombBippingSound)
 	rl.UnloadSound(GfRunningSound)
 	rl.UnloadSound(GfHittingWall)
+	rl.UnloadSound(GlassBreakingSound)
 
 	rl.UnloadMusicStream(Mission1Music)
 	rl.UnloadMusicStream(Mission2Music)
+	rl.UnloadMusicStream(Mission3Music)
 	rl.UnloadMusicStream(FullBellyMusic)
+	rl.UnloadMusicStream(EndingMusic)
+	rl.UnloadMusicStream(GfBattleMusic)
 }
 
 func UnloadMusic() {
 	rl.UnloadMusicStream(Mission1Music)
 	rl.UnloadMusicStream(FullBellyMusic)
 	rl.UnloadMusicStream(Mission2Music)
+	rl.UnloadMusicStream(Mission3Music)
+	rl.UnloadMusicStream(EndingMusic)
+	rl.UnloadMusicStream(GfBattleMusic)
 }

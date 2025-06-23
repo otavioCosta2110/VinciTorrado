@@ -24,12 +24,33 @@ func PlayMission2Music() {
 	rl.SetMusicVolume(Mission2Music, 0.5)
 }
 
+func PlayMission3Music() {
+	rl.PlayMusicStream(Mission3Music)
+	rl.SetMusicVolume(Mission3Music, 0.5)
+}
+
+func PlayEndingMusic() {
+	rl.PlayMusicStream(EndingMusic)
+	rl.SetMusicVolume(EndingMusic, 0.5)
+}
+
+func PlayGfBattleMusic() {
+	rl.PlayMusicStream(GfBattleMusic)
+	rl.SetMusicVolume(GfBattleMusic, 0.5)
+}
+
 func UpdateMusic(music string) {
 	switch music {
 	case "mission1":
 		rl.UpdateMusicStream(Mission1Music)
 	case "mission2":
 		rl.UpdateMusicStream(Mission2Music)
+	case "mission3":
+		rl.UpdateMusicStream(Mission3Music)
+	case "ending":
+		rl.UpdateMusicStream(EndingMusic)
+	case "gf_battle":
+		rl.UpdateMusicStream(GfBattleMusic)
 	case "full_belly":
 		rl.UpdateMusicStream(FullBellyMusic)
 	}
@@ -83,11 +104,11 @@ func PlayExplosionSound() {
 }
 
 func PauseBombBippingSound() {
-    rl.PauseSound(BombBippingSound)
+	rl.PauseSound(BombBippingSound)
 }
 
 func ResumeBombBippingSound() {
-    rl.ResumeSound(BombBippingSound)
+	rl.ResumeSound(BombBippingSound)
 }
 
 func PlayGfRunningSound() {
@@ -96,6 +117,10 @@ func PlayGfRunningSound() {
 
 func PlayGfHittingWall() {
 	rl.PlaySound(GfHittingWall)
+}
+
+func PlayGlassBreakingSound() {
+	rl.PlaySound(GlassBreakingSound)
 }
 
 func StopGfRunningSound() {

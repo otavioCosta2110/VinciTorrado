@@ -1,0 +1,15 @@
+[
+  {
+    "sprite": "assets/enemies/jideao.png",
+    "X": 1100,
+    "Y": 500,
+    "width": 32,
+    "height": 32,
+    "health": 1,
+    "damage": 0,
+    "speed": 0,
+    "windUpTime": 200,
+    "scale": 4,
+    "type": "jideao"
+  }
+]

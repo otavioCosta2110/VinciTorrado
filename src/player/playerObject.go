@@ -45,6 +45,7 @@ func NewPlayer(x, y, width, height, speed, maxHealth, scale int32, sprite sprite
 				Sprite:        sprite,
 				Scale:         scale,
 				Flipped:       false,
+				Layer:         1,
 			},
 			Speed:           speed,
 			MaxHealth:       maxHealth,
