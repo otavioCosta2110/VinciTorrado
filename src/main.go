@@ -37,12 +37,12 @@ const (
 	GameRunningState
 
 	// feature flags
-	playerInfiniteLife bool   = true
+	playerInfiniteLife bool   = false
 	oneHealthEnemies   bool   = false
 	enableMusic        bool   = true
 	enableSoundFxs     bool   = true
 	skipCutscenes      bool   = false
-	startingMap        string = "gf_monster" // "city", "bar", "transition", "lab", "gf_monster"
+	startingMap        string = "city" // "city", "bar", "transition", "lab", "gf_monster"
 )
 
 type GameState struct {
