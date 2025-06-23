@@ -7,7 +7,7 @@
     "activate_pos_Y": 0,
     "width": 64,
     "height": 64,
-    "health": 50,
+    "health": 40,
     "damage": 1,
     "speed": 7,
     "windUpTime": 200,

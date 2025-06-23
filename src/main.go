@@ -41,8 +41,8 @@ const (
 	oneHealthEnemies   bool   = false
 	enableMusic        bool   = true
 	enableSoundFxs     bool   = true
-	skipCutscenes      bool   = false
-	startingMap        string = "city" // "city", "bar", "transition", "lab", "gf_monster"
+	skipCutscenes      bool   = true
+	startingMap        string = "gf_monster" // "city", "bar", "transition", "lab", "gf_monster"
 )
 
 type GameState struct {
@@ -520,6 +520,9 @@ func transitionMap(gs *GameState, mapName string) {
 
 	*gs.Buildings = system.LoadScaledTexture(newMap.Buildings, playerScale)
 	gs.Chao = system.LoadScaledTexture(newMap.Floor, playerScale)
+
+	gs.Screen.ScenaryWidth = gs.Buildings.Width
+	gs.Screen.ScenaryWidth = gs.Buildings.Width
 
 	enemies, err := enemy.LoadEnemiesFromJSON(newMap.EnemiesPath, playerScale)
 	if err != nil {
